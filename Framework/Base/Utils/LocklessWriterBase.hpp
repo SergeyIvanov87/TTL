@@ -142,5 +142,7 @@ inline size_t LocklessWriterBase<TEMPLATE_ARGS_LIST_DEF>::writeDataMultithreaded
     return res;
 }
 
+#undef TEMPLATE_ARGS_LIST_DECL
+#undef TEMPLATE_ARGS_LIST_DEF
 #endif /* LOCKESSWRITERBASE_HPP */
 
