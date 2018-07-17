@@ -11,7 +11,7 @@
 #include <memory>
 #include "../EventIDsDeclaration.h"
 #include "EventIdModifierSpecific.h"
-#include "Framework/Base/EventFramework/Interfaces/IBaseEvent.h"
+#include "Framework/EventFramework/Interfaces/IBaseEvent.h"
     enum class KeyboardSpecialButton
     {
         F1 = GLUT_KEY_F1,

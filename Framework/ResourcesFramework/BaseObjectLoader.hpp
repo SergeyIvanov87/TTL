@@ -89,8 +89,7 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::deserialize(const std::stri
                 << LOG4CPLUS_TEXT("/")
                 << tmpDirectory);
 
-            throw Errors::FileOpenError(std::string(curDir) + getResourceTreePath() + tmpDirectory, errno);
-            break;
+            throw urc::FileOpenError(std::string(curDir) + getResourceTreePath() + tmpDirectory, errno);
         }
 
         //open file for reading
@@ -104,8 +103,7 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::deserialize(const std::stri
             if(!fileIn.is_open())
             {
                 LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Cannot open file for reading: ") << strerror(errno));
-                throw Errors::FileOpenError(fileName, errno);
-                break;
+                throw urc::FileOpenError(fileName, errno);
             }
             result = resource->deserialize(fileIn);
             fileIn.close();
@@ -161,8 +159,7 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::serialize(
                     << LOG4CPLUS_TEXT("/")
                     << tmpDirectory);
 
-                throw Errors::FileOpenError(std::string(curDir) + getResourceTreePath() + tmpDirectory, errno);
-                break;
+                throw urc::FileOpenError(std::string(curDir) + getResourceTreePath() + tmpDirectory, errno);
             }
         }
 
@@ -178,8 +175,7 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::serialize(
             if(!fileOut.is_open())
             {
                 LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Cannot open file for writing"));
-                throw Errors::FileOpenError(fileName, errno);
-                break;
+                throw urc::FileOpenError(fileName, errno);
             }
             LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Object size before serialize: ") << sizeof(*resource));
             result = resource->serialize(fileOut);
@@ -258,7 +254,7 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::loadResources()
                 });
             }
         }
-        catch( const Errors::SystemError &exception)
+        catch( const urc::SystemError &exception)
         {
             LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Exception error: ") << exception.m_errorCode <<
                                     LOG4CPLUS_TEXT(" description: ") << exception.m_description);
@@ -365,7 +361,7 @@ bool BaseObjectLoader<ResourceHolder, system_info_dummy_path>::loadResources()
         res = ResourceClassType::loadResourcesImpl();
         loadedObjectResources.insert(res.begin(), res.end());
     }
-    catch( const Errors::SystemError &exception)
+    catch( const urc::SystemError &exception)
     {
         LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Exception error: ") << exception.m_errorCode <<
                                 LOG4CPLUS_TEXT(" description: ") << exception.m_description);

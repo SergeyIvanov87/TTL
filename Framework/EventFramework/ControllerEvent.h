@@ -2,7 +2,7 @@
 #define CONTROLLER_EVENT_H
 
 #include <variant>
-#include "../Utils/CTimeUtils.h"
+#include "Framework/Utils/CTimeUtils.h"
 
 #include "FrameworkSpecializations/EventFrameworkSpecialization/EventTypesDeclaration.h"
 #include "EventTypeTraitsDeclaration.h"

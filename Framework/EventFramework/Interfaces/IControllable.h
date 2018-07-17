@@ -2,10 +2,10 @@
 #define ICONTROLLABLE
 
 #include <functional>
-#include "../../Utils/ErrorCodes.h"
+#include "Framework/Utils/UnifiedResultCodes.h"
 #include "IEventSpecificControllable.h"
-#include "../../Utils/CTimeUtils.h"
-#include "../../Resources/Visitor.h"
+#include "Framework/Utils/CTimeUtils.h"
+#include "Framework/Utils/Visitor.h"
 
 
 namespace Resources
@@ -20,9 +20,9 @@ namespace Resources
 template <class ControllableImp, class ...RegisteredEvents>
 class IControllable :
                     public ISpecificControllable<ControllableImp, RegisteredEvents>...,
-                    public Resources::Visitor<
-                                            IControllable<ControllableImp,RegisteredEvents...>
-                                            >
+                    public Visitor<
+                                    IControllable<ControllableImp,RegisteredEvents...>
+                                    >
 {
     typedef std::tuple<ISpecificControllable<ControllableImp, RegisteredEvents>...> SpecificControllables;
 public:
@@ -40,7 +40,7 @@ public:
     RegisteredObserverEventTypes getRegisteredControlEvents() const;
 
     //Filter event by registered type and route processing into base classes
-    Errors::ErrorDescription onProcessEventDispatcher(ObserverEvent &event, bool notFilteredEvent = true);
+    urc::ResultDescription onProcessEventDispatcher(ObserverEvent &event, bool notFilteredEvent = true);
 
 
 

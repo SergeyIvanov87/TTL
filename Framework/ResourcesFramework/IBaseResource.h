@@ -6,8 +6,9 @@
 #include <memory>
 #include <log4cplus/logger.h>
 #include <log4cplus/loggingmacros.h>
+
 #include "ResourcesTypes.h"
-#include "../Utils/ErrorCodes.h"
+#include "Framework/Utils/UnifiedResultCodes.h"
 
 namespace Resources
 {

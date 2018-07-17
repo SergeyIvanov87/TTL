@@ -32,7 +32,7 @@ public:
     static void reSubscribeOnControlEvents(const EventCtrlDataToCommandStorageMapType &event);
 
     //static interface
-    Errors::ErrorDescription onSpecificProcessEvent(ProcessingEventType &event);
+    urc::ResultDescription onSpecificProcessEvent(ProcessingEventType &event);
 
     static const ProcessingEventType &getSpecificEvent(const ObserverEvent &event);
     static ProcessingEventType &getSpecificEvent(ObserverEvent &event);

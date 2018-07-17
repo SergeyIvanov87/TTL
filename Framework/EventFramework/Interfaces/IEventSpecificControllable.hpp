@@ -19,14 +19,14 @@ void ISpecificControllable<T_ARGS_DEF>::reSubscribeOnControlEvents(const EventCt
 }
 //static interface
 template <T_ARGS_DECL>
-Errors::ErrorDescription ISpecificControllable<T_ARGS_DEF>::onSpecificProcessEvent(ProcessingEventType &specificEvent)
+urc::ResultDescription ISpecificControllable<T_ARGS_DEF>::onSpecificProcessEvent(ProcessingEventType &specificEvent)
 {
     //check filter event by id
     auto it = m_Event2ControlEventCommands.data().find(specificEvent.getEventTypeSubscriptionData());
     if(it == m_Event2ControlEventCommands.data().end())
     {
         //skip
-        return Errors::ErrorDescription();
+        return urc::ResultDescription();
     }
 
     //process event call for ControllableImp

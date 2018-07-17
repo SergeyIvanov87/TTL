@@ -1,7 +1,7 @@
 #ifndef CONTROLLER_EVENT_SPECIFIC_DECL_H
 #define CONTROLLER_EVENT_SPECIFIC_DECL_H
 
-#include "Framework/Base/EventFramework/ControllerEvent.hpp"
+#include "Framework/EventFramework/ControllerEvent.hpp"
 
 //Specific event type Declaration
 using ObserverEvent = CommonControllerEvent<

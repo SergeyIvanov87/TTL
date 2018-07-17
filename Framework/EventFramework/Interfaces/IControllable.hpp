@@ -76,11 +76,11 @@ typename IControllable<T_ARGS_DEF>::RegisteredObserverEventTypes
 }
 
 template <T_ARGS_DECL>
-Errors::ErrorDescription
+urc::ResultDescription
     IControllable<T_ARGS_DEF>::onProcessEventDispatcher(ObserverEvent &event, bool notFilteredEvent/* = true*/)
 {
     ControlEventID eventType = event.getEventType();
-    Errors::ErrorDescription retCode;
+    urc::ResultDescription retCode;
     CTimeUtils::for_each_type_in_tuple_traits<SpecificControllables>([this, &retCode, &event, eventType](auto &&typeTraitsInfo)
     {
         auto ret = typeTraitsInfo;

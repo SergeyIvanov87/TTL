@@ -11,7 +11,7 @@
 #include <memory>
 #include "../EventIDsDeclaration.h"
 #include "EventIdModifierSpecific.h"
-#include "Framework/Base/EventFramework/Interfaces/IBaseEvent.hpp"
+#include "Framework/EventFramework/Interfaces/IBaseEvent.hpp"
 
 
     enum class MouseButton
