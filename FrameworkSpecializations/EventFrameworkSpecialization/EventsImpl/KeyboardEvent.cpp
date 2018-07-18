@@ -1,6 +1,7 @@
 #include <utility>
 #include <algorithm>
 #include "KeyboardEvent.h"
+#include "Framework/Utils/Utils.h"
 #include "Framework/EventFramework/Interfaces/IBaseEvent.hpp"
 
     //helpers conversion functions

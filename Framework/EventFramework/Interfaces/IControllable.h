@@ -6,12 +6,8 @@
 #include "IEventSpecificControllable.h"
 #include "Framework/Utils/CTimeUtils.h"
 #include "Framework/Utils/Visitor.h"
+#include <Framework/Utils/LogTracer.h>
 
-
-namespace Resources
-{
-    class ModelFileDescription;
-}
 /*
  * All event type processor static interface
  * Used for routing especially registered event types to ISpecificControllable,
@@ -32,8 +28,8 @@ public:
     using ControlEventMultiTypesStorage = ControlEventMultiTypesStorageConfiguration<RegisteredEvents...>;
     using RegisteredObserverEventTypes = std::array<ControlEventID, sizeof...(RegisteredEvents)>;
 
-    template <class ResourceProvider>
-    void loadControlEvents(ResourceProvider &provider);
+    template <class ResourceProvider, class UsedTracer = Tracer<EmptyTracerImpl>>
+    void loadControlEvents(ResourceProvider &provider, UsedTracer tracer = UsedTracer());
     //Filter event by registered type and route subscription into base classes
     void subscribeOnControlEvents(const ControlEventMultiTypesStorage &events);
     void reSubscribeOnControlEvents(const ControlEventMultiTypesStorage &events);
@@ -43,8 +39,10 @@ public:
     urc::ResultDescription onProcessEventDispatcher(ObserverEvent &event, bool notFilteredEvent = true);
 
 
-
+/*
     //Visitor interface
+    template<class Configurator>
     void visitImpl(const Resources::ModelFileDescription *visitedObjectModelDescription);
+*/
 };
 #endif

@@ -7,14 +7,15 @@
 #define T_ARGS_DEF       ControllableImp, RegisteredEvents...
 
 template <T_ARGS_DECL>
-template <class ResourceProvider>
+template <class ResourceProvider, class UsedTracer>
 void
-    IControllable<T_ARGS_DEF>::loadControlEvents( ResourceProvider &provider)
+    IControllable<T_ARGS_DEF>::loadControlEvents( ResourceProvider &provider, UsedTracer tracer)
 {
-    //TODO
-    provider.accept(this);
+    ControlEventMultiTypesStorage ret;
+    provider.fillControllerEventsByMultiTypes(ret, tracer);
+    subscribeOnControlEvents(ret);
 }
-
+/*
 template <T_ARGS_DECL>
 void
     IControllable<T_ARGS_DEF>::visitImpl(const Resources::ModelFileDescription *visitedObjectModelDescription)
@@ -24,7 +25,7 @@ void
     visitedObjectModelDescription->fillControllerEventsByMultiTypes(ret);
     subscribeOnControlEvents(ret);
 }
-
+*/
 
 template <T_ARGS_DECL>
 void

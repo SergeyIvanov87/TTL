@@ -16,8 +16,8 @@ struct A : public ISerializable<A>
     //Impl
     bool serializeImpl(std::ostream &out)
     {
-    serializeParams(out, txt, num, doubleVector);
-    return true;
+        serializeParams(out, txt, num, doubleVector);
+        return true;
     }
     bool deserializeImpl(std::istream &out)
     {
@@ -35,6 +35,7 @@ struct B : public ISerializable<B>
 
     //No Impl
 };
+
 int main(int argc, char *argv[])
 {
     A a;
