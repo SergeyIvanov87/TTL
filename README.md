@@ -60,6 +60,14 @@ Collection of usefull C++ templates utils, based on Mix-in classes concepts(http
 
       //No Impl, default stub behavior
     };
-
+    
+    //USAGE: Somewhere in code...
+    A a;
+    ...
+    std::stringstream ss;
+    a.serialize(ss);
+    ...
+    A aDup;
+    aDup.deserialize(ss);
 It's looked: Short, pretty, extendable!
 
