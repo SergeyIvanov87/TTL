@@ -3,7 +3,6 @@
 #include <unordered_map>
 #include <map>
 #include "../EventTypeTraitsDeclaration.h"
-//#include "FrameworkSpecializations/EventFrameworkSpecialization/EventFrameworkSpecializationExport.h"
 
 /*
  * Specific event type processor static interface.

@@ -55,7 +55,8 @@ bool globalTestFlag_eventReceived = false;
 struct EventSubscriber :
         public IControllable
                             <
-/*Events for monitoring ---> */EventSubscriber, MouseEvent, KeyboardEvent, TestEvent
+/*Events for monitoring ---> */EventSubscriber, MouseEvent, KeyboardEvent
+//TODO UNCOMMENT not compile, TestEvent
                             >
 {
     //Specific processing event methods, based on event type
