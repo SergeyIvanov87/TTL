@@ -1,5 +1,16 @@
+#ifndef IEVENTSPECIFICCONTROLLABLE_HPP
+#define IEVENTSPECIFICCONTROLLABLE_HPP
+#include "../ControllerEvent.h"
+#include "IEventSpecificControllable.h"
+
 #define T_ARGS_DECL         class ControllableImp, class RegisteredEvent
 #define T_ARGS_DEF          ControllableImp, RegisteredEvent
+
+template <T_ARGS_DECL>
+constexpr ControlEventID ISpecificControllable<T_ARGS_DEF>::getRegisteredEventType()
+{
+    return RegisteredEvent::getControlEventID();
+}
 
 template <T_ARGS_DECL>
 void ISpecificControllable<T_ARGS_DEF>::subscribeOnControlEvents(const EventCtrlDataToCommandStorageMapType &events)
@@ -34,18 +45,21 @@ urc::ResultDescription ISpecificControllable<T_ARGS_DEF>::onSpecificProcessEvent
 }
 
 template <T_ARGS_DECL>
+template <class ...AllEventTypes>
 const typename ISpecificControllable<T_ARGS_DEF>::ProcessingEventType &
-    ISpecificControllable<T_ARGS_DEF>::getSpecificEvent(const ObserverEvent &event)
+    ISpecificControllable<T_ARGS_DEF>::getSpecificEvent(const CommonControllerEvent<AllEventTypes...> &event)
 {
     return *(std::get<ProcessingEventTypeUniquePtr>(event.m_eventHolder));
 }
 
 template <T_ARGS_DECL>
+template <class ...AllEventTypes>
 typename ISpecificControllable<T_ARGS_DEF>::ProcessingEventType &
-        ISpecificControllable<T_ARGS_DEF>::getSpecificEvent(ObserverEvent &event)
+        ISpecificControllable<T_ARGS_DEF>::getSpecificEvent(CommonControllerEvent<AllEventTypes...> &event)
 {
     return *(std::get<ProcessingEventTypeUniquePtr>(event.m_eventHolder));
 }
 
 #undef T_ARGS_DECL
 #undef T_ARGS_DEF
+#endif

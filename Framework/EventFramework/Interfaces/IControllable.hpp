@@ -2,6 +2,7 @@
 #define ICONTROLLABLE_HPP
 
 #include "IControllable.h"
+#include "IEventSpecificControllable.hpp"
 
 #define T_ARGS_DECL      class ControllableImp, class ...RegisteredEvents
 #define T_ARGS_DEF       ControllableImp, RegisteredEvents...
@@ -77,8 +78,9 @@ typename IControllable<T_ARGS_DEF>::RegisteredObserverEventTypes
 }
 
 template <T_ARGS_DECL>
+template <class ...AllEventTypes>
 urc::ResultDescription
-    IControllable<T_ARGS_DEF>::onProcessEventDispatcher(ObserverEvent &event, bool notFilteredEvent/* = true*/)
+    IControllable<T_ARGS_DEF>::onProcessEventDispatcher(CommonControllerEvent<AllEventTypes...> &event, bool notFilteredEvent/* = true*/)
 {
     ControlEventID eventType = event.getEventType();
     urc::ResultDescription retCode;

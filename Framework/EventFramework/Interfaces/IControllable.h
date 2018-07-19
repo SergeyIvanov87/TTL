@@ -8,6 +8,9 @@
 #include "Framework/Utils/Visitor.h"
 #include <Framework/Utils/LogTracer.h>
 
+template<class ...AllEventTypes>
+class CommonControllerEvent;
+
 /*
  * All event type processor static interface
  * Used for routing especially registered event types to ISpecificControllable,
@@ -36,7 +39,8 @@ public:
     RegisteredObserverEventTypes getRegisteredControlEvents() const;
 
     //Filter event by registered type and route processing into base classes
-    urc::ResultDescription onProcessEventDispatcher(ObserverEvent &event, bool notFilteredEvent = true);
+    template <class ...AllEventTypes>
+    urc::ResultDescription onProcessEventDispatcher(CommonControllerEvent<AllEventTypes...> &event, bool notFilteredEvent = true);
 
 
 /*

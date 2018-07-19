@@ -1,6 +1,7 @@
 #ifndef CONTROLLER_EVENT_CMDS_SPECIFIC_DECLARATION_H
 #define CONTROLLER_EVENT_CMDS_SPECIFIC_DECLARATION_H
 
+//TODO remove  ControlEventCMD -- make specific
 enum class ControlEventCMD
 {
     EMPTY,
@@ -10,6 +11,9 @@ enum class ControlEventCMD
     STRAFE_RIGHT,
 
     LOOK,
+
+    //TODO
+    TEID_1_CMD,
     CREATE_GAME_OBJECT,
     MAX_CONTROL_EVENT_TYPE
 };
@@ -58,6 +62,7 @@ inline constexpr const char *
                     "LOOK_RIGHT",
                     */
                     "LOOK",
+                    "TEID_1_CMD",
                     "CREATE_GAME_OBJECT"};
     static_assert(sizeof(strings)/sizeof(strings[0]) == ControlEventCMD::MAX_CONTROL_EVENT_TYPE);
     return strings[static_cast<int>(ceventType)];
@@ -79,6 +84,7 @@ inline ControlEventCMD
                     "LOOK_RIGHT",
                     */
                     "LOOK",
+                    "TEID_1_CMD",
                     "CREATE_GAME_OBJECT"};
     static_assert(sizeof(strings)/sizeof(strings[0]) == ControlEventCMD::MAX_CONTROL_EVENT_TYPE);
 

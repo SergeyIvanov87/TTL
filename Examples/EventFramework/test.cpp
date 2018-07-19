@@ -2,12 +2,14 @@
 #include <iostream>
 #include <map>
 
-#include "FrameworkSpecializations/EventFrameworkSpecialization/EventFrameworkSpecializationExport.h"
-#include "Framework/EventFramework/Interfaces/IControllable.hpp"
-#include "Framework/EventFramework/Interfaces/IEventConfigurator.hpp"
+#include "Framework/EventFramework/EventFramework.h"
+
+//specific events
+#include "FrameworkSpecializations/EventFrameworkSpecialization/EventsImpl/MouseEvent.h"
+#include "FrameworkSpecializations/EventFrameworkSpecialization/EventsImpl/KeyboardEvent.h"
+#include "CustomEvent.h"
 
 //g++ -std=c++17 test.cpp ../../FrameworkSpecializations/EventFrameworkSpecialization/EventsImpl/KeyboardEvent.cpp -I/home/user/microcontroller/git_hub/TTL/
-
 
 //Just Stub configurator...
 struct Configurator :
@@ -53,7 +55,7 @@ bool globalTestFlag_eventReceived = false;
 struct EventSubscriber :
         public IControllable
                             <
-/*Events for monitoring ---> */EventSubscriber, MouseEvent, KeyboardEvent
+/*Events for monitoring ---> */EventSubscriber, MouseEvent, KeyboardEvent, TestEvent
                             >
 {
     //Specific processing event methods, based on event type
@@ -73,12 +75,20 @@ struct EventSubscriber :
         globalTestFlag_eventReceived = true;
         return urc::ResultDescription();
     }
+    urc::ResultDescription processSpecificEvent(const TestEvent &event, ControlEventCMD type)
+    {
+        std::cout << __PRETTY_FUNCTION__ << event.toString() << std::endl;
+
+        //set flag for received event
+        globalTestFlag_eventReceived = true;
+        return urc::ResultDescription();
+    }
 };
 
 int main(int argc, char ** argv)
 {
     Configurator conf;
-    conf.configurationMap.insert({"ControllableEvents", "KEYBOARD_EVENT,MOUSE_EVENT"});
+    conf.configurationMap.insert({"ControllableEvents", "KEYBOARD_EVENT,MOUSE_EVENT,TestEvent"});
     conf.configurationMap.insert({"KEYBOARD_EVENT", "MOVE_FORWARD,MOVE_BACKWARD,STRAFE_LEFT,STRAFE_RIGHT"});
     conf.configurationMap.insert({"MOVE_FORWARD", "w"});
     conf.configurationMap.insert({"MOVE_BACKWARD", "s"});
@@ -86,7 +96,10 @@ int main(int argc, char ** argv)
     conf.configurationMap.insert({"STRAFE_RIGHT", "d"});
     conf.configurationMap.insert({"MOUSE_EVENT", "LOOK"});
     conf.configurationMap.insert({"LOOK", "MOUSE_MOVE"});
+    conf.configurationMap.insert({"TestEvent", "TEID_1_CMD"});
+    conf.configurationMap.insert({"TEID_1_CMD", "TEID_1"});
 
+    using EventFramework = EventFrameworkFactory<MouseEvent, KeyboardEvent, TestEvent>;
     EventSubscriber t;
 
     //logger
@@ -99,7 +112,7 @@ int main(int argc, char ** argv)
 
     //Make test
     {
-        auto event = createControllerEvent<MouseEvent>(
+        auto event = EventFramework::createControllerEvent<MouseEvent>(
                                 0.0f, 0.0f,
                                 (int)MouseButton::MOUSE_MOVE,
                                 0,
@@ -111,7 +124,7 @@ int main(int argc, char ** argv)
     }
 
     {
-        auto event = createControllerEvent<KeyboardEvent>(
+        auto event = EventFramework::createControllerEvent<KeyboardEvent>(
                                 0.0f, 0.0f,
                                 119, false, 0,
                                 KeyState::KEY_STATE_DOWN);
@@ -122,7 +135,7 @@ int main(int argc, char ** argv)
     }
 
     {
-        auto event = createControllerEvent<KeyboardEvent>(
+        auto event = EventFramework::createControllerEvent<KeyboardEvent>(
                                 0.0f, 0.0f,
                                 115, false, 0,
                                 KeyState::KEY_STATE_UP);
@@ -133,7 +146,7 @@ int main(int argc, char ** argv)
     }
 
     {
-        auto event = createControllerEvent<KeyboardEvent>(
+        auto event = EventFramework::createControllerEvent<KeyboardEvent>(
                                 0.0f, 0.0f,
                                 666, false, 0,
                                 KeyState::KEY_STATE_UP);
@@ -141,6 +154,17 @@ int main(int argc, char ** argv)
         globalTestFlag_eventReceived = false;
         t.onProcessEventDispatcher(*event.get());
         assert(!globalTestFlag_eventReceived); //Not delivered unknow event
+    }
+
+    {
+        auto event = EventFramework::createControllerEvent<TestEvent>(
+                                TestEventID::TEID_1,
+                                TestEventModifier::TEIM_1,
+                                TestEvenState::TEIS_1);
+
+        globalTestFlag_eventReceived = false;
+        t.onProcessEventDispatcher(*event.get());
+        assert(!globalTestFlag_eventReceived); //OK, configured
     }
     return 0;
 }

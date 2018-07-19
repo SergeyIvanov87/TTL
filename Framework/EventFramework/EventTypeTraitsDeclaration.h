@@ -1,6 +1,6 @@
 #ifndef INPUT_EVENT_TRAITS_LIST_DECLARATION_H
 #define INPUT_EVENT_TRAITS_LIST_DECLARATION_H
-
+#include <memory>
 #include "FrameworkSpecializations/EventFrameworkSpecialization/EventIDsDeclaration.h"
 #include "FrameworkSpecializations/EventFrameworkSpecialization/EventCMDsDeclaration.h"
 

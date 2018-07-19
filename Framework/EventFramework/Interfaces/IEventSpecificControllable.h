@@ -1,14 +1,18 @@
 #ifndef IEVENTSPECIFICCONTROLLABLE
 #define IEVENTSPECIFICCONTROLLABLE
-#include "../ControllerEvent.h"
 #include <unordered_map>
 #include <map>
-#include "FrameworkSpecializations/EventFrameworkSpecialization/EventFrameworkSpecializationExport.h"
+#include "../EventTypeTraitsDeclaration.h"
+//#include "FrameworkSpecializations/EventFrameworkSpecialization/EventFrameworkSpecializationExport.h"
 
 /*
  * Specific event type processor static interface.
  * Route filtered event by id processing to ControllableImp class
  */
+template<class ...AllEventTypes>
+class CommonControllerEvent;
+
+
 template <class ControllableImp, class RegisteredEvent>
 class ISpecificControllable
 {
@@ -25,7 +29,7 @@ public:
     using EventCtrlDataToCommandStorageMapType = EventCtrlDataToCommandStorage<RegisteredEvent>;
 
     //get static registered event type
-    static constexpr ControlEventID getRegisteredEventType() { return RegisteredEvent::getControlEventID(); }
+    static constexpr ControlEventID getRegisteredEventType();
 
     //Configure filtered event for specific type
     static void subscribeOnControlEvents(const EventCtrlDataToCommandStorageMapType &event);
@@ -34,8 +38,11 @@ public:
     //static interface
     urc::ResultDescription onSpecificProcessEvent(ProcessingEventType &event);
 
-    static const ProcessingEventType &getSpecificEvent(const ObserverEvent &event);
-    static ProcessingEventType &getSpecificEvent(ObserverEvent &event);
+    template <class ...AllEventTypes>
+    static const ProcessingEventType &getSpecificEvent(const CommonControllerEvent<AllEventTypes...> &event);
+
+    template <class ...AllEventTypes>
+    static ProcessingEventType &getSpecificEvent(CommonControllerEvent<AllEventTypes...> &event);
 private:
     static EventCtrlDataToCommandStorageMapType m_Event2ControlEventCommands;
 };
@@ -43,6 +50,4 @@ private:
 //static storage filter definition
 template <class ControllableImp, class RegisteredEvent>
 typename ISpecificControllable<ControllableImp, RegisteredEvent>::EventCtrlDataToCommandStorageMapType ISpecificControllable<ControllableImp, RegisteredEvent>::m_Event2ControlEventCommands;
-#include "IEventSpecificControllable.hpp"
-
 #endif
