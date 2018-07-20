@@ -55,12 +55,11 @@ bool globalTestFlag_eventReceived = false;
 struct EventSubscriber :
         public IControllable
                             <
-/*Events for monitoring ---> */EventSubscriber, MouseEvent, KeyboardEvent
-//TODO UNCOMMENT not compile, TestEvent
+/*Events for monitoring ---> */EventSubscriber, MouseEvent, KeyboardEvent, TestEvent
                             >
 {
     //Specific processing event methods, based on event type
-    urc::ResultDescription processSpecificEvent(const MouseEvent &event, ControlEventCMD type)
+    urc::ResultDescription processSpecificEvent(const MouseEvent &event, MouseEventCMD type)
     {
         std::cout << __PRETTY_FUNCTION__ << event.toString() << std::endl;
 
@@ -68,7 +67,7 @@ struct EventSubscriber :
         globalTestFlag_eventReceived = true;
         return urc::ResultDescription();
     }
-    urc::ResultDescription processSpecificEvent(const KeyboardEvent &event, ControlEventCMD type)
+    urc::ResultDescription processSpecificEvent(const KeyboardEvent &event, KeyboardEventCMD type)
     {
         std::cout << __PRETTY_FUNCTION__ << event.toString() << std::endl;
 
@@ -76,7 +75,7 @@ struct EventSubscriber :
         globalTestFlag_eventReceived = true;
         return urc::ResultDescription();
     }
-    urc::ResultDescription processSpecificEvent(const TestEvent &event, ControlEventCMD type)
+    urc::ResultDescription processSpecificEvent(const TestEvent &event, CustomEventCMD type)
     {
         std::cout << __PRETTY_FUNCTION__ << event.toString() << std::endl;
 
@@ -114,9 +113,9 @@ int main(int argc, char ** argv)
     //Make test
     {
         auto event = EventFramework::createControllerEvent<MouseEvent>(
-                                0.0f, 0.0f,
+                                0.0f, 0.0f, //{coordnates X,Y}
                                 (int)MouseButton::MOUSE_MOVE,
-                                0,
+                                0,  //key modifier
                                 (int)MouseButtonState::MB_STATE_NONE);
 
         globalTestFlag_eventReceived = false;
@@ -126,8 +125,9 @@ int main(int argc, char ** argv)
 
     {
         auto event = EventFramework::createControllerEvent<KeyboardEvent>(
-                                0.0f, 0.0f,
-                                119, false, 0,
+                                0.0f, 0.0f, //{coordnates X,Y}
+                                119, //key code
+                                false, 0, //modifiers
                                 KeyState::KEY_STATE_DOWN);
 
         globalTestFlag_eventReceived = false;
@@ -160,12 +160,12 @@ int main(int argc, char ** argv)
     {
         auto event = EventFramework::createControllerEvent<TestEvent>(
                                 TestEventID::TEID_1,
-                                TestEventModifier::TEIM_1,
+                                TestEventModifier::TEIM_NONE,
                                 TestEvenState::TEIS_1);
 
         globalTestFlag_eventReceived = false;
         t.onProcessEventDispatcher(*event.get());
-        assert(!globalTestFlag_eventReceived); //OK, configured
+        assert(globalTestFlag_eventReceived); //OK, configured
     }
     return 0;
 }

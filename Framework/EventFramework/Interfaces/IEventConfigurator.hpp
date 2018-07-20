@@ -124,7 +124,7 @@ EventCtrlDataToCommandStorage<EventType>
                 EventSubscriptionData defaultCtlData = EventCtrl::parseEventSubscriptionData(controlKeysList);
 
                 //Convert command from string to enum
-                ControlEventCMD ceventType = string2ControlEventCommands(controlCommand);
+                auto ceventType = EventCtrl::String2ControlEventCommands(controlCommand);
                 result.data().insert({defaultCtlData, ceventType});
             }
         }

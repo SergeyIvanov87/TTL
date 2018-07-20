@@ -9,6 +9,7 @@
 
 #include <GL/gl.h>
 #include <memory>
+#include "KeyboardCommands.h"
 #include "../EventIDsDeclaration.h"
 #include "EventIdModifierSpecific.h"
 #include "Framework/EventFramework/Interfaces/IBaseEvent.h"
@@ -91,11 +92,11 @@
     }
 
 class KeyboardEvent : public IBaseEvent<KeyboardEvent,
-                                        KeyboardKey, KeyModifier, KeyState>
+                                        KeyboardKey, KeyModifier, KeyState, KeyboardEventCMD>
 {
 public:
     using BaseType = IBaseEvent<KeyboardEvent,
-                                KeyboardKey, KeyModifier, KeyState>;
+                                KeyboardKey, KeyModifier, KeyState, KeyboardEventCMD>;
 
     //common ctor
     KeyboardEvent(GLfloat _x, GLfloat _y,
@@ -114,9 +115,9 @@ public:
         return ControlEventID::KEYBOARD_EVENT;
     }
 
-    static constexpr const char * getEventTypeDescriptionImpl()
+    static constexpr const char *getEventTypeDescriptionImpl()
     {
-        return getObserverEventTypeString(getControlEventID());
+        return TO_STRING(KEYBOARD_EVENT);
     }
 
 
@@ -135,11 +136,23 @@ public:
     static KeyboardKey
         String2EventIdImpl(const std::string &eventIdStr, const char sep = '+');
 
+
+    static constexpr KeyModifier getEventModifierDefaultImpl()
+        {
+            return KeyModifier::NONE_MOD_KEY;
+        }
+
+    static KeyModifier String2KeyModifierImpl(const std::string &keyMod);
+
     static constexpr const char*
         EventIdState2StringImpl(KeyState state);
 
     static KeyState
         String2EventIdStateImpl(const std::string &state);
+
+    static KeyboardEventCMD String2ControlEventCommandsImpl(const std::string &commandStr);
+
+    static constexpr const char *ControlEventCommands2StringImpl(KeyboardEventCMD command);
 
     std::string
         toStringImpl() const;

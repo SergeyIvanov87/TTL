@@ -9,6 +9,7 @@
 
 #include <GL/gl.h>
 #include <memory>
+#include "MouseCommands.h"
 #include "../EventIDsDeclaration.h"
 #include "EventIdModifierSpecific.h"
 #include "Framework/EventFramework/Interfaces/IBaseEvent.hpp"
@@ -38,11 +39,11 @@
     };
 
 class MouseEvent : public IBaseEvent<MouseEvent,
-                                     MouseButton, KeyModifier, MouseButtonState>
+                                     MouseButton, KeyModifier, MouseButtonState, MouseEventCMD>
 {
 public:
     using BaseType = IBaseEvent<MouseEvent,
-                                MouseButton, KeyModifier, MouseButtonState>;
+                                MouseButton, KeyModifier, MouseButtonState, MouseEventCMD>;
 
     //total ctor
     //1)
@@ -88,7 +89,7 @@ public:
 
     static constexpr const char * getEventTypeDescriptionImpl()
     {
-        return getObserverEventTypeString(getControlEventID());
+        return TO_STRING(MOUSE_EVENT);
     }
 
     static constexpr const char *EventId2StringImpl(MouseButton eventId)
@@ -146,6 +147,16 @@ public:
         return ret;
     }
 
+    static constexpr KeyModifier getEventModifierDefaultImpl()
+    {
+        return KeyModifier::NONE_MOD_KEY;
+    }
+
+    static KeyModifier String2KeyModifierImpl(const std::string &keyMod)
+    {
+        return String2KeyboardModifier(keyMod);
+    }
+
     static constexpr const char* EventIdState2StringImpl(MouseButtonState state)
     {
         switch(state)
@@ -182,11 +193,48 @@ public:
         return ret;
     }
 
+
+    static MouseEventCMD String2ControlEventCommandsImpl(const std::string &commandStr)
+    {
+        static const std::map<std::string, MouseEventCMD> data
+                        {
+                            {TO_STRING(EMPTY), MouseEventCMD::EMPTY},
+                            {TO_STRING(LOOK), MouseEventCMD::LOOK},
+                        };
+
+        MouseEventCMD ret;
+        auto it = data.find(commandStr);
+        if(it != data.end())
+        {
+            ret = std::get<1>(*it);
+        }
+        else
+        {
+            assert(false);
+        }
+        return ret;
+    }
+
+    static constexpr const char *ControlEventCommands2StringImpl(MouseEventCMD command)
+    {
+        using namespace Utils;
+        switch(command)
+        {
+            case MouseEventCMD::EMPTY:
+                return TO_STRING(EMPTY);
+            case MouseEventCMD::LOOK:
+                return TO_STRING(LOOK);
+            default:
+                assert(false);
+        }
+        return TO_STRING(EMPTY);
+    }
+
     std::string toStringImpl() const
     {
         std::string result("[");
         result = result + EventId2StringImpl(getEventTypeCtrlId()) + ", " +
-                KeyModifier2String(getEventTypeCtrlIdModifier()) + ", " +
+                KeyboardModifier2String(getEventTypeCtrlIdModifier()) + ", " +
                 EventIdState2StringImpl(getEventTypeCtrlIdState()) + "] x=" +
                 std::to_string(x) + ", y=" + std::to_string(y);
         return result;

@@ -6,7 +6,7 @@
 #include <utility>
 
 
-template <class Implementation, class _EventId, class _EventIDMod, class _EventIdState>
+template <class Implementation, class _EventId, class _EventIDMod, class _EventIdState, class _ControlEventCMD>
 class IBaseEvent
 {
 public:
@@ -14,6 +14,7 @@ public:
     using EventId = _EventId;
     using EventIDMod = _EventIDMod;
     using EventIdState = _EventIdState;
+    using ControlEventCMD = _ControlEventCMD;
 
     enum EventTypeCtrlDataEnum
     {
@@ -66,14 +67,19 @@ public:
     //Interface methods
     //static getControlEventID();
     static constexpr const char * getEventTypeDescription();
+
     static EventId String2EventId(const std::string &eventIdStr);
     static constexpr const char* EventId2String(EventId eventId);
 
-    static constexpr EventIDMod getEventIdStateDefault();
+    static constexpr _EventIDMod getEventModifierDefault();
+    static _EventIDMod String2KeyModifier(const std::string &keyMod);
 
+    static constexpr _EventIdState getEventIdStateDefault();
     static EventIdState String2EventIdState(const std::string &state);
     static constexpr const char* EventIdState2String(EventIdState state);
 
+    static ControlEventCMD String2ControlEventCommands(const std::string &commandStr);
+    static constexpr const char *ControlEventCommands2String(ControlEventCMD command);
     std::string toString() const;
 
 protected:
