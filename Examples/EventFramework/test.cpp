@@ -18,7 +18,7 @@ struct Configurator :
 
     //Interface Impl
     template <class ConfigurationValueType>
-    const ConfigurationValueType &getValueFromConfigurationImpl(const std::string &configurationName, const std::string &valueName) const
+    ConfigurationValueType getValueFromConfigurationImpl(const std::string &configurationName, const std::string &valueName) const
     {
         assert(configurationName == "ControllableEvents");
 
@@ -154,7 +154,7 @@ int main(int argc, char ** argv)
 
         globalTestFlag_eventReceived = false;
         t.onProcessEventDispatcher(*event.get());
-        assert(!globalTestFlag_eventReceived); //Not delivered unknow event
+        assert(!globalTestFlag_eventReceived); //Not delivered unknown event
     }
 
     {

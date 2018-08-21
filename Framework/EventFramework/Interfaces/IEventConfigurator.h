@@ -20,7 +20,7 @@ struct IEventConfigurator
 
     //Interfaces
     template <class ConfigurationValueType>
-    const ConfigurationValueType &getValueFromConfiguration(const std::string &configurationName, const std::string &valueName) const;
+    ConfigurationValueType getValueFromConfiguration(const std::string &configurationName, const std::string &valueName) const;
     template <class ConfigurationValueType>
     std::unordered_set<ConfigurationValueType> getMultipleValuesFromConfiguration(const std::string &configurationName, const std::string &valueName) const;
 /*

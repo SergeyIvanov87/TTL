@@ -7,7 +7,7 @@
 #define T_ARGS_DEF          Impl
 template <T_ARGS_DECL>
 template <class ConfigurationValueType>
-const ConfigurationValueType &
+ConfigurationValueType
     IEventConfigurator<T_ARGS_DEF>::getValueFromConfiguration(const std::string &configurationName, const std::string &valueName) const
 {
     return static_cast<const Impl *>(this)->template getValueFromConfigurationImpl<ConfigurationValueType>(configurationName, valueName);
@@ -36,7 +36,7 @@ EventCtrlDataToCommandStorage<EventType>
     ReturnType result;
 
     //find ControllableEvents, if object is controllable
-    const auto &controllableEvents = getValueFromConfiguration<std::string>(configurationControllableEvents, configurationControllableEvents);
+    auto controllableEvents = getValueFromConfiguration<std::string>(configurationControllableEvents, configurationControllableEvents);
     if(controllableEvents.empty())
     {
         tracerWrapper.trace(configurationControllableEvents, " is missing");
@@ -65,7 +65,7 @@ EventCtrlDataToCommandStorage<EventType>
         }
 
         //read all events for specific control event type/category
-        const auto &controllableEventsStr = getValueFromConfiguration<std::string>(configurationControllableEvents, event);
+        auto controllableEventsStr = getValueFromConfiguration<std::string>(configurationControllableEvents, event);
         eventCategoryTracer.trace("Category event commands: ", controllableEventsStr);
 
         //total events list

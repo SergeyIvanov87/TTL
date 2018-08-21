@@ -1,32 +1,28 @@
-/*
- * VerticesObjectHolder.cpp
- *
- *  Created on: Feb 5, 2016
- *      Author: user
- */
+#ifndef BASE_OBJECT_LOADER_HPP
+#define BASE_OBJECT_LOADER_HPP
 
-//#include "BaseObjectLoader.h"
+#include "BaseObjectLoader.h"
 namespace Resources
 {
 template <class ResourceHolder,  const char *treeLeafPath>
 BaseObjectLoader<ResourceHolder, treeLeafPath>::BaseObjectLoader()
 {
-    logger = log4cplus::Logger::getInstance(getResourceTypeString(BaseObjectLoader<ResourceHolder, treeLeafPath>::getResourceType()));
+    logger = log4cplus::Logger::getInstance(BaseObjectLoader<ResourceHolder, treeLeafPath>::getResourceTypeDescription());
 }
 
 //Get/Set
 template <class ResourceHolder,  const char *treeLeafPath>
 typename BaseObjectLoader<ResourceHolder, treeLeafPath>::ResourceClassTypeCPtr BaseObjectLoader<ResourceHolder, treeLeafPath>::getResourceByName(const std::string &name) const
 {
-    ResourcesMapCIt it = loadedObjectResources.find(name);
+    auto it = loadedObjectResources.find(name);
     if(it != loadedObjectResources.end())
     {
         LOG4CPLUS_TRACE(logger, LOG4CPLUS_TEXT("Get resource: ") << name <<
-                LOG4CPLUS_TEXT(" Type: ") << getResourceTypeString(ResourceHolder::resourceType));
+                                LOG4CPLUS_TEXT(" Type: ") << ResourceHolder::getResourceTypeDescription());
         return it->second.get();    //dereferenced shared ptr
     }
     LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Cannot get resource: ") << name <<
-                LOG4CPLUS_TEXT(" Type: ") << getResourceTypeString(ResourceHolder::resourceType));
+                            LOG4CPLUS_TEXT(" Type: ") << ResourceHolder::getResourceTypeDescription());
     return NULL;
 }
 
@@ -35,7 +31,7 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::setResourceByName(
         const typename BaseObjectLoader<ResourceHolder, treeLeafPath>::ResourcesMap::key_type &name,
         const typename BaseObjectLoader<ResourceHolder, treeLeafPath>::ResourceClassTypeSharedPtr &resource)
 {
-    ResourcesMapIt it = loadedObjectResources.find(name);
+    auto it = loadedObjectResources.find(name);
     if(it == loadedObjectResources.end())
     {
         LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Insert resource: ") << name);
@@ -60,8 +56,7 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::deserialize(const std::stri
 {
     if((!resource))
     {
-        LOG4CPLUS_ERROR(logger,
-            LOG4CPLUS_TEXT("Empty resource pointer for name: ") << resourceName);
+        LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Empty resource pointer for name: ") << resourceName);
         return false;
     }
 
@@ -70,55 +65,48 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::deserialize(const std::stri
         LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("resource was not serialized. skip it: ") << resourceName);
         return true;
     }
-    char *curDir = get_current_dir_name();
 
-    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Current directory: ") << curDir);
+    std::unique_ptr<char, std::function<void(char *)>> curDirPtr(get_current_dir_name(), [](char *ptr) -> void
+    {
+        chdir(ptr);
+        free(ptr);
+    });
+
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Current directory: ") << curDirPtr.get());
     chdir(getResourceTreePath());
     LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Change directory: ") << getResourceTreePath());
 
-    bool result = false;
-    do
+    //change to tmpDirectory
+    if(-1 == chdir(tmpDirectory))
     {
-        //change to tmpDirectory
-        if(-1 == chdir(tmpDirectory))
-        {
-            LOG4CPLUS_ERROR(logger,
-                LOG4CPLUS_TEXT("Cannot change serialize directory: ") << curDir
-                << LOG4CPLUS_TEXT("/")
-                << getResourceTreePath()
-                << LOG4CPLUS_TEXT("/")
-                << tmpDirectory);
+        LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Cannot change serialize directory: ") <<
+                                curDirPtr.get() << LOG4CPLUS_TEXT("/") <<
+                                getResourceTreePath() << LOG4CPLUS_TEXT("/") <<
+                                tmpDirectory);
+        throw urc::FileOpenError(std::string(curDirPtr.get()) + getResourceTreePath() + tmpDirectory, errno);
+    }
 
-            throw urc::FileOpenError(std::string(curDir) + getResourceTreePath() + tmpDirectory, errno);
-        }
+    //open file for reading
+    std::string fileName = resourceName + ".dump";
+    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Open file name: ") <<
+                           fileName <<
+                           LOG4CPLUS_TEXT(" to deserialize resource"));
 
-        //open file for reading
-        std::string fileName = resourceName + ".dump";
-        LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Open file name: ") <<
-                                fileName <<
-                                LOG4CPLUS_TEXT(" to deserialize resource"));
-        do
-        {
-            std::ifstream fileIn(fileName, std::ios::in | std::ios::binary);
-            if(!fileIn.is_open())
-            {
-                LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Cannot open file for reading: ") << strerror(errno));
-                throw urc::FileOpenError(fileName, errno);
-            }
-            result = resource->deserialize(fileIn);
-            fileIn.close();
-        } while(false);
-    }while(false);
-
-    chdir(curDir);
-    free(curDir);
+    std::ifstream fileIn(fileName, std::ios::in | std::ios::binary);
+    if(!fileIn.is_open())
+    {
+        LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Cannot open file for reading: ") << strerror(errno));
+        throw urc::FileOpenError(fileName, errno);
+    }
+    bool result = resource->deserialize(fileIn);
+    fileIn.close();
     return result;
 }
 
 template <class ResourceHolder,  const char *treeLeafPath>
 bool BaseObjectLoader<ResourceHolder, treeLeafPath>::deserialize(const std::string &resourceName)
 {
-    ResourcesMapIt it = loadedObjectResources.find(resourceName);
+    auto it = loadedObjectResources.find(resourceName);
     if(it == loadedObjectResources.end())
     {
         LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Cannot deserialize resource, not found: ") << resourceName);
@@ -136,63 +124,57 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::serialize(
     bool result = false;
     if((!resource))
     {
-        LOG4CPLUS_ERROR(logger,
-            LOG4CPLUS_TEXT("Empty resource pointer for name: ") << resourceName);
+        LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Empty resource pointer for name: ") << resourceName);
         return result;
     }
 
-    char *curDir = get_current_dir_name();
-    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Current directory: ") << curDir);
+    std::unique_ptr<char, std::function<void(char *)>> curDirPtr(get_current_dir_name(), [](char *ptr) -> void
+    {
+        chdir(ptr);
+        free(ptr);
+    });
+
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Current directory: ") << curDirPtr.get());
     chdir(getResourceTreePath());
     LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Change directory: ") << getResourceTreePath());
-    do
+
+    //change to tmpDirectory
+    if(-1 == chdir(tmpDirectory))
     {
-        //change to tmpDirectory
-        if(-1 == chdir(tmpDirectory))
+        if((errno != ENOENT) || (-1 == mkdir(tmpDirectory, S_IRWXO | S_IRWXG | S_IRWXU | S_IFDIR)))
         {
-            if((errno != ENOENT) || (-1 == mkdir(tmpDirectory, S_IRWXO | S_IRWXG | S_IRWXU | S_IFDIR)))
-            {
-                LOG4CPLUS_ERROR(logger,
-                    LOG4CPLUS_TEXT("Cannot create serialize directory: ") << curDir
-                    << LOG4CPLUS_TEXT("/")
-                    << getResourceTreePath()
-                    << LOG4CPLUS_TEXT("/")
-                    << tmpDirectory);
+            LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Cannot create serialize directory: ") <<
+                                    curDir << LOG4CPLUS_TEXT("/") <<
+                                    getResourceTreePath() << LOG4CPLUS_TEXT("/") <<
+                                    tmpDirectory);
 
                 throw urc::FileOpenError(std::string(curDir) + getResourceTreePath() + tmpDirectory, errno);
-            }
         }
+    }
 
-        //open file for dump
-        std::string fileName = resourceName + ".dump";
-        LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Open file name: ") <<
-                            fileName <<
-                            LOG4CPLUS_TEXT(" to dump resource"));
+    //open file for dump
+    std::string fileName = resourceName + ".dump";
+    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Open file name: ") <<
+                           fileName <<
+                           LOG4CPLUS_TEXT(" to dump resource"));
 
-        do
-        {
-            std::ofstream fileOut(fileName, std::ios::out | std::ios::binary);
-            if(!fileOut.is_open())
-            {
-                LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Cannot open file for writing"));
-                throw urc::FileOpenError(fileName, errno);
-            }
-            LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Object size before serialize: ") << sizeof(*resource));
-            result = resource->serialize(fileOut);
-            LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Object size after serialize: ") << sizeof(*resource));
-            fileOut.close();
-        } while(false);
-    } while(false);
-
-    chdir(curDir);
-    free(curDir);
+    std::ofstream fileOut(fileName, std::ios::out | std::ios::binary);
+    if(!fileOut.is_open())
+    {
+        LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Cannot open file for writing"));
+        throw urc::FileOpenError(fileName, errno);
+    }
+    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Object size before serialize: ") << sizeof(*resource));
+    result = resource->serialize(fileOut);
+    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Object size after serialize: ") << sizeof(*resource));
+    fileOut.close();
     return result;
 }
 
 template <class ResourceHolder,  const char *treeLeafPath>
 bool BaseObjectLoader<ResourceHolder, treeLeafPath>::serialize(const std::string &resourceName)
 {
-    ResourcesMapIt it = loadedObjectResources.find(resourceName);
+    auto it = loadedObjectResources.find(resourceName);
     if(it == loadedObjectResources.end())
     {
         LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Cannot serialize resource, not found: ") << resourceName);
@@ -206,12 +188,17 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::serialize(const std::string
 template <class ResourceHolder, const char *treeLeafPath>
 bool BaseObjectLoader<ResourceHolder, treeLeafPath>::loadResources()
 {
-    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Loading resources starting: ") << getResourceTypeString(ResourceHolder::getResourceType()));
+    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Loading resources starting: ") << ResourceHolder::getResourceTypeDescription());
     //free resources
     //freeResources();
 
     //get directory
-    char *curDir = get_current_dir_name();
+    std::unique_ptr<char, std::function<void(char *)>> curDirPtr(get_current_dir_name(), [](char *ptr) -> void
+    {
+        chdir(ptr);
+        free(ptr);
+    });
+
     chdir(getResourceTreePath());
 
     DIR *objDir = opendir("./");
@@ -266,9 +253,6 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::loadResources()
 
     //close dir
     closedir(objDir);
-
-    chdir(curDir);
-    free(curDir);
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Total loaded resources:") << loadedObjectResources.size());
     return !loadedObjectResources.empty();
 }
@@ -279,13 +263,13 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::loadResources()
 template <class ResourceHolder>
 BaseObjectLoader<ResourceHolder, system_info_dummy_path>::BaseObjectLoader()
 {
-    logger = log4cplus::Logger::getInstance(getResourceTypeString(BaseObjectLoader<ResourceHolder, system_info_dummy_path>::getResourceType()));
+    logger = log4cplus::Logger::getInstance(BaseObjectLoader<ResourceHolder, system_info_dummy_path>::getResourceTypeDescription());
 }
 
 template <class ResourceHolder>
 typename BaseObjectLoader<ResourceHolder, system_info_dummy_path>::ResourceClassTypeCPtr BaseObjectLoader<ResourceHolder, system_info_dummy_path>::getResourceByName(const std::string &name) const
 {
-    ResourcesMapCIt it = loadedObjectResources.find(name);
+    auto it = loadedObjectResources.find(name);
     if(it != loadedObjectResources.end())
     {
         LOG4CPLUS_TRACE(logger, LOG4CPLUS_TEXT("Get resource: ") << name);
@@ -300,7 +284,7 @@ bool BaseObjectLoader<ResourceHolder, system_info_dummy_path>::setResourceByName
         const typename BaseObjectLoader<ResourceHolder, system_info_dummy_path>::ResourcesMap::key_type &name,
         const typename BaseObjectLoader<ResourceHolder, system_info_dummy_path>::ResourceClassTypeSharedPtr &resource)
 {
-    ResourcesMapIt it = loadedObjectResources.find(name);
+    auto it = loadedObjectResources.find(name);
     if(it == loadedObjectResources.end())
     {
         loadedObjectResources.insert(std::make_pair(name, resource));
@@ -354,7 +338,7 @@ template <class ResourceHolder>
 bool BaseObjectLoader<ResourceHolder, system_info_dummy_path>::loadResources()
 {
     //just resource doesn't need in path
-    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Loading resources starting: ") << getResourceTypeString(ResourceHolder::getResourceType()));
+    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Loading resources starting: ") << ResourceHolder::getResourceTypeDescription());
     ResourcesMap res;
     try
     {
@@ -371,3 +355,5 @@ bool BaseObjectLoader<ResourceHolder, system_info_dummy_path>::loadResources()
     return !res.empty();
 }
 }
+
+#endif //BASE_OBJECT_LOADER_HPP

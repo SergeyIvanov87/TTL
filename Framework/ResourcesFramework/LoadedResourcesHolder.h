@@ -14,38 +14,42 @@
 #include <iostream>
 #include <error.h>
 #include <string.h>
+#include <memory>
 #include "FrameworkSpecializations/ResourcesFrameworkSpecialization/ResourcesTypes.h"
 #include "../Utils/CTimeUtils.h"
 
 
-//!!!!  DELETE IT #include "BaseObjectLoaderConcrete.h"
-namespace Resources {
+namespace Resources
+{
 
 //instantiated by Resource Loader template classes
 template <class ... Loaders>
 class LoadedResourcesHolder {
 public:
     typedef std::tuple<Loaders...> ResourceLoadersTuple;
-
+    LoadedResourcesHolder(const std::string &assetsPath, const std::string &tmpOperationsPath);
     ~LoadedResourcesHolder();
 
     //function to get specific resource from specific resource loader
-    template<Resources::ResourceType type>
-    typename std::tuple_element<type, ResourceLoadersTuple>::type::ResourceClassTypeCPtr
-    getResourceById(const std::string &name) const;
+    template <class Resource>
+    const Resource* getResourcePtr(const std::string &name, bool needDeserialize = false) const;
 
     //function to set specific resource to specific resource loader
-    template<Resources::ResourceType type>//, typename std::tuple_element<type, ResourceLoadersTuple>::type::ResourceClassTypeCPtr>
-    bool setResourceById(const std::string &name,
-        const typename std::tuple_element<type, ResourceLoadersTuple>::type::ResourceClassTypeSharedPtr &resource);
+    template <class Resource>
+    bool insertResource(const std::string &name, std::shared_ptr<Resource> &&resourcePtr);
 
     //function to de/serialize object into specific file
-    template<Resources::ResourceType type>
+    template<class Resource>
     bool serializeResource(const std::string &name);
-    template<Resources::ResourceType type>
+    template<class Resource>
     bool deserializeResource(const std::string &name);
+
+    const std::string &getAssetsPath() const;
+    const std::string &getSerializationPath() const;
 private:
     ResourceLoadersTuple loadersTuple;
+    std::string m_assetsPath;
+    std::string m_assetsTmpPath;
 public:
     //load resources for all ResourceLoaders
     bool initResourceLoader();
