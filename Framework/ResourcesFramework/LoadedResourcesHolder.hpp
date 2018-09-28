@@ -33,7 +33,7 @@ LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::~LoadedResourcesHolder()
 //function to get specific resource from specific resource loader
 template <TEMPLATE_ARGS_LIST_DECL>
 template <class Resource>
-const Resource *LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourcePtr(const std::string &name, bool needDeserialize = false) const
+const Resource *LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourcePtr(const std::string &name, bool needDeserialize/* = false*/) const
 {
     auto ret = std::get<Resource>(loadersTuple).getResourceByName(name);
     if(ret)
@@ -70,7 +70,7 @@ bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::serializeResource(const std:
         chdir(ptr);
         free(ptr);
     });
-    if(chdir(m_assetsPath).c_str() != 0)
+    if(chdir(m_assetsPath.c_str()) != 0)
     {
         std::cout << "Cannot enter in resource dir: " <<
                 strerror(errno) << ". Current dir: " << curDirPtr.get()<< std::endl;
@@ -100,7 +100,6 @@ bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::deserializeResource(const st
 
 //load resources for all ResourceLoaders
 template <TEMPLATE_ARGS_LIST_DECL>
-template <class Resource>
 bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::initResourceLoader()
 {
     //Enter to main resources tree directory
@@ -126,7 +125,6 @@ bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::initResourceLoader()
 
 //free resources for all ResourceLoaders
 template <TEMPLATE_ARGS_LIST_DECL>
-template <class Resource>
 bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::deinitResourceLoader()
 {
     CTimeUtils::for_each_in_tuple(loadersTuple, [](size_t index, auto &x)

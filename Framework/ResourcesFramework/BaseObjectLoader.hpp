@@ -144,11 +144,11 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::serialize(
         if((errno != ENOENT) || (-1 == mkdir(tmpDirectory, S_IRWXO | S_IRWXG | S_IRWXU | S_IFDIR)))
         {
             LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Cannot create serialize directory: ") <<
-                                    curDir << LOG4CPLUS_TEXT("/") <<
+                                    curDirPtr.get() << LOG4CPLUS_TEXT("/") <<
                                     getResourceTreePath() << LOG4CPLUS_TEXT("/") <<
                                     tmpDirectory);
 
-                throw urc::FileOpenError(std::string(curDir) + getResourceTreePath() + tmpDirectory, errno);
+                throw urc::FileOpenError(std::string(curDirPtr.get()) + getResourceTreePath() + tmpDirectory, errno);
         }
     }
 
@@ -243,8 +243,7 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::loadResources()
         }
         catch( const urc::SystemError &exception)
         {
-            LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Exception error: ") << exception.m_errorCode <<
-                                    LOG4CPLUS_TEXT(" description: ") << exception.m_description);
+            LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Exception error: ") << exception.to_string());
             continue;
         }
         //add to map
@@ -347,8 +346,7 @@ bool BaseObjectLoader<ResourceHolder, system_info_dummy_path>::loadResources()
     }
     catch( const urc::SystemError &exception)
     {
-        LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Exception error: ") << exception.m_errorCode <<
-                                LOG4CPLUS_TEXT(" description: ") << exception.m_description);
+        LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Exception error: ") << exception.to_string());
         return false;
     }
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Loading resources finished: ") << res.size());

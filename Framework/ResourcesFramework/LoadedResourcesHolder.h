@@ -15,7 +15,6 @@
 #include <error.h>
 #include <string.h>
 #include <memory>
-#include "FrameworkSpecializations/ResourcesFrameworkSpecialization/ResourcesTypes.h"
 #include "../Utils/CTimeUtils.h"
 
 

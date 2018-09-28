@@ -4,6 +4,7 @@
 #include <list>
 #include <numeric>
 #include <algorithm>
+#include <array>
 //Wide to_string() implementation, use SFINAE:
 //because std::to_string() doesn't have overloaded version for std::string, char *, const char * and etc
 //we do not need try make this conversion
@@ -35,7 +36,7 @@ struct GenericToString
 };
 
 
-/* 
+/*
  * You can write your overloaded version std::to_string(ptime, MyClass, and etc ...) here
  * and use makeString("log message, happened at:", ptime, "from :", MyClass) from the box
  */
@@ -46,8 +47,8 @@ template <class ...Arguments>
 inline std::string makeString(Arguments &&...args)
 {
     static_assert(sizeof...(Arguments) != 0, "makeString arguments are empty");
-    
-    
+
+
     std::array<std::string, sizeof...(Arguments)> totalList{GenericToString::toString(std::forward<Arguments>(args))...};
     //calculate total size
     size_t totalLength = std::accumulate(totalList.begin(), totalList.end(), 1, [](const size_t sum, const std::string &str)

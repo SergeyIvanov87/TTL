@@ -36,6 +36,14 @@ struct ResultDescription : public std::exception
     {
         return m_description.c_str();
     }
+    ResultCodes errorCode() const
+    {
+        return m_errorCode;
+    }
+    std::string to_string() const
+    {
+        return makeString(m_description, ". ResultCode: ", (int)m_errorCode);
+    }
 private:
     ResultCodes m_errorCode;
     std::string m_description;
