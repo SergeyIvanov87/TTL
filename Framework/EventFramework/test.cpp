@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "Interfaces/IControllable.hpp"
-#include "../../../FrameworkSpecializations/EventFrameworkSpecialization/EventFrameworkSpecializationExport.h"
+#include "../../FrameworkSpecializations/EventFrameworkSpecialization/EventFrameworkSpecializationExport.h"
 
 struct Test : public IControllable<Test, MouseEvent, KeyboardEvent>
 {

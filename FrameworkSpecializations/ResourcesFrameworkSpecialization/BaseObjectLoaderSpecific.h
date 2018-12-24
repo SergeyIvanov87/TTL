@@ -1,19 +1,16 @@
 #ifndef OBJECTLOADERS_SPECIFIC_H_
 #define OBJECTLOADERS_SPECIFIC_H_
 
-#include "../Framework/Base/ResourcesFramework/BaseObjectLoader.h"
+#include "Framework/ResourcesFramework/BaseObjectLoader.h"
 
 //Specific objects
-#include "../Graphic/Vertices.h"
-#include "../Graphic/SkeletonVertices.h"
-#include "../GraphicFramework/Graphic/Texture.h"
-#include "../GraphicFramework/Graphic/Material.h"
-#include "../GraphicFramework/Graphic/Shader.h"
-#include "../GraphicFramework/Graphic/ShaderProgram.h"
-#include "../GraphicFramework/Resources/SystemInfo.h"
-#include "../GraphicFramework/Resources/ModelFileDescription.h"
-
-#include "../GraphicFramework/Base/Resources/MeshHolder.h"
+#include "GraphicFramework/Graphic/Texture.h"
+#include "GraphicFramework/Graphic/Material.h"
+#include "GraphicFramework/Graphic/Shader.h"
+#include "GraphicFramework/Graphic/ShaderProgram.h"
+#include "GraphicFramework/Resources/SystemInfo.h"
+#include "GraphicFramework/Resources/ModelFileDescription.h"
+#include "GraphicFramework/Resources/MeshHolder.h"
 
 namespace Resources {
 

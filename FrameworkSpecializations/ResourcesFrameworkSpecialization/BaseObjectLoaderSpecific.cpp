@@ -1,6 +1,6 @@
 #define CONCRETE_CPP
 #include "BaseObjectLoaderSPecific.h"
-#include "../Framework/ResourcesFramework/BaseObjectLoader.hpp"
+#include "Framework/ResourcesFramework/BaseObjectLoader.hpp"
 #undef CONCRETE_CPP
 
 namespace Resources

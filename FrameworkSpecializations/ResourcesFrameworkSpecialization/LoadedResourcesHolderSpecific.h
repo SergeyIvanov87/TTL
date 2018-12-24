@@ -1,10 +1,3 @@
-/*
- * LoadedResourcesHolderConcrete.h
- *
- *  Created on: Feb 24, 2016
- *      Author: user
- */
-
 #ifndef LOADEDRESOURCESHOLDERCONCRETE_H_
 #define LOADEDRESOURCESHOLDERCONCRETE_H_
 

@@ -4,10 +4,10 @@
 #include <string>
 #include <map>
 #include <memory>
+#include "FrameworkSpecializations/ResourcesFrameworkSpecialization/ResourcesTypes.h"
+#include "../Utils/ErrorCodes.h"
 #include <log4cplus/logger.h>
 #include <log4cplus/loggingmacros.h>
-#include "ResourcesTypes.h"
-#include "../Utils/ErrorCodes.h"
 
 namespace Resources
 {

@@ -1,5 +1,6 @@
 #ifndef SERIALIZE_UTILS_H
 #define SERIALIZE_UTILS_H
+
 //Serialization
 template <class T>
 inline bool serializeUnit(std::ostream &out, const T &unit);

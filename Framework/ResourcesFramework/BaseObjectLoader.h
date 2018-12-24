@@ -7,17 +7,17 @@
 
 #ifndef BASEOBJECTLOADER_H_
 #define BASEOBJECTLOADER_H_
-
-#include "BaseResource.h"
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <iostream>
 #include <string.h>
 #include <fstream>
-#include "../Utils/Utils.h"
 #include <log4cplus/logger.h>
 #include <log4cplus/loggingmacros.h>
+
+#include "IBaseResource.h"
+#include "../Utils/Utils.h"
 
 template <bool B>
 struct invoker {};
