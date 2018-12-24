@@ -22,7 +22,7 @@ enum KeyModifier
     MAX_KEY_MOD
 };
 
-inline KeyModifier String2KeyModifier(const std::string &keyMod)
+inline KeyModifier String2KeyboardModifier(const std::string &keyMod)
 {
     static const std::map<std::string, KeyModifier> data
                             {
@@ -48,7 +48,7 @@ inline KeyModifier String2KeyModifier(const std::string &keyMod)
     return ret;
 }
 
-inline constexpr const char *KeyModifier2String(KeyModifier mod)
+inline constexpr const char *KeyboardModifier2String(KeyModifier mod)
 {
     switch(mod)
     {

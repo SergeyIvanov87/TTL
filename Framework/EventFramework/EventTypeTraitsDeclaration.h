@@ -1,8 +1,8 @@
 #ifndef INPUT_EVENT_TRAITS_LIST_DECLARATION_H
 #define INPUT_EVENT_TRAITS_LIST_DECLARATION_H
-
+#include <memory>
 #include "FrameworkSpecializations/EventFrameworkSpecialization/EventIDsDeclaration.h"
-#include "FrameworkSpecializations/EventFrameworkSpecialization/EventCMDsDeclaration.h"
+
 
 //Traits: convert ControlEventType ID to class
 template <class Event>
@@ -29,6 +29,7 @@ struct EventCtrlDataToCommandStorage
     typedef typename Traits::EventType EventType;
     typedef typename EventType::EventTypeCtrlData EventTypeCtrlData;
     typedef typename EventType::EventTypeSubscriptionData EventTypeSubscriptionData;
+    typedef typename EventType::ControlEventCMD ControlEventCMD;
 
     using EventCtrlDataToCommandStorageImpl = std::map<EventTypeSubscriptionData, ControlEventCMD>;
 

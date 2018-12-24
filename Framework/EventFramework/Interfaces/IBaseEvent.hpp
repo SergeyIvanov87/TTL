@@ -1,12 +1,12 @@
 #ifndef BASE_EVENT_HPP
 #define BASE_EVENT_HPP
 #include "IBaseEvent.h"
-#include "../../Utils/Utils.h"
+//#include "Framework/Utils/Utils.h"
 //#include "FrameworkSpecializations/EventFrameworkSpecialization/EventIdsSpecific.h"
 
 //helpers
-#define TEMPLATE_ARGS_LIST_DECL  class Implementation, class _EventId, class _EventIDMod, class _EventIdState
-#define TEMPLATE_ARGS_LIST_DEF   Implementation, _EventId, _EventIDMod, _EventIdState
+#define TEMPLATE_ARGS_LIST_DECL  class Implementation, class _EventId, class _EventIDMod, class _EventIdState, class _ControlEventCMD
+#define TEMPLATE_ARGS_LIST_DEF   Implementation, _EventId, _EventIDMod, _EventIdState, _ControlEventCMD
 
 
 template <TEMPLATE_ARGS_LIST_DECL>
@@ -72,7 +72,7 @@ typename IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::EventTypeCtrlData IBaseEvent<TEMPLA
     {
         case 1:
             return EventTypeCtrlData(String2EventId(*dataList.begin()),
-                                    KeyModifier::NONE_MOD_KEY,
+                                    getEventModifierDefault(),
                                     getEventIdStateDefault());
         case 2:
             {
@@ -105,7 +105,7 @@ typename IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::EventTypeSubscriptionData IBaseEven
     {
         case 1:
             return EventTypeSubscriptionData(String2EventId(*dataList.begin()),
-                                    KeyModifier::NONE_MOD_KEY);
+                                    getEventModifierDefault());
         case 2:
             {
                 auto first = dataList.begin();
@@ -143,7 +143,19 @@ constexpr const char* IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::EventId2String(EventId
 }
 
 template <TEMPLATE_ARGS_LIST_DECL>
-constexpr _EventIDMod IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::getEventIdStateDefault()
+constexpr _EventIDMod IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::getEventModifierDefault()
+{
+    return Implementation::getEventModifierDefaultImpl();
+}
+
+template <TEMPLATE_ARGS_LIST_DECL>
+_EventIDMod IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::String2KeyModifier(const std::string &keyMod)
+{
+    return Implementation::String2KeyModifierImpl(keyMod);
+}
+
+template <TEMPLATE_ARGS_LIST_DECL>
+constexpr _EventIdState IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::getEventIdStateDefault()
 {
     return Implementation::getEventIdStateDefaultImpl();
 }
@@ -158,6 +170,19 @@ template <TEMPLATE_ARGS_LIST_DECL>
 constexpr const char* IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::EventIdState2String(EventIdState state)
 {
     return Implementation::EventIdState2StringImpl(state);
+}
+
+template <TEMPLATE_ARGS_LIST_DECL>
+typename IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::ControlEventCMD
+    IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::String2ControlEventCommands(const std::string &commandStr)
+{
+    return Implementation::String2ControlEventCommandsImpl(commandStr);
+}
+
+template <TEMPLATE_ARGS_LIST_DECL>
+constexpr const char *IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::ControlEventCommands2String(ControlEventCMD command)
+{
+    return Implementation::ControlEventCommands2StringImpl(command);
 }
 
 template <TEMPLATE_ARGS_LIST_DECL>

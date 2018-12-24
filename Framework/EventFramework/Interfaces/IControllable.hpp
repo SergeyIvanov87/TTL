@@ -2,19 +2,21 @@
 #define ICONTROLLABLE_HPP
 
 #include "IControllable.h"
+#include "IEventSpecificControllable.hpp"
 
 #define T_ARGS_DECL      class ControllableImp, class ...RegisteredEvents
 #define T_ARGS_DEF       ControllableImp, RegisteredEvents...
 
 template <T_ARGS_DECL>
-template <class ResourceProvider>
+template <class ResourceProvider, class UsedTracer>
 void
-    IControllable<T_ARGS_DEF>::loadControlEvents( ResourceProvider &provider)
+    IControllable<T_ARGS_DEF>::loadControlEvents( ResourceProvider &provider, UsedTracer tracer)
 {
-    //TODO
-    provider.accept(this);
+    ControlEventMultiTypesStorage ret;
+    provider.fillControllerEventsByMultiTypes(ret, tracer);
+    subscribeOnControlEvents(ret);
 }
-
+/*
 template <T_ARGS_DECL>
 void
     IControllable<T_ARGS_DEF>::visitImpl(const Resources::ModelFileDescription *visitedObjectModelDescription)
@@ -24,7 +26,7 @@ void
     visitedObjectModelDescription->fillControllerEventsByMultiTypes(ret);
     subscribeOnControlEvents(ret);
 }
-
+*/
 
 template <T_ARGS_DECL>
 void
@@ -76,11 +78,12 @@ typename IControllable<T_ARGS_DEF>::RegisteredObserverEventTypes
 }
 
 template <T_ARGS_DECL>
-Errors::ErrorDescription
-    IControllable<T_ARGS_DEF>::onProcessEventDispatcher(ObserverEvent &event, bool notFilteredEvent/* = true*/)
+template <class ...AllEventTypes>
+urc::ResultDescription
+    IControllable<T_ARGS_DEF>::onProcessEventDispatcher(CommonControllerEvent<AllEventTypes...> &event, bool notFilteredEvent/* = true*/)
 {
     ControlEventID eventType = event.getEventType();
-    Errors::ErrorDescription retCode;
+    urc::ResultDescription retCode;
     CTimeUtils::for_each_type_in_tuple_traits<SpecificControllables>([this, &retCode, &event, eventType](auto &&typeTraitsInfo)
     {
         auto ret = typeTraitsInfo;

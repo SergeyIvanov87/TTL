@@ -1,6 +1,7 @@
 #include <utility>
 #include <algorithm>
 #include "KeyboardEvent.h"
+#include "Framework/Utils/Utils.h"
 #include "Framework/EventFramework/Interfaces/IBaseEvent.hpp"
 
     //helpers conversion functions
@@ -291,11 +292,61 @@ KeyState KeyboardEvent::String2EventIdStateImpl(const std::string &state)
     return ret;
 }
 
+KeyModifier KeyboardEvent::String2KeyModifierImpl(const std::string &keyMod)
+{
+    return String2KeyboardModifier(keyMod);
+}
+
+KeyboardEventCMD KeyboardEvent::String2ControlEventCommandsImpl(const std::string &commandStr)
+{
+    static const std::map<std::string, KeyboardEventCMD> data
+                        {
+                            {TO_STRING(EMPTY), KeyboardEventCMD::EMPTY},
+                            {TO_STRING(MOVE_FORWARD), KeyboardEventCMD::MOVE_FORWARD},
+                            {TO_STRING(MOVE_BACKWARD), KeyboardEventCMD::MOVE_BACKWARD},
+                            {TO_STRING(STRAFE_LEFT), KeyboardEventCMD::STRAFE_LEFT},
+                            {TO_STRING(STRAFE_RIGHT), KeyboardEventCMD::STRAFE_RIGHT},
+                        };
+
+    KeyboardEventCMD ret;
+    auto it = data.find(commandStr);
+    if(it != data.end())
+    {
+        ret = std::get<1>(*it);
+    }
+    else
+    {
+        assert(false);
+    }
+    return ret;
+}
+
+constexpr const char *KeyboardEvent::ControlEventCommands2StringImpl(KeyboardEventCMD command)
+{
+    using namespace Utils;
+        switch(command)
+        {
+            case KeyboardEventCMD::EMPTY:
+                return TO_STRING(EMPTY);
+            case KeyboardEventCMD::MOVE_FORWARD:
+                return TO_STRING(MOVE_FORWARD);
+            case KeyboardEventCMD::MOVE_BACKWARD:
+                return TO_STRING(MOVE_BACKWARD);
+            case KeyboardEventCMD::STRAFE_LEFT:
+                return TO_STRING(STRAFE_LEFT);
+            case KeyboardEventCMD::STRAFE_RIGHT:
+                return TO_STRING(STRAFE_RIGHT);
+            default:
+                assert(false);
+        }
+        return TO_STRING(EMPTY);
+}
+
 std::string KeyboardEvent::toStringImpl() const
 {
     std::string result("[");
     result = result + EventId2StringImpl(getEventTypeCtrlId()) + ", " +
-                KeyModifier2String(getEventTypeCtrlIdModifier()) + ", " +
+                KeyboardModifier2String(getEventTypeCtrlIdModifier()) + ", " +
                 EventIdState2StringImpl(getEventTypeCtrlIdState()) + "] x=" +
                 std::to_string(x) + ", y=" + std::to_string(y);
     return result;

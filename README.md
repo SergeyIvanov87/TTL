@@ -9,9 +9,61 @@ Collection of usefull C++ templates utils, based on Mix-in classes concepts(http
       LocklessWriter - concurrent file writer (based on std::atomic)
       
 # EventFramework
-  <TODO> Will add description TODO...
+  Simple template-extendable event driven framework, the main advantage of which are absent of **virtual** call and **dynamic_cast**; with flexible event configuration. Look at the following example:
   
+    //Event Subscriber class
+    struct EventSubscriber :
+        public IControllable<EventSubscriber, MouseEvent, KeyboardEvent, TestEvent /*AnotherEvent*/>
+    {
+        //Specific processing event methods, based on event type
+        urc::ResultDescription processSpecificEvent(const MouseEvent &event, MouseEventCMD type) { /*TODO*/ }
+        urc::ResultDescription processSpecificEvent(const KeyboardEvent &event, KeyboardEventCMD type) { /*TODO*/ }
+        urc::ResultDescription processSpecificEvent(const TestEvent &event, CustomEventCMD type) { /*TODO*/ }
+    };
   
+  Register all event types in framework:
+  
+    using EventFramework = EventFrameworkFactory<MouseEvent, KeyboardEvent, TestEvent>;
+    
+   Initialize your Event subscriber instance for some events usage from configuration (use std::map for example, but flexible intrface provided too):
+   
+    Configurator conf;
+    conf.configurationMap.insert({"ControllableEvents", "KEYBOARD_EVENT,MOUSE_EVENT,TestEvent"});  /*event types to subscription*/
+    conf.configurationMap.insert({"KEYBOARD_EVENT", "MOVE_FORWARD,MOVE_BACKWARD"});                /*specific events in event type*/
+      conf.configurationMap.insert({"MOVE_FORWARD", "w"});                                         /*event and its command*/
+      conf.configurationMap.insert({"MOVE_BACKWARD", "s"});
+    conf.configurationMap.insert({"MOUSE_EVENT", "LOOK"});                                         /*another event type*/
+      conf.configurationMap.insert({"LOOK", "MOUSE_MOVE"});
+    conf.configurationMap.insert({"TestEvent", "TEID_1_CMD"});                                     /*another event type*/
+      conf.configurationMap.insert({"TEID_1_CMD", "TEID_1"});
+   
+   Configure consumer for event subsription
+   
+    EventSubscriber consumer;
+    consumer.loadControlEvents(conf);
+    
+   Usage:
+   
+    /*Somewhere in code: generate event*/
+    auto event = EventFramework::createControllerEvent<MouseEvent>(
+                                0.0f, 0.0f, //{coordnates X,Y}
+                                MouseButton::MOUSE_MOVE,
+                                0,  //key modifier
+                                MouseButtonState::MB_STATE_NONE);
+    eventProcessor.push_back(event);
+    
+    /*Somewhere in processing loop...*/
+    for(auto &event: receivedEvents)
+    {
+      consumer.onProcessEventDispatcher(event);
+    }
+    
+    /*Appropriate method would be called*/
+    urc::ResultDescription processSpecificEvent(const MouseEvent &event, MouseEventCMD type)
+    {
+      //Gotcha!
+    }
+    
 # Serialize/Deseriaize
   Let's imagine, that you have several classes for which you need provide serialize/deserialize capability (store data in files and load data from files, for example). In common way you need to implement abstract class which provide serialize/deserialize interface, for example:
   
@@ -60,6 +112,14 @@ Collection of usefull C++ templates utils, based on Mix-in classes concepts(http
 
       //No Impl, default stub behavior
     };
-
+    
+    //USAGE: Somewhere in code...
+    A a;
+    ...
+    std::stringstream ss;
+    a.serialize(ss);
+    ...
+    A aDup;
+    aDup.deserialize(ss);
 It's looked: Short, pretty, extendable!
 

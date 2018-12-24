@@ -2,9 +2,8 @@
 #define CONTROLLER_EVENT_H
 
 #include <variant>
-#include "../Utils/CTimeUtils.h"
-
-#include "FrameworkSpecializations/EventFrameworkSpecialization/EventTypesDeclaration.h"
+#include <memory>
+#include "Framework/Utils/CTimeUtils.h"
 #include "EventTypeTraitsDeclaration.h"
 
 //Common template controller event, for all registered ControlEventID ID

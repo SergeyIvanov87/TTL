@@ -9,124 +9,145 @@
 #define RESOURCESHOLDER_HPP_
 #include "LoadedResourcesHolder.h"
 
-
 //!!!!  DELETE IT #include "BaseObjectLoaderConcrete.h"
-namespace Resources {
+namespace Resources
+{
+#define TEMPLATE_ARGS_LIST_DECL  class ...Loaders
+#define TEMPLATE_ARGS_LIST_DEF   Loaders...
 
 //instantiated by Resource Loader template classes
-template <class ... Loaders>
-LoadedResourcesHolder<Loaders...>::~LoadedResourcesHolder()
+
+template <TEMPLATE_ARGS_LIST_DECL>
+LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::LoadedResourcesHolder(const std::string &assetsPath, const std::string &tmpOperationsPath) :
+ m_assetsPath(assetsPath),
+ m_assetsTmpPath(tmpOperationsPath)
+{
+}
+
+template <TEMPLATE_ARGS_LIST_DECL>
+LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::~LoadedResourcesHolder()
 {
     deinitResourceLoader();
 };
 
 //function to get specific resource from specific resource loader
-template <class ... Loaders>
-template<Resources::ResourceType type>
-typename std::tuple_element<type, typename LoadedResourcesHolder<Loaders...>::ResourceLoadersTuple>::type::ResourceClassTypeCPtr
-    LoadedResourcesHolder<Loaders...>::getResourceById(const std::string &name) const
+template <TEMPLATE_ARGS_LIST_DECL>
+template <class Resource>
+const Resource *LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourcePtr(const std::string &name, bool needDeserialize/* = false*/) const
+{
+    auto ret = std::get<Resource>(loadersTuple).getResourceByName(name);
+    if(ret)
     {
-        return std::get<type>(loadersTuple).getResourceByName(name);
+        if(needDeserialize)
+        {
+            if(deserializeResource<Resource>(name))
+            {
+                return ret;
+            }
+            return nullptr;
+        }
+        return ret;
     }
+    return nullptr;
+}
 
 //function to set specific resource to specific resource loader
-template <class ... Loaders>
-template<Resources::ResourceType type>
-bool LoadedResourcesHolder<Loaders...>::setResourceById(const std::string &name,
-        const typename std::tuple_element<type, ResourceLoadersTuple>::type::ResourceClassTypeSharedPtr &resource)
+template <TEMPLATE_ARGS_LIST_DECL>
+template <class Resource>
+bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::insertResource(const std::string &name, std::shared_ptr<Resource> &&resourcePtr)
 {
-    return std::get<type>(loadersTuple).setResourceByName(name, resource);
+    return std::get<Resource>(loadersTuple).setResourceByName(name, std::forward<Resource>(resourcePtr));
 }
 
 //function to de/serialize object into specific file
-template <class ... Loaders>
-template<Resources::ResourceType type>
-bool LoadedResourcesHolder<Loaders...>::serializeResource(const std::string &name)
+template <TEMPLATE_ARGS_LIST_DECL>
+template <class Resource>
+bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::serializeResource(const std::string &name)
+{
+    //Enter to main resources tree directory
+    std::unique_ptr<char, std::function<void(char *)>> curDirPtr(get_current_dir_name(), [](char *ptr) -> void
     {
-        //Enter to main reources tree directory
-        char * curDir = get_current_dir_name();
-        bool ret = false;
-        do
-        {
-            if(chdir(main_resources_path) != 0)
-            {
-                std::cout << "Cannot enter in resource dir: " <<
-                        strerror(errno) << ". Current dir: " << curDir<< std::endl;
-                break;
-            }
-            ret =  std::get<type>(loadersTuple).serialize(name);
-        }
-        while(false);
-
-        //Back current directory
-        chdir(curDir);
-        free(curDir);
-        return ret;
+        chdir(ptr);
+        free(ptr);
+    });
+    if(chdir(m_assetsPath.c_str()) != 0)
+    {
+        std::cout << "Cannot enter in resource dir: " <<
+                strerror(errno) << ". Current dir: " << curDirPtr.get()<< std::endl;
+        return false;
     }
-    template <class ... Loaders>
-    template<Resources::ResourceType type>
-    bool LoadedResourcesHolder<Loaders...>::deserializeResource(const std::string &name)
-    {
-        //Enter to main reources tree directory
-        char * curDir = get_current_dir_name();
-        bool ret = false;
-        do
-        {
-            if(chdir(main_resources_path) != 0)
-            {
-                std::cout << "Cannot enter in resource dir: " <<
-                        strerror(errno) << ". Current dir: " << curDir<< std::endl;
-                break;
-            }
-            ret = std::get<type>(loadersTuple).deserialize(name);
-        }
-        while (false);
+    return std::get<Resource>(loadersTuple).serialize(name);
+}
 
-        //Back current directory
-        chdir(curDir);
-        free(curDir);
-        return ret;
+template <TEMPLATE_ARGS_LIST_DECL>
+template <class Resource>
+bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::deserializeResource(const std::string &name)
+{
+    //Enter to main resources tree directory
+    std::unique_ptr<char, std::function<void(char *)>> curDirPtr(get_current_dir_name(), [](char *ptr) -> void
+    {
+        chdir(ptr);
+        free(ptr);
+    });
+    if(chdir(m_assetsPath.c_str()) != 0)
+    {
+        std::cout << "Cannot enter in resource dir: " <<
+                strerror(errno) << ". Current dir: " << curDirPtr.get()<< std::endl;
+        return false;
     }
+    return std::get<Resource>(loadersTuple).deserialize(name);
+}
 
-    //load resources for all ResourceLoaders
-    template <class ... Loaders>
-    bool LoadedResourcesHolder<Loaders...>::initResourceLoader()
+//load resources for all ResourceLoaders
+template <TEMPLATE_ARGS_LIST_DECL>
+bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::initResourceLoader()
+{
+    //Enter to main resources tree directory
+    std::unique_ptr<char, std::function<void(char *)>> curDirPtr(get_current_dir_name(), [](char *ptr) -> void
     {
-        //Enter to main reources tree directory
-        char * curDir = get_current_dir_name();
+        chdir(ptr);
+        free(ptr);
+    });
 
-        do
-        {
-            if(chdir(main_resources_path) != 0)
-            {
-                std::cout << "Cannot enter in resource dir: " <<
-                        strerror(errno) << ". Current dir: " << curDir<< std::endl;
-                return false;
-            }
-
-            CTimeUtils::for_each_in_tuple(loadersTuple, [](size_t index, auto &x)
-            {
-                x.loadResources();
-            });
-        }
-        while(false);
-
-        //Back current directory
-        chdir(curDir);
-        free(curDir);
-        return true;
+    if(chdir(m_assetsPath.c_str()) != 0)
+    {
+        std::cout << "Cannot enter in resource dir: " <<
+                strerror(errno) << ". Current dir: " << curDirPtr.get() << std::endl;
+        return false;
     }
 
-    //free resources for all ResourceLoaders
-    template <class ... Loaders>
-    bool LoadedResourcesHolder<Loaders...>::deinitResourceLoader()
+    CTimeUtils::for_each_in_tuple(loadersTuple, [](size_t index, auto &x)
     {
-        CTimeUtils::for_each_in_tuple(loadersTuple, [](size_t index, auto &x)
-        {
-            x.freeResources();
-        });
-        return true;
-    }
+        x.loadResources();
+    });
+    return true;
+}
+
+//free resources for all ResourceLoaders
+template <TEMPLATE_ARGS_LIST_DECL>
+bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::deinitResourceLoader()
+{
+    CTimeUtils::for_each_in_tuple(loadersTuple, [](size_t index, auto &x)
+    {
+        x.freeResources();
+    });
+    return true;
+}
+
+template <TEMPLATE_ARGS_LIST_DECL>
+const std::string &LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getAssetsPath() const
+{
+    return m_assetsPath;
+}
+
+template <TEMPLATE_ARGS_LIST_DECL>
+const std::string &LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getSerializationPath() const
+{
+    return m_assetsTmpPath;
+}
+
+#undef TEMPLATE_ARGS_LIST_DECL
+#undef TEMPLATE_ARGS_LIST_DEF
 } /* namespace Resources */
 
 #endif /* RESOURCESHOLDER_H_ */

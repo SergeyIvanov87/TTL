@@ -1,7 +1,6 @@
-#ifdef TEST
 //Compile it g++ -DTEST -I../../Framework/Base/ -I../.. test.cpp
 #include <sstream>
-#include "SerializeFramework/Interfaces/ISerializable.h"
+#include "Framework/SerializeFramework/Interfaces/ISerializable.h"
 
 struct A : public ISerializable<A>
 {
@@ -13,12 +12,12 @@ struct A : public ISerializable<A>
     std::string txt;
     int num;
     std::vector<double> doubleVector;
-    
+
     //Impl
     bool serializeImpl(std::ostream &out)
     {
-	serializeParams(out, txt, num, doubleVector);
-	return true;
+        serializeParams(out, txt, num, doubleVector);
+        return true;
     }
     bool deserializeImpl(std::istream &out)
     {
@@ -33,21 +32,22 @@ struct B : public ISerializable<B>
     {
         isSerializableSupport = false
     };
-    
+
     //No Impl
 };
+
 int main(int argc, char *argv[])
 {
     A a;
     a.txt = "Aclassobjectstring";
     a.num = 123;
     a.doubleVector = {0.1, 0.2, 0.3};
-    
+
     std::cout << "a: " << a.isSerializable() << std::endl;
     std::stringstream ss;
     a.serialize(ss);
     std::cout << "A serialized: " << ss.str() << std::endl;
-    
+
     A aa;
     aa.deserialize(ss);
     assert(a.txt == aa.txt && "a.txt == aa.txt");
@@ -60,4 +60,3 @@ int main(int argc, char *argv[])
     return 0;
 
 }
-#endif //TEST
