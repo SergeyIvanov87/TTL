@@ -5,6 +5,7 @@ enum class MouseEventCMD
 {
     EMPTY,
     LOOK,
+    MOUSE_BUTTON_EVENT,
     MAX_EVENT_TYPE
 };
 

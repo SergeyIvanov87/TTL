@@ -13,6 +13,8 @@ struct ResourcesFrameworkFactory
     static ResourceHolder* Instance();
     static bool initializeResourceHolder(const std::string &assetsPath, const std::string &objectSerializationPath);
     static bool deinitializeResourceHolder();
+private:
+    static ResourceHolderPtr resourceHolderPtr;
 /*
     template <class Type>
     typename IBaseResource<Type>::ResourceClassTypeCPtr getResourceObjectCPtr(const std::string &resourceName, bool needDeserialize = false)
@@ -56,5 +58,8 @@ bool deserializeResourceObject(const std::string &resourceName)
     }
     */
 };
+
+template <class ...RegisteredResourceTypes>
+typename ResourcesFrameworkFactory<RegisteredResourceTypes...>::ResourceHolderPtr resourceHolderPtr;
 }
 #endif //RESOURCES_FRAMEWORK_H

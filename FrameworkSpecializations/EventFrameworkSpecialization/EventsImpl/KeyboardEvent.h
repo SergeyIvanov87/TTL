@@ -142,23 +142,24 @@ public:
             return KeyModifier::NONE_MOD_KEY;
         }
 
-    static KeyModifier String2KeyModifierImpl(const std::string &keyMod);
+    inline static KeyModifier String2KeyModifierImpl(const std::string &keyMod);
 
-    static constexpr const char*
+    inline static constexpr const char*
         EventIdState2StringImpl(KeyState state);
 
-    static KeyState
+    inline static KeyState
         String2EventIdStateImpl(const std::string &state);
 
-    static KeyboardEventCMD String2ControlEventCommandsImpl(const std::string &commandStr);
+    inline static KeyboardEventCMD String2ControlEventCommandsImpl(const std::string &commandStr);
 
-    static constexpr const char *ControlEventCommands2StringImpl(KeyboardEventCMD command);
+    inline static constexpr const char *ControlEventCommands2StringImpl(KeyboardEventCMD command);
 
-    std::string
+    inline std::string
         toStringImpl() const;
 
 private:
     GLfloat x, y;
 };
 
+#include "KeyboardEvent.cpp"
 #endif //KEYBOARD_EVENTS_H

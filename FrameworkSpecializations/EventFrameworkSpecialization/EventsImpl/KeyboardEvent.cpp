@@ -152,7 +152,7 @@ inline constexpr const char *KeyboardSpecialButton2String(KeyboardSpecialButton 
     return "";
 }
 
-constexpr const char *CommonKeyboardKey2String(KeyboardKey::KeyboardCommonKey key)
+inline constexpr const char *CommonKeyboardKey2String(KeyboardKey::KeyboardCommonKey key)
 {
     constexpr std::array<const char *, std::numeric_limits<unsigned char>::max() + 1> charArray
     {"", "", "", "", "", "", "", "", "", "",
@@ -188,7 +188,7 @@ constexpr const char *CommonKeyboardKey2String(KeyboardKey::KeyboardCommonKey ke
     return charArray[key];
 }
 
-KeyboardKey::KeyboardCommonKey String2CommonKeyboardKey(const std::string &keyStr)
+inline KeyboardKey::KeyboardCommonKey String2CommonKeyboardKey(const std::string &keyStr)
 {
     constexpr std::array<const char *, std::numeric_limits<unsigned char>::max() + 1> charArray
     {     "", "", "", "", "", "", "", "", "", "",
@@ -226,7 +226,7 @@ KeyboardKey::KeyboardCommonKey String2CommonKeyboardKey(const std::string &keySt
 }
 
 
-constexpr const char *KeyboardEvent::EventId2StringImpl(KeyboardKey eventId)
+inline constexpr const char *KeyboardEvent::EventId2StringImpl(KeyboardKey eventId)
 {
     if(eventId.isSpecialKey)
     {
@@ -235,7 +235,7 @@ constexpr const char *KeyboardEvent::EventId2StringImpl(KeyboardKey eventId)
     return CommonKeyboardKey2String(eventId.keyValue.key);
 }
 
-KeyboardKey KeyboardEvent::String2EventIdImpl(const std::string &eventIdStr, const char sep
+inline KeyboardKey KeyboardEvent::String2EventIdImpl(const std::string &eventIdStr, const char sep
 /* = '+'*/)
 {
     KeyboardKey ret;
@@ -260,7 +260,7 @@ KeyboardKey KeyboardEvent::String2EventIdImpl(const std::string &eventIdStr, con
     }
     return ret;
 }
-constexpr const char* KeyboardEvent::EventIdState2StringImpl(KeyState state)
+inline constexpr const char* KeyboardEvent::EventIdState2StringImpl(KeyState state)
 {
     switch(state)
     {
@@ -274,7 +274,7 @@ constexpr const char* KeyboardEvent::EventIdState2StringImpl(KeyState state)
     }
     return "";
 }
-KeyState KeyboardEvent::String2EventIdStateImpl(const std::string &state)
+inline KeyState KeyboardEvent::String2EventIdStateImpl(const std::string &state)
 {
     static const std::map<std::string, KeyState> data
                             { {TO_STRING(KEY_STATE_DOWN), KeyState::KEY_STATE_DOWN},
@@ -292,12 +292,12 @@ KeyState KeyboardEvent::String2EventIdStateImpl(const std::string &state)
     return ret;
 }
 
-KeyModifier KeyboardEvent::String2KeyModifierImpl(const std::string &keyMod)
+inline KeyModifier KeyboardEvent::String2KeyModifierImpl(const std::string &keyMod)
 {
     return String2KeyboardModifier(keyMod);
 }
 
-KeyboardEventCMD KeyboardEvent::String2ControlEventCommandsImpl(const std::string &commandStr)
+inline KeyboardEventCMD KeyboardEvent::String2ControlEventCommandsImpl(const std::string &commandStr)
 {
     static const std::map<std::string, KeyboardEventCMD> data
                         {
@@ -321,7 +321,7 @@ KeyboardEventCMD KeyboardEvent::String2ControlEventCommandsImpl(const std::strin
     return ret;
 }
 
-constexpr const char *KeyboardEvent::ControlEventCommands2StringImpl(KeyboardEventCMD command)
+inline constexpr const char *KeyboardEvent::ControlEventCommands2StringImpl(KeyboardEventCMD command)
 {
     using namespace Utils;
         switch(command)
@@ -342,7 +342,7 @@ constexpr const char *KeyboardEvent::ControlEventCommands2StringImpl(KeyboardEve
         return TO_STRING(EMPTY);
 }
 
-std::string KeyboardEvent::toStringImpl() const
+inline std::string KeyboardEvent::toStringImpl() const
 {
     std::string result("[");
     result = result + EventId2StringImpl(getEventTypeCtrlId()) + ", " +

@@ -1,16 +1,12 @@
 #ifndef RESOURCES_FRAMEWORK_HPP
 #define RESOURCES_FRAMEWORK_HPP
 #include "ResourcesFramework.h"
-//#include "Framework/ResourcesFramework/LoadedResourcesHolderImpl.hpp"
 #include "Framework/ResourcesFramework/LoadedResourcesHolder.hpp"
 
 namespace Resources
 {
 #define TEMPLATE_ARGS_LIST_DECL  class ...RegisteredResourceTypes
 #define TEMPLATE_ARGS_LIST_DEF   RegisteredResourceTypes...
-
-template <TEMPLATE_ARGS_LIST_DECL>
-static typename ResourcesFrameworkFactory<TEMPLATE_ARGS_LIST_DEF>::ResourceHolderPtr resourceHolderPtr;
 
 template <TEMPLATE_ARGS_LIST_DECL>
 typename ResourcesFrameworkFactory<TEMPLATE_ARGS_LIST_DEF>::ResourceHolder *

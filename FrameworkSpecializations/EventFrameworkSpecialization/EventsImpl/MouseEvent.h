@@ -200,6 +200,7 @@ public:
                         {
                             {TO_STRING(EMPTY), MouseEventCMD::EMPTY},
                             {TO_STRING(LOOK), MouseEventCMD::LOOK},
+                            {TO_STRING(MOUSE_BUTTON_EVENT), MouseEventCMD::MOUSE_BUTTON_EVENT}
                         };
 
         MouseEventCMD ret;
@@ -224,6 +225,8 @@ public:
                 return TO_STRING(EMPTY);
             case MouseEventCMD::LOOK:
                 return TO_STRING(LOOK);
+            case MouseEventCMD::MOUSE_BUTTON_EVENT:
+                return TO_STRING(MOUSE_BUTTON_EVENT);
             default:
                 assert(false);
         }

@@ -4,8 +4,7 @@
 #include <string>
 #include <map>
 #include <memory>
-#include "FrameworkSpecializations/ResourcesFrameworkSpecialization/ResourcesTypes.h"
-#include "../Utils/ErrorCodes.h"
+//#include "FrameworkSpecializations/ResourcesFrameworkSpecialization/ResourcesTypes.h"
 #include <log4cplus/logger.h>
 #include <log4cplus/loggingmacros.h>
 #include "Framework/Utils/UnifiedResultCodes.h"
