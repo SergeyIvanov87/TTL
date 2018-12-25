@@ -15,6 +15,7 @@
 #include <error.h>
 #include <string.h>
 #include <memory>
+#include "BaseObjectLoader.h"
 #include "../Utils/CTimeUtils.h"
 
 
@@ -25,13 +26,14 @@ namespace Resources
 template <class ... Loaders>
 class LoadedResourcesHolder {
 public:
-    typedef std::tuple<Loaders...> ResourceLoadersTuple;
+    typedef std::tuple<Loaders...> ResourcesTuple;
+    typedef std::tuple<BaseObjectLoader<Loaders>...> ResourceLoadersTuple;
     LoadedResourcesHolder(const std::string &assetsPath, const std::string &tmpOperationsPath);
     ~LoadedResourcesHolder();
 
     //function to get specific resource from specific resource loader
     template <class Resource>
-    const Resource* getResourcePtr(const std::string &name, bool needDeserialize = false) const;
+    const Resource* getResourcePtr(const std::string &name, bool needDeserialize = false);
 
     //function to set specific resource to specific resource loader
     template <class Resource>

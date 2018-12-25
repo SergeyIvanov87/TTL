@@ -12,7 +12,7 @@ template <TEMPLATE_ARGS_LIST_DECL>
 typename ResourcesFrameworkFactory<TEMPLATE_ARGS_LIST_DEF>::ResourceHolder *
         ResourcesFrameworkFactory<TEMPLATE_ARGS_LIST_DEF>::Instance()
 {
-    return resourceHolderPtr.get();
+    return ResourcesFrameworkFactory<TEMPLATE_ARGS_LIST_DEF>::resourceHolderPtr.get();
 }
 
 template <TEMPLATE_ARGS_LIST_DECL>
@@ -21,8 +21,8 @@ bool ResourcesFrameworkFactory<TEMPLATE_ARGS_LIST_DEF>::initializeResourceHolder
     auto ret = Instance();
     if(!ret)
     {
-        resourceHolderPtr = std::make_unique<ResourceHolder>(assetsPath, objectSerializationPath);
-        return resourceHolderPtr->template initResourceLoader();
+        ResourcesFrameworkFactory<TEMPLATE_ARGS_LIST_DEF>::resourceHolderPtr = std::make_unique<ResourceHolder>(assetsPath, objectSerializationPath);
+        return ResourcesFrameworkFactory<TEMPLATE_ARGS_LIST_DEF>::resourceHolderPtr->template initResourceLoader();
     }
     return true;
 }
@@ -40,4 +40,4 @@ bool ResourcesFrameworkFactory<TEMPLATE_ARGS_LIST_DEF>::deinitializeResourceHold
 #undef TEMPLATE_ARGS_LIST_DECL
 #undef TEMPLATE_ARGS_LIST_DEF
 }
-#endif //RESOURCES_FRAMEWORK_H
+#endif //RESOURCES_FRAMEWORK_HPP

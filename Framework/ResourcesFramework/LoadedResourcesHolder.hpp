@@ -8,6 +8,7 @@
 #ifndef RESOURCESHOLDER_HPP_
 #define RESOURCESHOLDER_HPP_
 #include "LoadedResourcesHolder.h"
+#include "BaseObjectLoader.hpp"
 
 //!!!!  DELETE IT #include "BaseObjectLoaderConcrete.h"
 namespace Resources
@@ -33,9 +34,9 @@ LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::~LoadedResourcesHolder()
 //function to get specific resource from specific resource loader
 template <TEMPLATE_ARGS_LIST_DECL>
 template <class Resource>
-const Resource *LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourcePtr(const std::string &name, bool needDeserialize/* = false*/) const
+const Resource *LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourcePtr(const std::string &name, bool needDeserialize/* = false*/)
 {
-    auto ret = std::get<Resource>(loadersTuple).getResourceByName(name);
+    auto ret = std::get<BaseObjectLoader<Resource>>(loadersTuple).getResourceByName(name);
     if(ret)
     {
         if(needDeserialize)
@@ -56,7 +57,8 @@ template <TEMPLATE_ARGS_LIST_DECL>
 template <class Resource>
 bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::insertResource(const std::string &name, std::shared_ptr<Resource> &&resourcePtr)
 {
-    return std::get<Resource>(loadersTuple).setResourceByName(name, std::forward<Resource>(resourcePtr));
+    return std::get<BaseObjectLoader<Resource>>(loadersTuple).setResourceByName(name,
+                                            std::forward<typename BaseObjectLoader<Resource>::ResourceClassTypeSharedPtr>(resourcePtr));
 }
 
 //function to de/serialize object into specific file
@@ -76,7 +78,7 @@ bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::serializeResource(const std:
                 strerror(errno) << ". Current dir: " << curDirPtr.get()<< std::endl;
         return false;
     }
-    return std::get<Resource>(loadersTuple).serialize(name);
+    return std::get<BaseObjectLoader<Resource>>(loadersTuple).serialize(name);
 }
 
 template <TEMPLATE_ARGS_LIST_DECL>
@@ -95,7 +97,7 @@ bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::deserializeResource(const st
                 strerror(errno) << ". Current dir: " << curDirPtr.get()<< std::endl;
         return false;
     }
-    return std::get<Resource>(loadersTuple).deserialize(name);
+    return std::get<BaseObjectLoader<Resource>>(loadersTuple).deserialize(name);
 }
 
 //load resources for all ResourceLoaders

@@ -4,7 +4,7 @@
  *  Created on: Feb 11, 2016
  *      Author: user
  */
-
+#if 0
 #ifndef VERTEXOBJECTLOADER_H_
 #define VERTEXOBJECTLOADER_H_
 #include "../Framework/Base/Resources/ResourcesPath.h"
@@ -47,3 +47,4 @@ typedef BaseObjectLoader<ModelFileDescription, model_description_path> ModelFile
 } /* namespace Resources */
 
 #endif /* VERTEXOBJECTLOADER_H_ */
+#endif

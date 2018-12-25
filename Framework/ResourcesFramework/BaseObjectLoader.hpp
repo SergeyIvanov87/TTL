@@ -4,15 +4,20 @@
 #include "BaseObjectLoader.h"
 namespace Resources
 {
-template <class ResourceHolder,  const char *treeLeafPath>
-BaseObjectLoader<ResourceHolder, treeLeafPath>::BaseObjectLoader()
+#define T_ARG_DEC              class ResourceHolder
+#define T_ARG_DEF              ResourceHolder
+static const char *tmpDirectory = "dumps";
+
+
+template <T_ARG_DEC>
+BaseObjectLoader<T_ARG_DEF>::BaseObjectLoader()
 {
-    logger = log4cplus::Logger::getInstance(BaseObjectLoader<ResourceHolder, treeLeafPath>::getResourceTypeDescription());
+    logger = log4cplus::Logger::getInstance(BaseObjectLoader<T_ARG_DEF>::getResourceTypeDescription());
 }
 
 //Get/Set
-template <class ResourceHolder,  const char *treeLeafPath>
-typename BaseObjectLoader<ResourceHolder, treeLeafPath>::ResourceClassTypeCPtr BaseObjectLoader<ResourceHolder, treeLeafPath>::getResourceByName(const std::string &name) const
+template <T_ARG_DEC>
+typename BaseObjectLoader<T_ARG_DEF>::ResourceClassTypeCPtr BaseObjectLoader<T_ARG_DEF>::getResourceByName(const std::string &name) const
 {
     auto it = loadedObjectResources.find(name);
     if(it != loadedObjectResources.end())
@@ -23,13 +28,13 @@ typename BaseObjectLoader<ResourceHolder, treeLeafPath>::ResourceClassTypeCPtr B
     }
     LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Cannot get resource: ") << name <<
                             LOG4CPLUS_TEXT(" Type: ") << ResourceHolder::getResourceTypeDescription());
-    return NULL;
+    return nullptr;
 }
 
-template <class ResourceHolder,  const char *treeLeafPath>
-bool BaseObjectLoader<ResourceHolder, treeLeafPath>::setResourceByName(
-        const typename BaseObjectLoader<ResourceHolder, treeLeafPath>::ResourcesMap::key_type &name,
-        const typename BaseObjectLoader<ResourceHolder, treeLeafPath>::ResourceClassTypeSharedPtr &resource)
+template <T_ARG_DEC>
+bool BaseObjectLoader<T_ARG_DEF>::setResourceByName(
+        const typename BaseObjectLoader<T_ARG_DEF>::ResourcesMap::key_type &name,
+        const typename BaseObjectLoader<T_ARG_DEF>::ResourceClassTypeSharedPtr &resource)
 {
     auto it = loadedObjectResources.find(name);
     if(it == loadedObjectResources.end())
@@ -43,17 +48,24 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::setResourceByName(
 }
 
 //Free
-template <class ResourceHolder,  const char *treeLeafPath>
-void BaseObjectLoader<ResourceHolder, treeLeafPath>::freeResources()
+template <T_ARG_DEC>
+void BaseObjectLoader<T_ARG_DEF>::freeResources()
 {
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Free resources"));
     loadedObjectResources.clear();
 }
 
 //Deserialize
-template <class ResourceHolder,  const char *treeLeafPath>
-bool BaseObjectLoader<ResourceHolder, treeLeafPath>::deserialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource)
+template <T_ARG_DEC>
+bool BaseObjectLoader<T_ARG_DEF>::deserialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource)
 {
+    if constexpr(!ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
+    {
+        return true;
+    }
+    else
+    {
+
     if((!resource))
     {
         LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Empty resource pointer for name: ") << resourceName);
@@ -73,17 +85,17 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::deserialize(const std::stri
     });
 
     LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Current directory: ") << curDirPtr.get());
-    chdir(getResourceTreePath());
-    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Change directory: ") << getResourceTreePath());
+    chdir(ResourcesTraits<T_ARG_DEF>::getResourcePath());
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Change directory: ") << ResourcesTraits<T_ARG_DEF>::getResourcePath());
 
     //change to tmpDirectory
     if(-1 == chdir(tmpDirectory))
     {
         LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Cannot change serialize directory: ") <<
                                 curDirPtr.get() << LOG4CPLUS_TEXT("/") <<
-                                getResourceTreePath() << LOG4CPLUS_TEXT("/") <<
+                                ResourcesTraits<T_ARG_DEF>::getResourcePath() << LOG4CPLUS_TEXT("/") <<
                                 tmpDirectory);
-        throw urc::FileOpenError(std::string(curDirPtr.get()) + getResourceTreePath() + tmpDirectory, errno);
+        throw urc::FileOpenError(std::string(curDirPtr.get()) + ResourcesTraits<T_ARG_DEF>::getResourcePath() + tmpDirectory, errno);
     }
 
     //open file for reading
@@ -101,11 +113,19 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::deserialize(const std::stri
     bool result = resource->deserialize(fileIn);
     fileIn.close();
     return result;
+    }
 }
 
-template <class ResourceHolder,  const char *treeLeafPath>
-bool BaseObjectLoader<ResourceHolder, treeLeafPath>::deserialize(const std::string &resourceName)
+template <T_ARG_DEC>
+bool BaseObjectLoader<T_ARG_DEF>::deserialize(const std::string &resourceName)
 {
+    if constexpr(!ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
+    {
+        return true;
+    }
+    else
+{
+
     auto it = loadedObjectResources.find(resourceName);
     if(it == loadedObjectResources.end())
     {
@@ -114,13 +134,16 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::deserialize(const std::stri
     }
     return deserialize(resourceName, it->second);
 }
+}
 
 //Serialize
-template <class ResourceHolder,  const char *treeLeafPath>
-bool BaseObjectLoader<ResourceHolder, treeLeafPath>::serialize(
+template <T_ARG_DEC>
+bool BaseObjectLoader<T_ARG_DEF>::serialize(
     const std::string &resourceName,
     ResourceClassTypeSharedPtr &resource)
 {
+    if constexpr (!ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
+    {
     bool result = false;
     if((!resource))
     {
@@ -135,8 +158,8 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::serialize(
     });
 
     LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Current directory: ") << curDirPtr.get());
-    chdir(getResourceTreePath());
-    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Change directory: ") << getResourceTreePath());
+    chdir(ResourcesTraits<T_ARG_DEF>::getResourcePath());
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Change directory: ") << ResourcesTraits<T_ARG_DEF>::getResourcePath());
 
     //change to tmpDirectory
     if(-1 == chdir(tmpDirectory))
@@ -145,10 +168,10 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::serialize(
         {
             LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Cannot create serialize directory: ") <<
                                     curDirPtr.get() << LOG4CPLUS_TEXT("/") <<
-                                    getResourceTreePath() << LOG4CPLUS_TEXT("/") <<
+                                    ResourcesTraits<T_ARG_DEF>::getResourcePath() << LOG4CPLUS_TEXT("/") <<
                                     tmpDirectory);
 
-                throw urc::FileOpenError(std::string(curDirPtr.get()) + getResourceTreePath() + tmpDirectory, errno);
+                throw urc::FileOpenError(std::string(curDirPtr.get()) + ResourcesTraits<T_ARG_DEF>::getResourcePath() + tmpDirectory, errno);
         }
     }
 
@@ -169,11 +192,18 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::serialize(
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Object size after serialize: ") << sizeof(*resource));
     fileOut.close();
     return result;
+    }
+    else
+    {
+        return true;
+    }
 }
 
-template <class ResourceHolder,  const char *treeLeafPath>
-bool BaseObjectLoader<ResourceHolder, treeLeafPath>::serialize(const std::string &resourceName)
+template <T_ARG_DEC>
+bool BaseObjectLoader<T_ARG_DEF>::serialize(const std::string &resourceName)
 {
+    if constexpr (!ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
+    {
     auto it = loadedObjectResources.find(resourceName);
     if(it == loadedObjectResources.end())
     {
@@ -181,13 +211,24 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::serialize(const std::string
         return false;
     }
     return serialize(resourceName, it->second);
+    }
+    else
+    {
+        return true;
+    }
 }
 
 
 //Load Resources
-template <class ResourceHolder, const char *treeLeafPath>
-bool BaseObjectLoader<ResourceHolder, treeLeafPath>::loadResources()
+template <T_ARG_DEC>
+bool BaseObjectLoader<T_ARG_DEF>::loadResources()
 {
+    if constexpr (!ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
+    {
+        return loadResourcesDummy();
+    }
+    else
+    {
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Loading resources starting: ") << ResourceHolder::getResourceTypeDescription());
     //free resources
     //freeResources();
@@ -199,12 +240,12 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::loadResources()
         free(ptr);
     });
 
-    chdir(getResourceTreePath());
+    chdir(ResourcesTraits<T_ARG_DEF>::getResourcePath());
 
     DIR *objDir = opendir("./");
     if(!objDir)
     {
-        LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Cannot open directory:") << getResourceTreePath() <<
+        LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Cannot open directory:") << ResourcesTraits<T_ARG_DEF>::getResourcePath() <<
                                LOG4CPLUS_TEXT(". Error: ") << strerror(errno));
         return false;
     }
@@ -254,87 +295,12 @@ bool BaseObjectLoader<ResourceHolder, treeLeafPath>::loadResources()
     closedir(objDir);
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Total loaded resources:") << loadedObjectResources.size());
     return !loadedObjectResources.empty();
-}
-
-
-/////////////////////////DUMMY_PATH SPECIALIZATION///////////////////////////////////////////////////////
-
-template <class ResourceHolder>
-BaseObjectLoader<ResourceHolder, system_info_dummy_path>::BaseObjectLoader()
-{
-    logger = log4cplus::Logger::getInstance(BaseObjectLoader<ResourceHolder, system_info_dummy_path>::getResourceTypeDescription());
-}
-
-template <class ResourceHolder>
-typename BaseObjectLoader<ResourceHolder, system_info_dummy_path>::ResourceClassTypeCPtr BaseObjectLoader<ResourceHolder, system_info_dummy_path>::getResourceByName(const std::string &name) const
-{
-    auto it = loadedObjectResources.find(name);
-    if(it != loadedObjectResources.end())
-    {
-        LOG4CPLUS_TRACE(logger, LOG4CPLUS_TEXT("Get resource: ") << name);
-        return it->second.get();    //dereferenced shared ptr
     }
-    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Cannot get resource: ") << name);
-    return NULL;
 }
 
-template <class ResourceHolder>
-bool BaseObjectLoader<ResourceHolder, system_info_dummy_path>::setResourceByName(
-        const typename BaseObjectLoader<ResourceHolder, system_info_dummy_path>::ResourcesMap::key_type &name,
-        const typename BaseObjectLoader<ResourceHolder, system_info_dummy_path>::ResourceClassTypeSharedPtr &resource)
-{
-    auto it = loadedObjectResources.find(name);
-    if(it == loadedObjectResources.end())
-    {
-        loadedObjectResources.insert(std::make_pair(name, resource));
-        LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Insert resource: ") << name);
-        return true;
-    }
-    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Insert resource already exist: ") << name);
-    return false;
-}
 
-template <class ResourceHolder>
-void BaseObjectLoader<ResourceHolder, system_info_dummy_path>::freeResources()
-{
-    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Free resources"));
-    loadedObjectResources.clear();
-}
-
-template <class ResourceHolder>
-bool BaseObjectLoader<ResourceHolder, system_info_dummy_path>::serialize(
-    const std::string &resourceName,
-    ResourceClassTypeSharedPtr &resource)
-{
-    /*char *curDir = get_current_dir_name();
-    chdir(getResourceTreePath());
-
-
-    chdir(curDir);
-    free(curDir);*/
-    return true;
-}
-
-template <class ResourceHolder>
-bool BaseObjectLoader<ResourceHolder, system_info_dummy_path>::serialize(const std::string &resourceName)
-{
-    return true;
-}
-
-template <class ResourceHolder>
-bool BaseObjectLoader<ResourceHolder, system_info_dummy_path>::deserialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource)
-{
-    return true;
-}
-
-template <class ResourceHolder>
-bool BaseObjectLoader<ResourceHolder, system_info_dummy_path>::deserialize(const std::string &resourceName)
-{
-    return true;
-}
-
-template <class ResourceHolder>
-bool BaseObjectLoader<ResourceHolder, system_info_dummy_path>::loadResources()
+template <T_ARG_DEC>
+bool BaseObjectLoader<T_ARG_DEF>::loadResourcesDummy()
 {
     //just resource doesn't need in path
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Loading resources starting: ") << ResourceHolder::getResourceTypeDescription());
@@ -352,6 +318,9 @@ bool BaseObjectLoader<ResourceHolder, system_info_dummy_path>::loadResources()
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Loading resources finished: ") << res.size());
     return !res.empty();
 }
+
+#undef T_ARG_DEC
+#undef T_ARG_DEF
 }
 
 #endif //BASE_OBJECT_LOADER_HPP

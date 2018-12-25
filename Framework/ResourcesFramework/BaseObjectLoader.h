@@ -1,10 +1,3 @@
-/*
- * VerticesObjectHolder.h
- *
- *  Created on: Feb 5, 2016
- *      Author: user
- */
-
 #ifndef BASEOBJECTLOADER_H_
 #define BASEOBJECTLOADER_H_
 
@@ -17,35 +10,13 @@
 #include <log4cplus/logger.h>
 #include <log4cplus/loggingmacros.h>
 
+#include "ResourceTraits.h"
 #include "IBaseResource.h"
 #include "../Utils/Utils.h"
 
-template <bool B>
-struct invoker {};
-
-template <>
-struct invoker<true>
-{
-    template <class T>
-    static bool invoke(T *t)
-    {
-        return t->loadResourcesByEmptyPath();
-    }
-};
-
-template <>
-struct invoker<false>
-{
-    template <class T>
-    static bool invoke(T *t)
-    {
-        return t->loadResources();
-    }
-};
-
 namespace Resources
 {
-template<class ResourceHolder, const char *treeLeafPath = system_info_dummy_path>
+template<class ResourceHolder>
 class BaseObjectLoader
 {
 public:
@@ -59,49 +30,6 @@ public:
     typedef typename ResourceHolder::ResourcesMap ResourcesMap;
     typedef typename ResourceHolder::ResourcesMapValueType ResourcesMapValueType;
 
-    constexpr static const char* ResourceTreePath = treeLeafPath;
-
-    ResourceClassTypeCPtr getResourceByName(const std::string &name) const;
-    constexpr static const char *getResourceTypeDescription()
-    {
-        return ResourceHolder::getResourceTypeDescription();
-    };
-    const char *getResourceTreePath() const
-    {
-        return treeLeafPath;
-    };
-
-    bool setResourceByName(const typename ResourcesMap::key_type &name,
-            const ResourceClassTypeSharedPtr &resource);
-    void freeResources();
-    bool loadResources();
-
-    bool serialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource);
-    bool serialize(const std::string &resourceName);
-
-    bool deserialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource);
-    bool deserialize(const std::string &resourceName);
-protected:
-    log4cplus::Logger logger;
-private:
-    ResourcesMap loadedObjectResources;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-//partial specialization for dummy file path
-template<class ResourceHolder>
-class BaseObjectLoader<ResourceHolder, system_info_dummy_path> {
-public:
-    ~BaseObjectLoader() = default;
-    BaseObjectLoader();
-
-public:
-    typedef typename ResourceHolder::ResourceClassType ResourceClassType;
-    typedef typename ResourceHolder::ResourceClassTypeSharedPtr ResourceClassTypeSharedPtr;
-    typedef typename ResourceHolder::ResourceClassTypeCPtr ResourceClassTypeCPtr;
-    typedef typename ResourceHolder::ResourcesMap ResourcesMap;
-    typedef typename ResourceHolder::ResourcesMapValueType ResourcesMapValueType;
-
     ResourceClassTypeCPtr getResourceByName(const std::string &name) const;
     constexpr static const char *getResourceTypeDescription()
     {
@@ -121,10 +49,8 @@ public:
 protected:
     log4cplus::Logger logger;
 private:
+    bool loadResourcesDummy();
     ResourcesMap loadedObjectResources;
 };
-////////////////////////////////////////////////////////////////////////////////
-
-
 }
 #endif /* BASEOBJECTLOADER_H_ */

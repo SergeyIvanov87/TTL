@@ -60,6 +60,6 @@ bool deserializeResourceObject(const std::string &resourceName)
 };
 
 template <class ...RegisteredResourceTypes>
-typename ResourcesFrameworkFactory<RegisteredResourceTypes...>::ResourceHolderPtr resourceHolderPtr;
+typename ResourcesFrameworkFactory<RegisteredResourceTypes...>::ResourceHolderPtr ResourcesFrameworkFactory<RegisteredResourceTypes...>::resourceHolderPtr;
 }
 #endif //RESOURCES_FRAMEWORK_H
