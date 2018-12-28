@@ -30,21 +30,19 @@ public:
     typedef typename ResourceHolder::ResourcesMap ResourcesMap;
     typedef typename ResourceHolder::ResourcesMapValueType ResourcesMapValueType;
 
-    ResourceClassTypeCPtr getResourceByName(const std::string &name) const;
     constexpr static const char *getResourceTypeDescription()
     {
         return ResourceHolder::getResourceTypeDescription();
     };
 
+    ResourceClassTypeCPtr getResourceByName(const std::string &name) const;
     bool setResourceByName(const typename ResourcesMap::key_type &name,
             const ResourceClassTypeSharedPtr &resource);
+
     void freeResources();
     bool loadResources();
 
-    bool serialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource);
     bool serialize(const std::string &resourceName);
-
-    bool deserialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource);
     bool deserialize(const std::string &resourceName);
 protected:
     log4cplus::Logger logger;
