@@ -1,22 +1,13 @@
-/*
- * ResourcesHolder.h
- *
- *  Created on: Feb 11, 2016
- *      Author: user
- */
-
 #ifndef RESOURCESHOLDER_HPP_
 #define RESOURCESHOLDER_HPP_
+
 #include "LoadedResourcesHolder.h"
 #include "BaseObjectLoader.hpp"
 
-//!!!!  DELETE IT #include "BaseObjectLoaderConcrete.h"
 namespace Resources
 {
 #define TEMPLATE_ARGS_LIST_DECL  class ...Loaders
 #define TEMPLATE_ARGS_LIST_DEF   Loaders...
-
-//instantiated by Resource Loader template classes
 
 template <TEMPLATE_ARGS_LIST_DECL>
 LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::LoadedResourcesHolder(const std::string &assetsPath, const std::string &tmpOperationsPath) :
@@ -72,11 +63,14 @@ bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::serializeResource(const std:
         chdir(ptr);
         free(ptr);
     });
+
     if(chdir(m_assetsPath.c_str()) != 0)
     {
-        std::cout << "Cannot enter in resource dir: " <<
-                strerror(errno) << ". Current dir: " << curDirPtr.get()<< std::endl;
-        return false;
+        throw urc::SystemError(urc::ResultCodes::RESULT_SYSTEM_RESOURCE_LOCATION_ERROR,
+                              "Cannot enter in resource dir: ",
+                              strerror(errno),
+                              ". Current dir: ",
+                               curDirPtr.get());
     }
     return std::get<BaseObjectLoader<Resource>>(loadersTuple).serialize(name);
 }
@@ -91,11 +85,14 @@ bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::deserializeResource(const st
         chdir(ptr);
         free(ptr);
     });
+
     if(chdir(m_assetsPath.c_str()) != 0)
     {
-        std::cout << "Cannot enter in resource dir: " <<
-                strerror(errno) << ". Current dir: " << curDirPtr.get()<< std::endl;
-        return false;
+        throw urc::SystemError(urc::ResultCodes::RESULT_SYSTEM_RESOURCE_LOCATION_ERROR,
+                              "Cannot enter in resource dir: ",
+                              strerror(errno),
+                              ". Current dir: ",
+                               curDirPtr.get());
     }
     return std::get<BaseObjectLoader<Resource>>(loadersTuple).deserialize(name);
 }
@@ -113,9 +110,11 @@ bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::initResourceLoader()
 
     if(chdir(m_assetsPath.c_str()) != 0)
     {
-        std::cout << "Cannot enter in resource dir: " <<
-                strerror(errno) << ". Current dir: " << curDirPtr.get() << std::endl;
-        return false;
+        throw urc::SystemError(urc::ResultCodes::RESULT_SYSTEM_RESOURCE_LOCATION_ERROR,
+                              "Cannot enter in resource dir: ",
+                              strerror(errno),
+                              ". Current dir: ",
+                               curDirPtr.get());
     }
 
     CTimeUtils::for_each_in_tuple(loadersTuple, [](size_t index, auto &x)

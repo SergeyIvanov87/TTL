@@ -1,12 +1,6 @@
-/*
- * ResourcesHolder.h
- *
- *  Created on: Feb 11, 2016
- *      Author: user
- */
-
 #ifndef RESOURCESHOLDER_H_
 #define RESOURCESHOLDER_H_
+
 #include <tuple>
 #include <array>
 #include <utility>
@@ -16,8 +10,6 @@
 #include <string.h>
 #include <memory>
 #include "BaseObjectLoader.h"
-#include "../Utils/CTimeUtils.h"
-
 
 namespace Resources
 {

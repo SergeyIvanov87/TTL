@@ -17,7 +17,7 @@
 namespace Resources
 {
 template<class ResourceHolder>
-class BaseObjectLoader
+class BaseObjectLoader final
 {
 public:
     ~BaseObjectLoader() = default;
@@ -49,8 +49,13 @@ public:
 protected:
     log4cplus::Logger logger;
 private:
-    bool loadResourcesDummy();
+
+    bool doLoadResourcesFromFS();
+    bool doLoadResourcesFromMemory();
     ResourcesMap loadedObjectResources;
+
+    bool doSerialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource);
+    bool doDeserialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource);
 };
 }
 #endif /* BASEOBJECTLOADER_H_ */
