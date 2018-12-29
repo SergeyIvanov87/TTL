@@ -239,7 +239,6 @@ inline KeyboardKey KeyboardEvent::String2EventIdImpl(const std::string &eventIdS
 /* = '+'*/)
 {
     KeyboardKey ret;
-    const char separator = sep;
     std::list<std::string> list;
     if (!Utils::tokenizeString(eventIdStr, sep, list))
     {
