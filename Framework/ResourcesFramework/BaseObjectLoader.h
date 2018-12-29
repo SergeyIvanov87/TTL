@@ -17,7 +17,7 @@
 namespace Resources
 {
 template<class ResourceHolder>
-class BaseObjectLoader
+class BaseObjectLoader final
 {
 public:
     ~BaseObjectLoader() = default;
@@ -30,27 +30,30 @@ public:
     typedef typename ResourceHolder::ResourcesMap ResourcesMap;
     typedef typename ResourceHolder::ResourcesMapValueType ResourcesMapValueType;
 
-    ResourceClassTypeCPtr getResourceByName(const std::string &name) const;
     constexpr static const char *getResourceTypeDescription()
     {
         return ResourceHolder::getResourceTypeDescription();
     };
 
+    ResourceClassTypeCPtr getResourceByName(const std::string &name) const;
     bool setResourceByName(const typename ResourcesMap::key_type &name,
             const ResourceClassTypeSharedPtr &resource);
+
     void freeResources();
     bool loadResources();
 
-    bool serialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource);
     bool serialize(const std::string &resourceName);
-
-    bool deserialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource);
     bool deserialize(const std::string &resourceName);
 protected:
     log4cplus::Logger logger;
 private:
-    bool loadResourcesDummy();
+
+    bool doLoadResourcesFromFS();
+    bool doLoadResourcesFromMemory();
     ResourcesMap loadedObjectResources;
+
+    bool doSerialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource);
+    bool doDeserialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource);
 };
 }
 #endif /* BASEOBJECTLOADER_H_ */

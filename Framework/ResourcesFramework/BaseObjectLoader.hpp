@@ -55,17 +55,148 @@ void BaseObjectLoader<T_ARG_DEF>::freeResources()
     loadedObjectResources.clear();
 }
 
-//Deserialize
+//Deserialize/Serialize
 template <T_ARG_DEC>
-bool BaseObjectLoader<T_ARG_DEF>::deserialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource)
+bool BaseObjectLoader<T_ARG_DEF>::deserialize(const std::string &resourceName)
 {
-    if constexpr(!ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
+    if constexpr(ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
     {
-        return true;
+        auto it = loadedObjectResources.find(resourceName);
+        if(it == loadedObjectResources.end())
+        {
+            LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Cannot deserialize resource, not found: ") << resourceName);
+            return false;
+        }
+        return doDeserialize(resourceName, it->second);
     }
-    else
-    {
+    return true;
+}
 
+template <T_ARG_DEC>
+bool BaseObjectLoader<T_ARG_DEF>::serialize(const std::string &resourceName)
+{
+    if constexpr(ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
+    {
+        auto it = loadedObjectResources.find(resourceName);
+        if(it == loadedObjectResources.end())
+        {
+            LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Cannot serialize resource, not found: ") << resourceName);
+            return false;
+        }
+        return doSerialize(resourceName, it->second);
+    }
+    return true;
+}
+
+//Load Resources
+template <T_ARG_DEC>
+bool BaseObjectLoader<T_ARG_DEF>::loadResources()
+{
+    if constexpr (!ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
+    {
+        return doLoadResourcesFromFS();
+    }
+    return doLoadResourcesFromMemory();
+}
+
+
+template <T_ARG_DEC>
+bool BaseObjectLoader<T_ARG_DEF>::doLoadResourcesFromFS()
+{
+    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Loading resources from FS starting: ") << ResourceHolder::getResourceTypeDescription());
+    //free resources
+    //freeResources();
+
+    //get directory
+    std::unique_ptr<char, std::function<void(char *)>> curDirPtr(get_current_dir_name(), [](char *ptr) -> void
+    {
+        chdir(ptr);
+        free(ptr);
+    });
+
+    chdir(ResourcesTraits<T_ARG_DEF>::getResourcePath());
+
+    DIR *objDir = opendir("./");
+    if(!objDir)
+    {
+        LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Cannot open directory:") << ResourcesTraits<T_ARG_DEF>::getResourcePath() <<
+                               LOG4CPLUS_TEXT(". Error: ") << strerror(errno));
+        return false;
+    }
+    //iterate over directory and load resoures
+    struct dirent *entry = NULL;
+    while((entry = readdir(objDir)) != NULL)
+    {
+        if(!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+        {
+            //skip it
+            continue;
+        }
+        //TODO make files filter
+
+        std::string filePath(entry->d_name);
+        LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Load resource from file: ") << filePath);
+        ResourcesMap res;
+        try
+        {
+            res = ResourceClassType::loadResourcesImpl(filePath);
+            if(res.empty())
+            {
+                LOG4CPLUS_WARN(logger, LOG4CPLUS_TEXT("No resources loaded"));
+                continue;
+            }
+            LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Loading resources finished: ") << res.size());
+
+            if(ResourceClassType::isSerializable())
+            {
+                LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Serialize loaded resources"));
+                std::for_each(res.begin(), res.end(), [this] (auto &value)
+                {
+                    this->doSerialize(value.first, value.second);
+                });
+            }
+        }
+        catch( const urc::SystemError &exception)
+        {
+            LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Exception error: ") << exception.to_string());
+            continue;
+        }
+
+        //move to map
+        loadedObjectResources.merge(std::move(res));
+    }
+
+    //close dir
+    closedir(objDir);
+    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Total loaded resources:") << loadedObjectResources.size());
+    return !loadedObjectResources.empty();
+    }
+}
+
+template <T_ARG_DEC>
+bool BaseObjectLoader<T_ARG_DEF>::doLoadResourcesFromMemory()
+{
+    //just resource doesn't need in path
+    size_t initialSize = loadedObjectResources.size();
+    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Loading resources starting: ") << ResourceHolder::getResourceTypeDescription());
+    try
+    {
+        loadedObjectResources.merge(ResourceClassType::loadResourcesImpl());
+    }
+    catch( const urc::SystemError &exception)
+    {
+        LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Exception error: ") << exception.to_string());
+        return false;
+    }
+    size_t diff = loadedObjectResources.size() - initialSize;
+    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Loading resources finished: ")
+                           << diff <<  LOG4CPLUS_TEXT(", total: ") << loadedObjectResources.size() );
+    return diff;
+}
+
+template <T_ARG_DEC>
+bool BaseObjectLoader<T_ARG_DEF>::doDeserialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource)
+{
     if((!resource))
     {
         LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Empty resource pointer for name: ") << resourceName);
@@ -113,42 +244,25 @@ bool BaseObjectLoader<T_ARG_DEF>::deserialize(const std::string &resourceName, R
     bool result = resource->deserialize(fileIn);
     fileIn.close();
     return result;
-    }
 }
 
 template <T_ARG_DEC>
-bool BaseObjectLoader<T_ARG_DEF>::deserialize(const std::string &resourceName)
-{
-    if constexpr(!ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
-    {
-        return true;
-    }
-    else
-{
-
-    auto it = loadedObjectResources.find(resourceName);
-    if(it == loadedObjectResources.end())
-    {
-        LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Cannot deserialize resource, not found: ") << resourceName);
-        return false;
-    }
-    return deserialize(resourceName, it->second);
-}
-}
-
-//Serialize
-template <T_ARG_DEC>
-bool BaseObjectLoader<T_ARG_DEF>::serialize(
+bool BaseObjectLoader<T_ARG_DEF>::doSerialize(
     const std::string &resourceName,
     ResourceClassTypeSharedPtr &resource)
 {
-    if constexpr (!ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
-    {
     bool result = false;
     if((!resource))
     {
         LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Empty resource pointer for name: ") << resourceName);
         return result;
+    }
+
+/* TODO - BC or not BC? */
+    if(!resource->wasSerialized())
+    {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("resource was not serialized. skip it: ") << resourceName);
+        return true;
     }
 
     std::unique_ptr<char, std::function<void(char *)>> curDirPtr(get_current_dir_name(), [](char *ptr) -> void
@@ -192,133 +306,7 @@ bool BaseObjectLoader<T_ARG_DEF>::serialize(
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Object size after serialize: ") << sizeof(*resource));
     fileOut.close();
     return result;
-    }
-    else
-    {
-        return true;
-    }
 }
-
-template <T_ARG_DEC>
-bool BaseObjectLoader<T_ARG_DEF>::serialize(const std::string &resourceName)
-{
-    if constexpr (!ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
-    {
-    auto it = loadedObjectResources.find(resourceName);
-    if(it == loadedObjectResources.end())
-    {
-        LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Cannot serialize resource, not found: ") << resourceName);
-        return false;
-    }
-    return serialize(resourceName, it->second);
-    }
-    else
-    {
-        return true;
-    }
-}
-
-
-//Load Resources
-template <T_ARG_DEC>
-bool BaseObjectLoader<T_ARG_DEF>::loadResources()
-{
-    if constexpr (!ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
-    {
-        return loadResourcesDummy();
-    }
-    else
-    {
-    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Loading resources starting: ") << ResourceHolder::getResourceTypeDescription());
-    //free resources
-    //freeResources();
-
-    //get directory
-    std::unique_ptr<char, std::function<void(char *)>> curDirPtr(get_current_dir_name(), [](char *ptr) -> void
-    {
-        chdir(ptr);
-        free(ptr);
-    });
-
-    chdir(ResourcesTraits<T_ARG_DEF>::getResourcePath());
-
-    DIR *objDir = opendir("./");
-    if(!objDir)
-    {
-        LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Cannot open directory:") << ResourcesTraits<T_ARG_DEF>::getResourcePath() <<
-                               LOG4CPLUS_TEXT(". Error: ") << strerror(errno));
-        return false;
-    }
-    //iterate over directory and load resoures
-    struct dirent *entry = NULL;
-    while((entry = readdir(objDir)) != NULL)
-    {
-        if(!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
-        {
-            //skip it
-            continue;
-        }
-        //make files filter
-
-        std::string filePath(entry->d_name);
-        LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Load resource from file: ") << filePath);
-        ResourcesMap res;
-        try
-        {
-            res = ResourceClassType::loadResourcesImpl(filePath);
-            if(res.empty())
-            {
-                LOG4CPLUS_WARN(logger, LOG4CPLUS_TEXT("No resources loaded"));
-                continue;
-            }
-            LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Loading resources finished: ") << res.size());
-
-            if(ResourceClassType::isSerializable())
-            {
-                LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Serialize loaded resources"));
-                std::for_each(res.begin(), res.end(), [this] (auto &value)
-                {
-                    this->serialize(value.first, value.second);
-                });
-            }
-        }
-        catch( const urc::SystemError &exception)
-        {
-            LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Exception error: ") << exception.to_string());
-            continue;
-        }
-        //add to map
-        loadedObjectResources.insert(res.begin(), res.end());
-    }
-
-    //close dir
-    closedir(objDir);
-    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Total loaded resources:") << loadedObjectResources.size());
-    return !loadedObjectResources.empty();
-    }
-}
-
-
-template <T_ARG_DEC>
-bool BaseObjectLoader<T_ARG_DEF>::loadResourcesDummy()
-{
-    //just resource doesn't need in path
-    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Loading resources starting: ") << ResourceHolder::getResourceTypeDescription());
-    ResourcesMap res;
-    try
-    {
-        res = ResourceClassType::loadResourcesImpl();
-        loadedObjectResources.insert(res.begin(), res.end());
-    }
-    catch( const urc::SystemError &exception)
-    {
-        LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Exception error: ") << exception.to_string());
-        return false;
-    }
-    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Loading resources finished: ") << res.size());
-    return !res.empty();
-}
-
 #undef T_ARG_DEC
 #undef T_ARG_DEF
 }
