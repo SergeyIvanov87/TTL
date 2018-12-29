@@ -59,7 +59,7 @@ void BaseObjectLoader<T_ARG_DEF>::freeResources()
 template <T_ARG_DEC>
 bool BaseObjectLoader<T_ARG_DEF>::deserialize(const std::string &resourceName)
 {
-    if constexpr(ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
+    if constexpr (ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
     {
         auto it = loadedObjectResources.find(resourceName);
         if(it == loadedObjectResources.end())
@@ -75,7 +75,7 @@ bool BaseObjectLoader<T_ARG_DEF>::deserialize(const std::string &resourceName)
 template <T_ARG_DEC>
 bool BaseObjectLoader<T_ARG_DEF>::serialize(const std::string &resourceName)
 {
-    if constexpr(ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
+    if constexpr (ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
     {
         auto it = loadedObjectResources.find(resourceName);
         if(it == loadedObjectResources.end())
@@ -92,11 +92,14 @@ bool BaseObjectLoader<T_ARG_DEF>::serialize(const std::string &resourceName)
 template <T_ARG_DEC>
 bool BaseObjectLoader<T_ARG_DEF>::loadResources()
 {
-    if constexpr (!ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
+    if constexpr (ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
     {
         return doLoadResourcesFromFS();
     }
-    return doLoadResourcesFromMemory();
+    else
+    {
+        return doLoadResourcesFromMemory();
+    }
 }
 
 
@@ -170,7 +173,6 @@ bool BaseObjectLoader<T_ARG_DEF>::doLoadResourcesFromFS()
     closedir(objDir);
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Total loaded resources:") << loadedObjectResources.size());
     return !loadedObjectResources.empty();
-    }
 }
 
 template <T_ARG_DEC>
@@ -181,7 +183,7 @@ bool BaseObjectLoader<T_ARG_DEF>::doLoadResourcesFromMemory()
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Loading resources starting: ") << ResourceHolder::getResourceTypeDescription());
     try
     {
-        loadedObjectResources.merge(ResourceClassType::loadResourcesImpl());
+        loadedObjectResources.merge(ResourceClassType::loadResourcesImpl(""));
     }
     catch( const urc::SystemError &exception)
     {

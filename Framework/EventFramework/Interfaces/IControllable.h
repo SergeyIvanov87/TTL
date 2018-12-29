@@ -4,7 +4,6 @@
 #include <functional>
 #include "Framework/Utils/UnifiedResultCodes.h"
 #include "IEventSpecificControllable.h"
-#include "Framework/Utils/CTimeUtils.h"
 #include "Framework/Utils/Visitor.h"
 #include <Framework/Utils/LogTracer.h>
 

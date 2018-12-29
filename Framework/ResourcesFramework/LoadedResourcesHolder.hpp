@@ -2,6 +2,7 @@
 #define RESOURCESHOLDER_HPP_
 
 #include "LoadedResourcesHolder.h"
+#include "Framework/Utils/CTimeUtils.h"
 #include "BaseObjectLoader.hpp"
 
 namespace Resources
@@ -14,6 +15,7 @@ LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::LoadedResourcesHolder(const std::
  m_assetsPath(assetsPath),
  m_assetsTmpPath(tmpOperationsPath)
 {
+    (void)getSerializationPath();
 }
 
 template <TEMPLATE_ARGS_LIST_DECL>
@@ -64,7 +66,7 @@ bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::serializeResource(const std:
         free(ptr);
     });
 
-    if(chdir(m_assetsPath.c_str()) != 0)
+    if(chdir(getAssetsPath().c_str()) != 0)
     {
         throw urc::SystemError(urc::ResultCodes::RESULT_SYSTEM_RESOURCE_LOCATION_ERROR,
                               "Cannot enter in resource dir: ",
@@ -86,7 +88,7 @@ bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::deserializeResource(const st
         free(ptr);
     });
 
-    if(chdir(m_assetsPath.c_str()) != 0)
+    if(chdir(getAssetsPath().c_str()) != 0)
     {
         throw urc::SystemError(urc::ResultCodes::RESULT_SYSTEM_RESOURCE_LOCATION_ERROR,
                               "Cannot enter in resource dir: ",
@@ -108,7 +110,7 @@ bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::initResourceLoader()
         free(ptr);
     });
 
-    if(chdir(m_assetsPath.c_str()) != 0)
+    if(chdir(getAssetsPath().c_str()) != 0)
     {
         throw urc::SystemError(urc::ResultCodes::RESULT_SYSTEM_RESOURCE_LOCATION_ERROR,
                               "Cannot enter in resource dir: ",
