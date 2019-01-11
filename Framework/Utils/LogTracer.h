@@ -137,18 +137,18 @@ class Tracer<EmptyTracerImpl>
 {
 public:
     template <class T>
-    Tracer &operator<< (const T &val)
+    Tracer &operator<< (const T &val) noexcept
     {
         return *this;
     }
 
-    EmptyTracerImpl &getManagedTracer()
+    EmptyTracerImpl &getManagedTracer() noexcept
     {
         static EmptyTracerImpl empty;
         return empty;
     }
 
     template <class ...Args>
-    void trace(Args &&...args) {}
+    void trace(Args &&...args) noexcept {}
 };
 #endif
