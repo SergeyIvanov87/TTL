@@ -5,8 +5,6 @@
 #include <string>
 #include <map>
 #include <memory>
-#include <log4cplus/logger.h>
-#include <log4cplus/loggingmacros.h>
 #include "Framework/Utils/UnifiedResultCodes.h"
 
 namespace Resources
@@ -25,11 +23,6 @@ public:
     typedef SharedPtr ResourceClassTypeSharedPtr;
     typedef const Resource * ResourceClassTypeCPtr;
 
-    IBaseResource()
-    {
-        logger = log4cplus::Logger::getInstance(this->getResourceTypeDescription());
-    }
-
     //Interfaces Decl
     static ResourcesMap loadResources(const std::string &resourcePath)
     {
@@ -40,9 +33,6 @@ public:
     {
         return ResourceClassType::getResourceTypeDescriptionImpl();
     }
-
-protected:
-    log4cplus::Logger logger;
 };
 }
 #endif //IRESOURCELOADER_H

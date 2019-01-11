@@ -16,13 +16,14 @@ typename ResourcesFrameworkFactory<TEMPLATE_ARGS_LIST_DEF>::ResourceHolder *
 }
 
 template <TEMPLATE_ARGS_LIST_DECL>
-bool ResourcesFrameworkFactory<TEMPLATE_ARGS_LIST_DEF>::initializeResourceHolder(const std::string &assetsPath, const std::string &objectSerializationPath)
+template <class UsedTracer>
+bool ResourcesFrameworkFactory<TEMPLATE_ARGS_LIST_DEF>::initializeResourceHolder(const std::string &assetsPath, const std::string &objectSerializationPath, UsedTracer &tracer)
 {
     auto ret = Instance();
     if(!ret)
     {
         ResourcesFrameworkFactory<TEMPLATE_ARGS_LIST_DEF>::resourceHolderPtr = std::make_unique<ResourceHolder>(assetsPath, objectSerializationPath);
-        return ResourcesFrameworkFactory<TEMPLATE_ARGS_LIST_DEF>::resourceHolderPtr->template initResourceLoader();
+        return ResourcesFrameworkFactory<TEMPLATE_ARGS_LIST_DEF>::resourceHolderPtr->template initResourceLoader(tracer);
     }
     return true;
 }

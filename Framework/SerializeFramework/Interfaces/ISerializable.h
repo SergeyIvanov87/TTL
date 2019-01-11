@@ -37,6 +37,11 @@ struct ISerializable
         return m_wasSerialized;
     }
 
+    size_t getObjectSize() const
+    {
+        return getObjectSizeSelector<Impl>();
+    }
+
     //-----------------SFINAE---------------------------------------------------
     //1) Is SerializableSelector
     template<class Derived>
@@ -75,7 +80,21 @@ struct ISerializable
         return true;
     }
 
+    //4) getObjectSizeSelector
+    template <class Derived>
+    typename std::enable_if<Derived::isDumpObjectSupport, size_t>::type
+    getObjectSizeSelector() const
+    {
+        return static_cast<const Impl *>(this)->getObjectSizeImpl();
+    }
+
+    template <class Derived>
+    typename std::enable_if< !Derived::isDumpObjectSupport, size_t>::type
+    getObjectSizeSelector() const
+    {
+        return 0;
+    }
 private:
-    bool m_wasSerialized = false;;
+    bool m_wasSerialized = false;
 };
 #endif //ISERIALIZABLE_H

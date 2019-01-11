@@ -1,11 +1,15 @@
+#include <Framework/ResourcesFramework/ResourcesFramework.hpp>
 #include "ResourceFrameworkSpecs.h"
-#include "Framework/ResourcesFramework/ResourcesFramework.hpp"
-
-constexpr const char system_info_dummy_path[] = "DUMMY_PATH";
-constexpr const char resourceA_path_str[] = "rA";
 
 int main(int argc, char **argv)
 {
-    ResourcesFramework::initializeResourceHolder("ASSETS", "dumps");
+
+    SSTracerImpl ss('\t');
+    Tracer<SSTracerImpl> tracer(ss);
+    ResourcesFramework::initializeResourceHolder("ASSETS", "dumps", tracer);
+    std::cout << tracer.getManagedTracer().str();
+
+    auto p = ResourcesFramework::Instance()->getResourcePtr<ResourceA>("ResourceA_1");
+    assert(p);
     return 0;
 }

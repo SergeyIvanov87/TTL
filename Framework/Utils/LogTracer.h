@@ -7,16 +7,20 @@
 class SSTracerImpl
 {
 public:
-    SSTracerImpl() = default;
+    SSTracerImpl(char indent = char(' ')) :
+     m_ss(),
+     m_ident(indent)
+    {
+    }
 
     std::string str() const
     {
         return m_ss.str();
     }
 
-    void increaseDeep(char indent = char(' '))
+    void increaseDeep()
     {
-        m_prefix.push_back(indent);
+        m_prefix.push_back(m_ident);
     }
 
     void decreaseDeep()
@@ -47,6 +51,7 @@ public:
 private:
     std::stringstream m_ss;
     std::string m_prefix;
+    char m_ident;
 };
 
 //For Reco Net processing

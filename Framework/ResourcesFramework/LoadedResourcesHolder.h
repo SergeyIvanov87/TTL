@@ -45,7 +45,8 @@ private:
     std::string m_assetsTmpPath;
 public:
     //load resources for all ResourceLoaders
-    bool initResourceLoader();
+    template <class UsedTracer = Tracer<EmptyTracerImpl>>
+    bool initResourceLoader(UsedTracer &tracer = UsedTracer());
     //free resources for all ResourceLoaders
     bool deinitResourceLoader();
 };

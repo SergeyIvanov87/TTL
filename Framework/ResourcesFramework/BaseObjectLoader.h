@@ -7,8 +7,8 @@
 #include <iostream>
 #include <string.h>
 #include <fstream>
-#include <log4cplus/logger.h>
-#include <log4cplus/loggingmacros.h>
+
+#include <Framework/Utils/LogTracer.h>
 
 #include "ResourceTraits.h"
 #include "IBaseResource.h"
@@ -19,10 +19,6 @@ namespace Resources
 template<class ResourceHolder>
 class BaseObjectLoader final
 {
-public:
-    ~BaseObjectLoader() = default;
-    BaseObjectLoader();
-
 public:
     typedef typename ResourceHolder::ResourceClassType ResourceClassType;
     typedef typename ResourceHolder::ResourceClassTypeSharedPtr ResourceClassTypeSharedPtr;
@@ -40,20 +36,25 @@ public:
             const ResourceClassTypeSharedPtr &resource);
 
     void freeResources();
-    bool loadResources();
+
+    template <class UsedTracer>
+    size_t loadResources(UsedTracer tracer);
 
     bool serialize(const std::string &resourceName);
     bool deserialize(const std::string &resourceName);
-protected:
-    log4cplus::Logger logger;
 private:
 
-    bool doLoadResourcesFromFS();
-    bool doLoadResourcesFromMemory();
+    template <class UsedTracer>
+    size_t doLoadResourcesFromFS(UsedTracer &tracer);
+    template <class UsedTracer>
+    size_t doLoadResourcesFromMemory(UsedTracer &tracer);
     ResourcesMap loadedObjectResources;
 
-    bool doSerialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource);
-    bool doDeserialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource);
+    template <class UsedTracer = Tracer<EmptyTracerImpl>>
+    bool doSerialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource, UsedTracer tracer = UsedTracer());
+
+    template <class UsedTracer = Tracer<EmptyTracerImpl>>
+    bool doDeserialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource, UsedTracer tracer = UsedTracer());
 };
 }
 #endif /* BASEOBJECTLOADER_H_ */

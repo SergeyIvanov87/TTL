@@ -69,7 +69,7 @@ bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::serializeResource(const std:
     if(chdir(getAssetsPath().c_str()) != 0)
     {
         throw urc::SystemError(urc::ResultCodes::RESULT_SYSTEM_RESOURCE_LOCATION_ERROR,
-                              "Cannot enter in resource dir: ",
+                              getAssetsPath(), ": ",
                               strerror(errno),
                               ". Current dir: ",
                                curDirPtr.get());
@@ -91,7 +91,7 @@ bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::deserializeResource(const st
     if(chdir(getAssetsPath().c_str()) != 0)
     {
         throw urc::SystemError(urc::ResultCodes::RESULT_SYSTEM_RESOURCE_LOCATION_ERROR,
-                              "Cannot enter in resource dir: ",
+                              getAssetsPath(), ": ",
                               strerror(errno),
                               ". Current dir: ",
                                curDirPtr.get());
@@ -101,7 +101,8 @@ bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::deserializeResource(const st
 
 //load resources for all ResourceLoaders
 template <TEMPLATE_ARGS_LIST_DECL>
-bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::initResourceLoader()
+template <class UsedTracer>
+bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::initResourceLoader(UsedTracer &tracer)
 {
     //Enter to main resources tree directory
     std::unique_ptr<char, std::function<void(char *)>> curDirPtr(get_current_dir_name(), [](char *ptr) -> void
@@ -113,15 +114,16 @@ bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::initResourceLoader()
     if(chdir(getAssetsPath().c_str()) != 0)
     {
         throw urc::SystemError(urc::ResultCodes::RESULT_SYSTEM_RESOURCE_LOCATION_ERROR,
-                              "Cannot enter in resource dir: ",
+                              getAssetsPath(), ": ",
                               strerror(errno),
                               ". Current dir: ",
                                curDirPtr.get());
     }
 
-    CTimeUtils::for_each_in_tuple(loadersTuple, [](size_t index, auto &x)
+    tracer.trace("Total resource types ", std::tuple_size_v<ResourceLoadersTuple>, " for loading:\n");
+    CTimeUtils::for_each_in_tuple(loadersTuple, [&tracer](size_t index, auto &x)
     {
-        x.loadResources();
+        x.loadResources(tracer);
     });
     return true;
 }
