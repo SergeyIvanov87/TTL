@@ -102,7 +102,7 @@ bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::deserializeResource(const st
 //load resources for all ResourceLoaders
 template <TEMPLATE_ARGS_LIST_DECL>
 template <class UsedTracer>
-bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::initResourceLoader(UsedTracer &tracer)
+bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::initResourceLoader(UsedTracer tracer)
 {
     //Enter to main resources tree directory
     std::unique_ptr<char, std::function<void(char *)>> curDirPtr(get_current_dir_name(), [](char *ptr) -> void
@@ -144,13 +144,13 @@ const std::string &LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getAssetsPath(
 {
     return m_assetsPath;
 }
-
+/*
 template <TEMPLATE_ARGS_LIST_DECL>
 const std::string &LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getSerializationPath() const
 {
     return m_assetsTmpPath;
 }
-
+*/
 #undef TEMPLATE_ARGS_LIST_DECL
 #undef TEMPLATE_ARGS_LIST_DEF
 } /* namespace Resources */

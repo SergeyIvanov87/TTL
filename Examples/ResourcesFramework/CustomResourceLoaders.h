@@ -26,7 +26,8 @@ public:
     }
 
     //Interfaces Decl
-    static ResourcesMap loadResourcesImpl(const std::string &resourcePath)
+    template<class Tracer>
+    static ResourcesMap loadResourcesImpl(const std::string &resourcePath, Tracer tracer)
     {
         ResourcesMap instances;
         for (size_t i = 0; i < instancesForLoadingCount; i ++)
@@ -66,7 +67,8 @@ public:
     }
 
     //Interfaces Decl
-    static ResourcesMap loadResourcesImpl(const std::string &resourcePath)
+    template<class Tracer>
+    static ResourcesMap loadResourcesImpl(const std::string &resourcePath, Tracer tracer)
     {
         ResourcesMap instances;
         for (size_t i = 0; i < instancesForLoadingCount; i ++)

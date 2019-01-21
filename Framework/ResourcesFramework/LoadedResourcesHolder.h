@@ -38,7 +38,7 @@ public:
     bool deserializeResource(const std::string &name);
 
     const std::string &getAssetsPath() const;
-    const std::string &getSerializationPath() const;
+    const std::string &getSerializationPath() const {  return m_assetsTmpPath; }
 private:
     ResourceLoadersTuple loadersTuple;
     std::string m_assetsPath;
@@ -46,7 +46,7 @@ private:
 public:
     //load resources for all ResourceLoaders
     template <class UsedTracer = Tracer<EmptyTracerImpl>>
-    bool initResourceLoader(UsedTracer &tracer = UsedTracer());
+    bool initResourceLoader(UsedTracer tracer = UsedTracer());
     //free resources for all ResourceLoaders
     bool deinitResourceLoader();
 };

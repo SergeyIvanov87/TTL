@@ -136,7 +136,7 @@ size_t BaseObjectLoader<T_ARG_DEF>::doLoadResourcesFromFS(UsedTracer &tracer)
         ResourcesMap res;
         try
         {
-            res = ResourceClassType::loadResourcesImpl(filePath);
+            res = ResourceClassType::loadResourcesImpl(filePath, tracer);
             if(res.empty())
             {
                 tracer4File << "\tNo resources loaded";
@@ -180,7 +180,7 @@ size_t BaseObjectLoader<T_ARG_DEF>::doLoadResourcesFromMemory(UsedTracer &tracer
 
     try
     {
-        loadedObjectResources.merge(ResourceClassType::loadResourcesImpl(""));
+        loadedObjectResources.merge(ResourceClassType::loadResourcesImpl("", tracer));
     }
     catch( const urc::SystemError &exception)
     {

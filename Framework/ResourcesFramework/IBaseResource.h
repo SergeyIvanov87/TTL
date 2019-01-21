@@ -24,9 +24,12 @@ public:
     typedef const Resource * ResourceClassTypeCPtr;
 
     //Interfaces Decl
-    static ResourcesMap loadResources(const std::string &resourcePath)
+    template<class Tracer, class ...Additionals>
+    static ResourcesMap loadResources(const std::string &resourcePath, Tracer &&tracer, Additionals &&...args)
     {
-        return ResourceClassType::loadResourcesImpl(resourcePath);
+        return ResourceClassType::loadResourcesImpl(resourcePath,
+                                  std::forward<Tracer>(tracer),
+                                  std::forward<Additionals>(args)...);
     }
 
     constexpr static const char *getResourceTypeDescription()

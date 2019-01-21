@@ -17,7 +17,7 @@ typename ResourcesFrameworkFactory<TEMPLATE_ARGS_LIST_DEF>::ResourceHolder *
 
 template <TEMPLATE_ARGS_LIST_DECL>
 template <class UsedTracer>
-bool ResourcesFrameworkFactory<TEMPLATE_ARGS_LIST_DEF>::initializeResourceHolder(const std::string &assetsPath, const std::string &objectSerializationPath, UsedTracer &tracer)
+bool ResourcesFrameworkFactory<TEMPLATE_ARGS_LIST_DEF>::initializeResourceHolder(const std::string &assetsPath, const std::string &objectSerializationPath, UsedTracer tracer)
 {
     auto ret = Instance();
     if(!ret)

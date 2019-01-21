@@ -14,7 +14,7 @@ struct ResourcesFrameworkFactory
     static ResourceHolder* Instance();
 
     template <class UsedTracer = Tracer<EmptyTracerImpl>>
-    static bool initializeResourceHolder(const std::string &assetsPath, const std::string &objectSerializationPath, UsedTracer &tracer = UsedTracer());
+    static bool initializeResourceHolder(const std::string &assetsPath, const std::string &objectSerializationPath, UsedTracer tracer = UsedTracer());
     static bool deinitializeResourceHolder();
 private:
     static ResourceHolderPtr resourceHolderPtr;
