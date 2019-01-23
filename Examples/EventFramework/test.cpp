@@ -7,6 +7,9 @@
 //specific events
 #include "FrameworkSpecializations/EventFrameworkSpecialization/EventsImpl/MouseEvent.h"
 #include "FrameworkSpecializations/EventFrameworkSpecialization/EventsImpl/KeyboardEvent.h"
+
+#include <Framework/EventFramework/Interfaces/IControllable.hpp>
+
 #include "CustomEvent.h"
 
 //g++ -std=c++17 test.cpp ../../FrameworkSpecializations/EventFrameworkSpecialization/EventsImpl/KeyboardEvent.cpp -I/home/user/microcontroller/git_hub/TTL/

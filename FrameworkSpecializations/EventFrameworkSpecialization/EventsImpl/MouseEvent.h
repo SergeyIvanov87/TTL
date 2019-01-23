@@ -15,22 +15,75 @@
 #include "Framework/EventFramework/Interfaces/IBaseEvent.h"
 
 
-    enum class MouseButton
+struct MouseButton : public IEventField<MouseButton>
+{
+    friend class IEventField<MouseButton>;
+    enum ids
     {
         MB_BUTTON_NONE = -1,
         MB_LEFT = GLUT_LEFT_BUTTON,
         MB_MIDDLE = GLUT_MIDDLE_BUTTON,
         MB_RIGHT = GLUT_RIGHT_BUTTON,
-        /*MOUSE_MOVE_DOWN = 0X00E0,
-        MOUSE_MOVE_UP = 0X00F0,
-        MOUSE_MOVE_LEFT = 0X0E00,
-        MOUSE_MOVE_RIGHT = 0X0F00,
-        */
         MOUSE_MOVE,
         MB_BUTTON_MAX
     };
 
-    enum class MouseButtonState
+    ids m_id;
+    MouseButton(size_t id = MouseButton::MB_BUTTON_NONE) : m_id(MouseButton::ids(id)) {}
+
+private:
+    constexpr const char *toCStringImpl() const noexcept
+    {
+        switch(m_id)
+        {
+            case MouseButton::MB_BUTTON_NONE:
+                return "";
+            case MouseButton::MB_LEFT:
+                return TO_STRING(MB_LEFT);
+            case MouseButton::MB_RIGHT:
+                return TO_STRING(MB_RIGHT);
+            case MouseButton::MB_MIDDLE:
+                return TO_STRING(MB_MIDDLE);
+            case MouseButton::MOUSE_MOVE:
+                return TO_STRING(MOUSE_MOVE);
+            default:
+                assert(false);
+                break;
+        }
+        return "";
+    }
+
+    ids valueImpl() const noexcept
+    {
+        return m_id;
+    }
+
+    static MouseButton createFromStringImpl(const std::string &eventIdStr)
+    {
+        MouseButton ret;
+        static const std::map<std::string, MouseButton::ids> data {
+                                      {TO_STRING(MB_LEFT), MouseButton::MB_LEFT},
+                                      {TO_STRING(MB_RIGHT), MouseButton::MB_RIGHT},
+                                      {TO_STRING(MB_MIDDLE), MouseButton::MB_MIDDLE},
+                                      {TO_STRING(MOUSE_MOVE), MouseButton::MOUSE_MOVE} };
+        auto it = data.find(eventIdStr);
+        if(it != data.end())
+        {
+            ret.m_id = std::get<1>(*it);
+        }
+        else
+        {
+            assert(false);
+        }
+        return ret;
+    }
+};
+
+struct MouseButtonState : public IEventField<MouseButtonState>
+{
+    friend class IEventField<MouseButtonState>;
+
+    enum ids
     {
         MB_STATE_NONE = -1,
         MB_DOWN = GLUT_DOWN,
@@ -38,6 +91,54 @@
         MB_STATE_MAX,
     };
 
+    ids m_id;
+    constexpr MouseButtonState(size_t id = MouseButtonState::MB_STATE_NONE) : m_id(MouseButtonState::ids(id)) {}
+
+private:
+    ids valueImpl() const noexcept
+    {
+        return m_id;
+    }
+
+    constexpr const char* toCStringImpl() const noexcept
+    {
+        switch(m_id)
+        {
+            case MouseButtonState::MB_STATE_NONE:
+                return "";
+            case MouseButtonState::MB_DOWN:
+                return TO_STRING(MB_DOWN);
+            case MouseButtonState::MB_UP:
+                return TO_STRING(MB_UP);
+            default:
+                assert(false);
+                break;
+        }
+        return "";
+    }
+
+    static MouseButtonState String2EventIdStateImpl(const std::string &state)
+    {
+        static const std::map<std::string, MouseButtonState::ids> data
+                            { {TO_STRING(MB_DOWN), MouseButtonState::MB_DOWN},
+                              {TO_STRING(MB_UP), MouseButtonState::MB_UP}};
+
+        MouseButtonState ret(MouseButtonState::MB_STATE_NONE);
+        auto it = data.find(state);
+        if(it != data.end())
+        {
+            ret.m_id = std::get<1>(*it);
+        }
+        else
+        {
+            assert(false);
+        }
+        return ret;
+    }
+};
+
+
+//Aggregated Event Definition
 class MouseEvent : public IBaseEvent<MouseEvent,
                                      MouseButton, KeyModifier, MouseButtonState, MouseEventCMD>
 {
@@ -46,29 +147,11 @@ public:
                                 MouseButton, KeyModifier, MouseButtonState, MouseEventCMD>;
 
     //total ctor
-    //1)
-    MouseEvent(GLfloat _x, GLfloat _y, int mouseButton, int mouseButtonState) :
-        BaseType(static_cast<MouseButton>(mouseButton),
-                KeyModifier::NONE_MOD_KEY,
-                static_cast<MouseButtonState>(mouseButtonState)),
-        x(_x), y(_y)
-    {
-    }
-    //1)*
     MouseEvent(GLfloat _x, GLfloat _y, MouseButton mouseButton, MouseButtonState mouseButtonState) :
         BaseType(mouseButton, KeyModifier::NONE_MOD_KEY, mouseButtonState),
         x(_x), y(_y)
     {
     }
-    //2)
-    MouseEvent(GLfloat _x, GLfloat _y, int mouseButton, int keyMod, int mouseButtonState) :
-        BaseType(static_cast<MouseButton>(mouseButton),
-                static_cast<KeyModifier>(keyMod),
-                static_cast<MouseButtonState>(mouseButtonState)),
-        x(_x), y(_y)
-    {
-    }
-    //2)*
     MouseEvent(GLfloat _x, GLfloat _y, MouseButton mouseButton, KeyModifier keyMod, MouseButtonState mouseButtonState) :
         BaseType(mouseButton,
                 keyMod,
@@ -92,153 +175,12 @@ public:
         return TO_STRING(MOUSE_EVENT);
     }
 
-    static constexpr const char *EventId2StringImpl(MouseButton eventId)
-    {
-        switch(eventId)
-        {
-            case MouseButton::MB_BUTTON_NONE:
-                return "";
-            case MouseButton::MB_LEFT:
-                return TO_STRING(MB_LEFT);
-            case MouseButton::MB_RIGHT:
-                return TO_STRING(MB_RIGHT);
-            case MouseButton::MB_MIDDLE:
-                return TO_STRING(MB_MIDDLE);
-                /*
-            case MouseButton::MOUSE_MOVE_DOWN:
-                return TO_STRING(MOUSE_MOVE_DOWN);
-            case MouseButton::MOUSE_MOVE_UP:
-                return TO_STRING(MOUSE_MOVE_UP);
-            case MouseButton::MOUSE_MOVE_LEFT:
-                return TO_STRING(MOUSE_MOVE_LEFT);
-            case MouseButton::MOUSE_MOVE_RIGHT:
-                return TO_STRING(MOUSE_MOVE_RIGHT);
-                */
-            case MouseButton::MOUSE_MOVE:
-                return TO_STRING(MOUSE_MOVE);
-            default:
-                assert(false);
-                break;
-        }
-        return "";
-    }
-    static constexpr MouseButtonState getEventIdStateDefaultImpl() {return MouseButtonState::MB_STATE_NONE; };
-    static MouseButton String2EventIdImpl(const std::string &eventIdStr)
-    {
-        MouseButton ret = MouseButton::MB_BUTTON_NONE;
-        static const std::map<std::string, MouseButton> data
-                                    { {TO_STRING(MB_LEFT), MouseButton::MB_LEFT},
-                                      {TO_STRING(MB_RIGHT), MouseButton::MB_RIGHT},
-                                      {TO_STRING(MB_MIDDLE), MouseButton::MB_MIDDLE},
-                                     /* {TO_STRING(MOUSE_MOVE_DOWN), MouseButton::MOUSE_MOVE_DOWN},
-                                      {TO_STRING(MOUSE_MOVE_UP), MouseButton::MOUSE_MOVE_UP},
-                                      {TO_STRING(MOUSE_MOVE_LEFT), MouseButton::MOUSE_MOVE_LEFT},
-                                      {TO_STRING(MOUSE_MOVE_RIGHT), MouseButton::MOUSE_MOVE_RIGHT},*/
-                                      {TO_STRING(MOUSE_MOVE), MouseButton::MOUSE_MOVE} };
-        auto it = data.find(eventIdStr);
-        if(it != data.end())
-        {
-            ret = std::get<1>(*it);
-        }
-        else
-        {
-            assert(false);
-        }
-        return ret;
-    }
-
-    static constexpr KeyModifier getEventModifierDefaultImpl()
-    {
-        return KeyModifier::NONE_MOD_KEY;
-    }
-
-    static KeyModifier String2KeyModifierImpl(const std::string &keyMod)
-    {
-        return String2KeyboardModifier(keyMod);
-    }
-
-    static constexpr const char* EventIdState2StringImpl(MouseButtonState state)
-    {
-        switch(state)
-        {
-            case MouseButtonState::MB_STATE_NONE:
-                return "";
-            case MouseButtonState::MB_DOWN:
-                return TO_STRING(MB_DOWN);
-            case MouseButtonState::MB_UP:
-                return TO_STRING(MB_UP);
-            default:
-                assert(false);
-                break;
-        }
-        return "";
-    }
-
-    static MouseButtonState String2EventIdStateImpl(const std::string &state)
-    {
-        static const std::map<std::string, MouseButtonState> data
-                            { {TO_STRING(MB_DOWN), MouseButtonState::MB_DOWN},
-                              {TO_STRING(MB_UP), MouseButtonState::MB_UP}};
-
-        MouseButtonState ret;
-        auto it = data.find(state);
-        if(it != data.end())
-        {
-            ret = std::get<1>(*it);
-        }
-        else
-        {
-            assert(false);
-        }
-        return ret;
-    }
-
-
-    static MouseEventCMD String2ControlEventCommandsImpl(const std::string &commandStr)
-    {
-        static const std::map<std::string, MouseEventCMD> data
-                        {
-                            {TO_STRING(EMPTY), MouseEventCMD::EMPTY},
-                            {TO_STRING(LOOK), MouseEventCMD::LOOK},
-                            {TO_STRING(MOUSE_BUTTON_EVENT), MouseEventCMD::MOUSE_BUTTON_EVENT}
-                        };
-
-        MouseEventCMD ret;
-        auto it = data.find(commandStr);
-        if(it != data.end())
-        {
-            ret = std::get<1>(*it);
-        }
-        else
-        {
-            assert(false);
-        }
-        return ret;
-    }
-
-    static constexpr const char *ControlEventCommands2StringImpl(MouseEventCMD command)
-    {
-        using namespace Utils;
-        switch(command)
-        {
-            case MouseEventCMD::EMPTY:
-                return TO_STRING(EMPTY);
-            case MouseEventCMD::LOOK:
-                return TO_STRING(LOOK);
-            case MouseEventCMD::MOUSE_BUTTON_EVENT:
-                return TO_STRING(MOUSE_BUTTON_EVENT);
-            default:
-                assert(false);
-        }
-        return TO_STRING(EMPTY);
-    }
-
     std::string toStringImpl() const
     {
         std::string result("[");
-        result = result + EventId2StringImpl(getEventTypeCtrlId()) + ", " +
-                KeyboardModifier2String(getEventTypeCtrlIdModifier()) + ", " +
-                EventIdState2StringImpl(getEventTypeCtrlIdState()) + "] x=" +
+        result = result + getEventTypeCtrlId().toCString() + ", " +
+                getEventTypeCtrlIdModifier().toCString() + ", " +
+                getEventTypeCtrlIdState().toCString() + "] x=" +
                 std::to_string(x) + ", y=" + std::to_string(y);
         return result;
     }

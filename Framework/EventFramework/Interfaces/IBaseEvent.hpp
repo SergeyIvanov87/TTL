@@ -2,8 +2,7 @@
 #define BASE_EVENT_HPP
 #include <cassert>
 #include "IBaseEvent.h"
-//#include "Framework/Utils/Utils.h"
-//#include "FrameworkSpecializations/EventFrameworkSpecialization/EventIdsSpecific.h"
+#include "IEventFields.h"
 
 //helpers
 #define TEMPLATE_ARGS_LIST_DECL  class Implementation, class _EventId, class _EventIDMod, class _EventIdState, class _ControlEventCMD
@@ -72,25 +71,22 @@ typename IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::EventTypeCtrlData IBaseEvent<TEMPLA
     switch(dataList.size())
     {
         case 1:
-            return EventTypeCtrlData(String2EventId(*dataList.begin()),
-                                    getEventModifierDefault(),
-                                    getEventIdStateDefault());
+            return std::make_tuple(_EventId::createFromString(*dataList.begin()), _EventIDMod(), _EventIdState());
         case 2:
             {
                 auto first = dataList.begin();
                 auto second = std::next(first);
-            return EventTypeCtrlData(String2EventId(*first),
-                                    String2KeyModifier(*second),
-                                    getEventIdStateDefault());
+            return std::make_tuple(_EventId::createFromString(*first),
+                                    _EventIDMod::createFromString(*second), _EventIdState());
             }
         case 3:
         {
             auto first = dataList.begin();
             auto second = std::next(first);
             auto third = std::next(second);
-            return EventTypeCtrlData(String2EventId(*first),
-                                    String2KeyModifier(*second),
-                                    String2EventIdState(*third));
+            return std::make_tuple(_EventId::createFromString(*first),
+                                    _EventIDMod::createFromString(*second),
+                                    _EventIdState::createFromString(*third));
         }
         default:
             assert(false);
@@ -105,14 +101,13 @@ typename IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::EventTypeSubscriptionData IBaseEven
     switch(dataList.size())
     {
         case 1:
-            return EventTypeSubscriptionData(String2EventId(*dataList.begin()),
-                                    getEventModifierDefault());
+            return std::make_tuple(_EventId::createFromString(*dataList.begin()), _EventIDMod());
         case 2:
             {
                 auto first = dataList.begin();
                 auto second = std::next(first);
-                return EventTypeSubscriptionData(String2EventId(*first),
-                                    String2KeyModifier(*second));
+                return std::make_tuple(_EventId::createFromString(*first),
+                                                 _EventIDMod::createFromString(*second));
             }
         default:
             assert(false);
@@ -132,58 +127,22 @@ constexpr const char *IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::getEventTypeDescriptio
 }
 
 template <TEMPLATE_ARGS_LIST_DECL>
-_EventId IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::String2EventId(const std::string &eventIdStr)
-{
-    return Implementation::String2EventIdImpl(eventIdStr);
-}
-
-template <TEMPLATE_ARGS_LIST_DECL>
-constexpr const char* IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::EventId2String(EventId eventId)
-{
-    return Implementation::EventId2StringImpl(eventId);
-}
-
-template <TEMPLATE_ARGS_LIST_DECL>
 constexpr _EventIDMod IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::getEventModifierDefault()
 {
     return Implementation::getEventModifierDefaultImpl();
 }
 
 template <TEMPLATE_ARGS_LIST_DECL>
-_EventIDMod IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::String2KeyModifier(const std::string &keyMod)
-{
-    return Implementation::String2KeyModifierImpl(keyMod);
-}
-
-template <TEMPLATE_ARGS_LIST_DECL>
-constexpr _EventIdState IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::getEventIdStateDefault()
-{
-    return Implementation::getEventIdStateDefaultImpl();
-}
-
-template <TEMPLATE_ARGS_LIST_DECL>
-_EventIdState IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::String2EventIdState(const std::string &state)
-{
-    return Implementation::String2EventIdStateImpl(state);
-}
-
-template <TEMPLATE_ARGS_LIST_DECL>
-constexpr const char* IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::EventIdState2String(EventIdState state)
-{
-    return Implementation::EventIdState2StringImpl(state);
-}
-
-template <TEMPLATE_ARGS_LIST_DECL>
 typename IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::ControlEventCMD
     IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::String2ControlEventCommands(const std::string &commandStr)
 {
-    return Implementation::String2ControlEventCommandsImpl(commandStr);
+    return ControlEventCMD::createFromString(commandStr);
 }
 
 template <TEMPLATE_ARGS_LIST_DECL>
 constexpr const char *IBaseEvent<TEMPLATE_ARGS_LIST_DEF>::ControlEventCommands2String(ControlEventCMD command)
 {
-    return Implementation::ControlEventCommands2StringImpl(command);
+    return command.toCString();
 }
 
 template <TEMPLATE_ARGS_LIST_DECL>

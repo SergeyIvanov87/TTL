@@ -1,38 +1,53 @@
 #ifndef TEST_CUSTOM_EVENT_COMMANDS_H
 #define TEST_CUSTOM_EVENT_COMMANDS_H
 
-enum class CustomEventCMD
+struct CustomEventCMD : public IEventField<CustomEventCMD>
 {
-    TEID_1_CMD,
-    MAX__EVENT_TYPE
+    friend class IEventField<CustomEventCMD>;
+    enum ids
+    {
+        TEID_1_CMD,
+        MAX__EVENT_TYPE
+    };
+    ids m_id;
+
+private:
+    static CustomEventCMD createFromStringImpl(const std::string &commandStr)
+    {
+        static const std::map<std::string, CustomEventCMD::ids> data
+                            {
+                                {TO_STRING(TEID_1_CMD), CustomEventCMD::TEID_1_CMD},
+                            };
+
+        CustomEventCMD ret;
+        auto it = data.find(commandStr);
+        if(it != data.end())
+        {
+            ret.m_id = std::get<1>(*it);
+        }
+        else
+        {
+            assert(false);
+        }
+        return ret;
+    }
+
+    constexpr const char *toCStringImpl() const
+    {
+        using namespace Utils;
+        switch(m_id)
+        {
+            case CustomEventCMD::TEID_1_CMD:
+                return TO_STRING(TEID_1_CMD);
+            default:
+                assert(false);
+        }
+        return TO_STRING(TEID_1_CMD);
+    }
+
+    ids valueImpl() const noexcept
+    {
+        return m_id;
+    }
 };
-
-template<class T>
-constexpr typename std::enable_if<std::is_integral<T>::value, bool>::type
-    operator!= (const T &lhs, CustomEventCMD rhs)
-{
-    return lhs != static_cast<T>(rhs);
-}
-
-template<class T>
-constexpr typename std::enable_if<std::is_integral<T>::value, bool>::type
-    operator== (CustomEventCMD lhs, const T &rhs)
-{
-    return !(rhs != lhs);
-}
-
-template<class T>
-constexpr typename std::enable_if<std::is_integral<T>::value, bool>::type
-    operator!= (CustomEventCMD rhs, const T &lhs)
-{
-    return lhs != static_cast<T>(rhs);
-}
-
-template<class T>
-constexpr typename std::enable_if<std::is_integral<T>::value, bool>::type
-    operator== (const T &rhs, CustomEventCMD lhs)
-{
-    return !(rhs != lhs);
-}
-
 #endif //TEST_CUSTOM_EVENT_COMMANDS_H

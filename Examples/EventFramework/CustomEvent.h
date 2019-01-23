@@ -8,22 +8,177 @@
 #include "Framework/Utils/StringUtils.h"
 
 //my Test Event
-enum TestEventID
+struct TestEventID : IEventField<TestEventID>
 {
-    TEID_1,
-    TEID_2
-};
-enum TestEventModifier
-{
-    TEIM_NONE,
-    TEIM_1,
-    TEIM_2
+    friend class IEventField<TestEventID>;
+    enum ids
+    {
+        TEID_1,
+        TEID_2
+    };
+    ids m_id;
+
+    constexpr TestEventID(size_t id = TestEventID::TEID_1) : m_id(TestEventID::ids(id)) {}
+
+private:
+    static TestEventID createFromStringImpl(const std::string &eventIdStr)
+    {
+        using namespace Utils;
+        TestEventID ret(TestEventID::TEID_1);
+        static const std::map<std::string, TestEventID::ids> data
+                                    {
+                                        {TO_STRING(TEID_1), TestEventID::TEID_1},
+                                        {TO_STRING(TEID_2), TestEventID::TEID_2}
+                                    };
+        auto it = data.find(eventIdStr);
+        if(it != data.end())
+        {
+            ret.m_id = std::get<1>(*it);
+        }
+        else
+        {
+            assert(false);
+        }
+        return ret;
+    }
+
+    constexpr const char* toCStringImpl() const
+    {
+        using namespace Utils;
+        switch(m_id)
+        {
+            case TestEventID::TEID_1:
+                return TO_STRING(TEID_1);
+            case TestEventID::TEID_2:
+                return TO_STRING(TEID_2);
+            default:
+                assert(false);
+        }
+        return TO_STRING(TEID_1);
+    }
+
+    std::pair<bool, std::string> validateImpl() const
+    {
+        return {true, ""};
+    }
+
+    ids valueImpl() const noexcept
+    {
+        return m_id;
+    }
 };
 
-enum TestEvenState
+struct TestEventModifier : public IEventField<TestEventModifier>
 {
-    TEIS_1,
-    TEIS_2
+    friend class IEventField<TestEventModifier>;
+    enum ids
+    {
+        TEIM_NONE,
+        TEIM_1,
+        TEIM_2
+    };
+
+    ids m_id;
+
+    constexpr TestEventModifier(size_t id = TestEventModifier::TEIM_NONE) : m_id(TestEventModifier::ids(id)) {}
+
+private:
+    static TestEventModifier createFromStringImpl(const std::string &keyMod)
+    {
+         static const std::map<std::string, TestEventModifier::ids> data
+                            { {TO_STRING(TEIM_NONE), TestEventModifier::TEIM_NONE},
+                              {TO_STRING(TEIM_1), TestEventModifier::TEIM_1},
+                              {TO_STRING(TEIM_2), TestEventModifier::TEIM_2},
+                            };
+
+
+        TestEventModifier ret(TestEventModifier::TEIM_NONE);
+        auto it = data.find(keyMod);
+        if(it != data.end())
+        {
+            ret.m_id = std::get<1>(*it);
+        }
+        else
+        {
+            assert(false);
+        }
+        return ret;
+    }
+
+    constexpr const char* toCStringImpl() const
+    {
+        using namespace Utils;
+        switch(m_id)
+        {
+            case TestEventModifier::TEIM_NONE:
+                return TO_STRING(TEIM_NONE);
+            case TestEventModifier::TEIM_1:
+                return TO_STRING(TEIM_1);
+            case TestEventModifier::TEIM_2:
+                return TO_STRING(TEIM_2);
+            default:
+                assert(false);
+        }
+        return TO_STRING(TEIM_NONE);
+    }
+
+    ids valueImpl() const noexcept
+    {
+        return m_id;
+    }
+};
+
+struct TestEvenState: public IEventField<TestEvenState>
+{
+    friend class IEventField<TestEvenState>;
+    enum ids
+    {
+        TEIS_1,
+        TEIS_2
+    };
+    ids m_id;
+
+    constexpr TestEvenState(size_t id = TestEvenState::TEIS_1) : m_id(TestEvenState::ids(id)) {}
+
+private:
+    static TestEvenState createFromStringImpl(const std::string &state)
+    {
+        static const std::map<std::string, TestEvenState::ids> data
+                            { {TO_STRING(TEIS_1), TestEvenState::TEIS_1},
+                              {TO_STRING(TEIS_2), TestEvenState::TEIS_2}};
+
+        TestEvenState ret(TestEvenState::TEIS_1);
+        auto it = data.find(state);
+        if(it != data.end())
+        {
+            ret.m_id = std::get<1>(*it);
+        }
+        else
+        {
+            assert(false);
+        }
+        return ret;
+    }
+
+    constexpr const char* toCStringImpl() const
+    {
+        using namespace Utils;
+        switch(m_id)
+        {
+            case TestEvenState::TEIS_1:
+                return TO_STRING(TEIS_1);
+            case TestEvenState::TEIS_2:
+                return TO_STRING(TEIS_2);
+            default:
+                assert(false);
+        }
+        return TO_STRING(TEIS_1);
+    }
+
+        ids valueImpl() const noexcept
+    {
+        return m_id;
+    }
 };
 
 struct TestEvent : public IBaseEvent<TestEvent, TestEventID, TestEventModifier, TestEvenState, CustomEventCMD>
@@ -44,151 +199,26 @@ struct TestEvent : public IBaseEvent<TestEvent, TestEventID, TestEventModifier, 
         return "TestEvent";
     };
 
-    static TestEventID String2EventIdImpl(const std::string &eventIdStr)
-    {
-        using namespace Utils;
-        TestEventID ret = TestEventID::TEID_1;
-        static const std::map<std::string, TestEventID> data
-                                    {
-                                        {TO_STRING(TEID_1), TestEventID::TEID_1},
-                                        {TO_STRING(TEID_2), TestEventID::TEID_2}
-                                    };
-        auto it = data.find(eventIdStr);
-        if(it != data.end())
-        {
-            ret = std::get<1>(*it);
-        }
-        else
-        {
-            assert(false);
-        }
-        return ret;
-    }
-
-    static constexpr const char* EventId2StringImpl(TestEventID eventId)
-    {
-        using namespace Utils;
-        switch(eventId)
-        {
-            case TestEventID::TEID_1:
-                return TO_STRING(TEID_1);
-            case TestEventID::TEID_2:
-                return TO_STRING(TEID_2);
-            default:
-                assert(false);
-        }
-        return TO_STRING(TEID_1);
-    }
-
     static constexpr TestEventModifier getEventModifierDefaultImpl()
     {
-        return TEIM_NONE;
-    }
-
-    static TestEventModifier String2KeyModifierImpl(const std::string &keyMod)
-    {
-         static const std::map<std::string, TestEventModifier> data
-                            { {TO_STRING(TEIM_NONE), TestEventModifier::TEIM_NONE},
-                              {TO_STRING(TEIM_1), TestEventModifier::TEIM_1},
-                              {TO_STRING(TEIM_2), TestEventModifier::TEIM_2},
-                            };
-
-
-        TestEventModifier ret;
-        auto it = data.find(keyMod);
-        if(it != data.end())
-        {
-            ret = std::get<1>(*it);
-        }
-        else
-        {
-            assert(false);
-        }
-        return ret;
+        return TestEventModifier(TestEventModifier::TEIM_NONE);
     }
 
     static constexpr TestEvenState getEventIdStateDefaultImpl()
     {
-        return TestEvenState::TEIS_1;
-    }
-
-    static TestEvenState String2EventIdStateImpl(const std::string &state)
-    {
-        static const std::map<std::string, TestEvenState> data
-                            { {TO_STRING(TEIS_1), TestEvenState::TEIS_1},
-                              {TO_STRING(TEIS_2), TestEvenState::TEIS_2}};
-
-        TestEvenState ret;
-        auto it = data.find(state);
-        if(it != data.end())
-        {
-            ret = std::get<1>(*it);
-        }
-        else
-        {
-            assert(false);
-        }
+        TestEvenState ret(TestEvenState::TEIS_1);
         return ret;
-    }
-
-    static constexpr const char* EventIdState2StringImpl(EventIdState state)
-    {
-        using namespace Utils;
-        switch(state)
-        {
-            case TestEvenState::TEIS_1:
-                return TO_STRING(TEIS_1);
-            case TestEvenState::TEIS_2:
-                return TO_STRING(TEIS_2);
-            default:
-                assert(false);
-        }
-        return TO_STRING(TEIS_1);
-    }
-
-    static CustomEventCMD String2ControlEventCommandsImpl(const std::string &commandStr)
-    {
-        static const std::map<std::string, CustomEventCMD> data
-                            {
-                                {TO_STRING(TEID_1_CMD), CustomEventCMD::TEID_1_CMD},
-                            };
-
-        CustomEventCMD ret;
-        auto it = data.find(commandStr);
-        if(it != data.end())
-        {
-            ret = std::get<1>(*it);
-        }
-        else
-        {
-            assert(false);
-        }
-        return ret;
-    }
-
-    static constexpr const char *ControlEventCommands2StringImpl(CustomEventCMD command)
-    {
-        using namespace Utils;
-        switch(command)
-        {
-            case CustomEventCMD::TEID_1_CMD:
-                return TO_STRING(TEID_1_CMD);
-            default:
-                assert(false);
-        }
-        return TO_STRING(TEID_1_CMD);
     }
 
     std::string toStringImpl() const
     {
         return makeString(getEventTypeDescriptionImpl(),
-                          "id=", EventId2StringImpl(getEventTypeCtrlId()),
-                          "mod=", getEventTypeCtrlIdModifier(),
-                          "st=",  EventIdState2StringImpl(getEventTypeCtrlIdState()));
+                          "id=", getEventTypeCtrlId().toCString(),
+                          "mod=", getEventTypeCtrlIdModifier().toCString(),
+                          "st=",  getEventTypeCtrlIdState().toCString());
     }
 
 };
 
 
 #endif //TEST_CUSTOM_EVENT_H
-
