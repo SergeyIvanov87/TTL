@@ -34,7 +34,6 @@ public:
 
     template<class... UTypes>
     IBaseEvent(UTypes&&... args);
-    ~IBaseEvent() = default;
 
     static EventTypeCtrlData
         parseEventCtrlData(const std::list<std::string> &dataList);

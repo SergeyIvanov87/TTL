@@ -17,6 +17,7 @@ struct KeyboardEventCMD : public IEventTriggerCommand<KeyboardEventCMD>
     };
     ids m_id;
 
+    KeyboardEventCMD(size_t id = ids::EMPTY): m_id(static_cast<ids>(id)) {}
     static KeyboardEventCMD createFromStringImpl(const std::string &commandStr)
     {
         static const std::map<std::string, KeyboardEventCMD::ids> data

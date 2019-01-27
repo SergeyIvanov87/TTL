@@ -46,8 +46,16 @@ template<class T, template <class> class IEventField, class Impl>
 constexpr typename std::enable_if<std::is_integral<T>::value, bool>::type
     operator== (const T &lhs, const IEventField<Impl> &rhs)
 {
-    return lhs == lhs.value();
+    return lhs == rhs.value();
 }
+
+template<class T, template <class> class IEventField, class Impl>
+constexpr typename std::enable_if<std::is_integral<T>::value or std::is_enum<T>::value, bool>::type
+    operator== (const IEventField<Impl> &lhs, const T &rhs )
+{
+    return rhs == lhs.value();
+}
+
 template<template <class> class IEventField, class Impl>
 constexpr bool
     operator== (const IEventField<Impl> &lhs, const IEventField<Impl> &rhs)

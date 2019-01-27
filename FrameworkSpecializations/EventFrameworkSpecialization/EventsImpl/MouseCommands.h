@@ -13,6 +13,7 @@ struct MouseEventCMD: public IEventTriggerCommand<MouseEventCMD>
     };
     ids m_id;
 
+    MouseEventCMD(size_t id = ids::EMPTY): m_id(static_cast<ids>(id)) {}
     static MouseEventCMD createFromStringImpl(const std::string &commandStr)
     {
         static const std::map<std::string, MouseEventCMD::ids> data
@@ -50,6 +51,11 @@ struct MouseEventCMD: public IEventTriggerCommand<MouseEventCMD>
                 assert(false);
         }
         return TO_STRING(EMPTY);
+    }
+
+    ids value() const noexcept
+    {
+        return m_id;
     }
 };
 

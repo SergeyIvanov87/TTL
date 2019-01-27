@@ -1,15 +1,14 @@
-#include <Framework/ResourcesFramework/ResourcesFramework.hpp>
-#include "ResourceFrameworkSpecs.h"
+#include "MainTestSuite.h"
 
 int main(int argc, char **argv)
 {
+    auto mainTest = createTests<MainSuite>()
+    ts.add(unique_ptr<Test::Suite>(new TestSuite1));
+    ts.add(unique_ptr<Test::Suite>(new TestSuite2));
+    ts.add(unique_ptr<Test::Suite>(new TestSuite3));
 
-    SSTracerImpl ss('\t');
-    Tracer<SSTracerImpl> tracer(ss);
-    ResourcesFramework::initializeResourceHolder("ASSETS", "dumps", tracer);
-    std::cout << tracer.getManagedTracer().str();
-
-    auto p = ResourcesFramework::Instance()->getResourcePtr<ResourceA>("ResourceA_1");
-    assert(p);
+    Test::TextOutput output(Test::TextOutput::Verbose);
+    return ts.run(output);
+}
     return 0;
 }
