@@ -28,9 +28,11 @@ void ISpecificControllable<T_ARGS_DEF>::reSubscribeOnControlEvents(const EventCt
 {
     m_Event2ControlEventCommands = events;
 }
+
 //static interface
 template <T_ARGS_DECL>
-urc::ResultDescription ISpecificControllable<T_ARGS_DEF>::onSpecificProcessEvent(ProcessingEventType &specificEvent)
+template <class ...Producer>
+urc::ResultDescription ISpecificControllable<T_ARGS_DEF>::onSpecificProcessEvent(ProcessingEventType &specificEvent, Producer &&...producer)
 {
     //check filter event by id
     auto it = m_Event2ControlEventCommands.data().find(specificEvent.getEventTypeSubscriptionData());
@@ -40,8 +42,10 @@ urc::ResultDescription ISpecificControllable<T_ARGS_DEF>::onSpecificProcessEvent
         return urc::ResultDescription();
     }
 
+    Implementation &impl = static_cast<Implementation &>(*this);
     //process event call for ControllableImp
-    return (static_cast<Implementation *>(this))->processSpecificEvent(specificEvent, it->second);
+
+    return impl.template processSpecificEvent(specificEvent, it->second, std::forward<Producer>(producer)...);
 }
 
 template <T_ARGS_DECL>

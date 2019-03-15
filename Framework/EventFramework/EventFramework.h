@@ -2,6 +2,7 @@
 #define EVENT_FRAMEWORK_MAIN_H
 #include <type_traits>
 #include "Framework/EventFramework/Interfaces/IControllable.h"
+#include "Framework/EventFramework/Interfaces/IController.h"
 #include "Framework/EventFramework/Interfaces/IEventConfigurator.hpp"
 #include "Framework/EventFramework/ControllerEvent.hpp"
 

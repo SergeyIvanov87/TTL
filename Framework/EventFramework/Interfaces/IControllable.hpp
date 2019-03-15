@@ -101,6 +101,58 @@ urc::ResultDescription
     return retCode;
 }
 
+template <T_ARGS_DECL>
+template <class ControllerImpl, class ...AllEventTypes>
+urc::ResultDescription
+    IControllable<T_ARGS_DEF>::onProcessEventDispatcher(ControllerImpl &producer,
+                                                        CommonControllerEvent<AllEventTypes...> &event,
+                                                        bool notFilteredEvent/* = true*/)
+{
+    static_assert(!std::is_base_of<ControllerImpl, IController<ControllerImpl>>(), "onProcessEventDispatcher - ControllerImpl is not derived from IController");
+    ControlEventID eventType = event.getEventType();
+    urc::ResultDescription retCode;
+    CTimeUtils::for_each_type_in_tuple_traits<SpecificControllables>([this, &retCode, &event, eventType, &producer](auto &&typeTraitsInfo)
+    {
+        auto ret = typeTraitsInfo;
+        using Traits = decltype(ret);
+        using ElementType = typename Traits::type;
+
+        //Check event registered
+        if (eventType == ElementType::getRegisteredEventType())
+        {
+            //dispatch processing
+            retCode = ElementType::onSpecificProcessEvent(ElementType::getSpecificEvent(event), producer);
+        }
+    });
+    return retCode;
+}
+
+template <T_ARGS_DECL>
+template <class ControllerImpl, class ...AllEventTypes>
+urc::ResultDescription
+    IControllable<T_ARGS_DEF>::onProcessEventDispatcher(const ControllerImpl &producer,
+                                                        CommonControllerEvent<AllEventTypes...> &event,
+                                                        bool notFilteredEvent/* = true*/)
+{
+    static_assert(!std::is_base_of<ControllerImpl, IController<ControllerImpl>>(), "onProcessEventDispatcher - ControllerImpl is not derived from IController");
+    ControlEventID eventType = event.getEventType();
+    urc::ResultDescription retCode;
+    CTimeUtils::for_each_type_in_tuple_traits<SpecificControllables>([this, &retCode, &event, eventType, &producer](auto &&typeTraitsInfo)
+    {
+        auto ret = typeTraitsInfo;
+        using Traits = decltype(ret);
+        using ElementType = typename Traits::type;
+
+        //Check event registered
+        if (eventType == ElementType::getRegisteredEventType())
+        {
+            //dispatch processing
+            retCode = ElementType::onSpecificProcessEvent(ElementType::getSpecificEvent(event), producer);
+        }
+    });
+    return retCode;
+}
+
 #undef T_ARGS_DECL
 #undef T_ARGS_DEF
 #endif //ICONTROLLABLE_HPP

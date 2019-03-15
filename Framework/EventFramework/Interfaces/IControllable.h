@@ -15,7 +15,7 @@ class CommonControllerEvent;
  * Used for routing especially registered event types to ISpecificControllable,
  * which filters it and route to ControllableImp class
  */
-template <class ControllableImp, class ...RegisteredEvents>
+ template <class ControllableImp, class ...RegisteredEvents>
 class IControllable :
                     public ISpecificControllable<ControllableImp, RegisteredEvents>...,
                     public Visitor<
@@ -24,7 +24,6 @@ class IControllable :
 {
     typedef std::tuple<ISpecificControllable<ControllableImp, RegisteredEvents>...> SpecificControllables;
 public:
-    IControllable() = default;
     ~IControllable() = default;
 
     using ControlEventMultiTypesStorage = ControlEventMultiTypesStorageConfiguration<RegisteredEvents...>;
@@ -37,15 +36,20 @@ public:
     void reSubscribeOnControlEvents(const ControlEventMultiTypesStorage &events);
     RegisteredObserverEventTypes getRegisteredControlEvents() const;
 
+
     //Filter event by registered type and route processing into base classes
     template <class ...AllEventTypes>
     urc::ResultDescription onProcessEventDispatcher(CommonControllerEvent<AllEventTypes...> &event, bool notFilteredEvent = true);
 
+    template <class ControllerImpl, class ...AllEventTypes>
+    urc::ResultDescription onProcessEventDispatcher(ControllerImpl &producer, CommonControllerEvent<AllEventTypes...> &event, bool notFilteredEvent = true);
 
-/*
-    //Visitor interface
-    template<class Configurator>
-    void visitImpl(const Resources::ModelFileDescription *visitedObjectModelDescription);
-*/
+    template <class ControllerImpl, class ...AllEventTypes>
+    urc::ResultDescription onProcessEventDispatcher(const ControllerImpl &producer, CommonControllerEvent<AllEventTypes...> &event, bool notFilteredEvent = true);
+
+private:
+    IControllable() = default;
+    friend ControllableImp;
 };
+
 #endif

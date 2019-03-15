@@ -13,6 +13,7 @@ struct EventTypeTraits
     typedef std::shared_ptr<EventType> EventTypeSharedPtr;
     typedef std::unique_ptr<EventType> EventTypeUniquePtr;
     using InputEventTraits = typename EventType::EventTypeCtrlData;
+    using InputEventCMD = typename EventType::ControlEventCMD;
     using InputEventSubscriptionTraits = typename EventType::EventTypeSubscriptionData;
 };
 

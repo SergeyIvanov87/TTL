@@ -12,6 +12,9 @@ template<class ...AllEventTypes>
 class CommonControllerEvent;
 
 
+template<class ControllerImpl>
+class IController;
+
 template <class ControllableImp, class RegisteredEvent>
 class ISpecificControllable
 {
@@ -25,6 +28,7 @@ public:
     using ProcessingEventTraits = typename TypeTraits::InputEventTraits;
     using ProcessingEventType = typename TypeTraits::EventType;
     using ProcessingEventTypeUniquePtr = typename TypeTraits::EventTypeUniquePtr;
+    using ProcessingEventCmdType = typename TypeTraits::InputEventCMD;
     using EventCtrlDataToCommandStorageMapType = EventCtrlDataToCommandStorage<RegisteredEvent>;
 
     //get static registered event type
@@ -35,7 +39,13 @@ public:
     static void reSubscribeOnControlEvents(const EventCtrlDataToCommandStorageMapType &event);
 
     //static interface
-    urc::ResultDescription onSpecificProcessEvent(ProcessingEventType &event);
+    //urc::ResultDescription onSpecificProcessEvent(ProcessingEventType &event);
+
+    template <class ...Producer>
+    urc::ResultDescription onSpecificProcessEvent(ProcessingEventType &event, Producer &&...producer);
+
+    template <class ...Producer>
+    urc::ResultDescription processSpecificEvent(const RegisteredEvent &event, typename RegisteredEvent::ControlEventCMD cmd, Producer &&...producer);
 
     template <class ...AllEventTypes>
     static const ProcessingEventType &getSpecificEvent(const CommonControllerEvent<AllEventTypes...> &event);

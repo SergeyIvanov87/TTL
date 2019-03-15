@@ -9,6 +9,7 @@
 #include "FrameworkSpecializations/EventFrameworkSpecialization/EventsImpl/KeyboardEvent.h"
 
 #include <Framework/EventFramework/Interfaces/IControllable.hpp>
+//#include <Framework/EventFramework/Interfaces/IController.hpp>
 
 #include "CustomEvent.h"
 
@@ -54,6 +55,12 @@ struct Configurator :
 
 bool globalTestFlag_eventReceived = false;
 
+//Simpple Producer class
+struct EventProducerSimple : public IController<EventProducerSimple>
+{
+    bool eventDelivered = false;
+};
+
 //Subscriber class
 struct EventSubscriber :
         public IControllable
@@ -61,8 +68,10 @@ struct EventSubscriber :
 /*Events for monitoring ---> */EventSubscriber, MouseEvent, KeyboardEvent, TestEvent
                             >
 {
+    //using IControllable<EventSubscriber, MouseEvent, KeyboardEvent, TestEvent>::processSpecificEvent;
     //Specific processing event methods, based on event type
-    urc::ResultDescription processSpecificEvent(const MouseEvent &event, MouseEventCMD type)
+    template<class ...Producer>
+    urc::ResultDescription processSpecificEvent(const MouseEvent &event, MouseEventCMD type, Producer &&...producer)
     {
         std::cout << __PRETTY_FUNCTION__ << event.toString() << std::endl;
 
@@ -70,7 +79,8 @@ struct EventSubscriber :
         globalTestFlag_eventReceived = true;
         return urc::ResultDescription();
     }
-    urc::ResultDescription processSpecificEvent(const KeyboardEvent &event, KeyboardEventCMD type)
+    template<class ...Producer>
+    urc::ResultDescription processSpecificEvent(const KeyboardEvent &event, KeyboardEventCMD type, Producer &&...producer)
     {
         std::cout << __PRETTY_FUNCTION__ << event.toString() << std::endl;
 
@@ -78,12 +88,25 @@ struct EventSubscriber :
         globalTestFlag_eventReceived = true;
         return urc::ResultDescription();
     }
+    //template<class Producer>
     urc::ResultDescription processSpecificEvent(const TestEvent &event, CustomEventCMD type)
     {
         std::cout << __PRETTY_FUNCTION__ << event.toString() << std::endl;
 
         //set flag for received event
         globalTestFlag_eventReceived = true;
+        return urc::ResultDescription();
+    }
+
+    urc::ResultDescription processSpecificEvent(const TestEvent &event, CustomEventCMD type, EventProducerSimple &producer)
+    {
+        std::cout << __PRETTY_FUNCTION__ << event.toString() << std::endl;
+
+        //set flag for received event
+        globalTestFlag_eventReceived = true;
+
+        //notify producer
+        producer.eventDelivered = true;
         return urc::ResultDescription();
     }
 };
@@ -169,6 +192,20 @@ int main(int argc, char ** argv)
         globalTestFlag_eventReceived = false;
         t.onProcessEventDispatcher(*event.get());
         assert(globalTestFlag_eventReceived); //OK, configured
+    }
+
+    {
+        EventProducerSimple producer;
+        assert(!producer.eventDelivered);
+        auto event = EventFramework::createControllerEvent<TestEvent>(
+                                TestEventID::TEID_1,
+                                TestEventModifier::TEIM_NONE,
+                                TestEvenState::TEIS_1);
+
+        globalTestFlag_eventReceived = false;
+        t.onProcessEventDispatcher(producer, *event.get());
+        assert(globalTestFlag_eventReceived); //OK, configured
+        assert(producer.eventDelivered);
     }
     return 0;
 }
