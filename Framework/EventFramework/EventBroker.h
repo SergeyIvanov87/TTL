@@ -1,24 +1,20 @@
-#if 0
 #ifndef EVENT_BROKER_H
 #define EVENT_BROKER_H
-#include <tuple>
-
-
-template<class Producer, class ...Consumers>
-class EventDirector
-{
-public:
-
-    using ConsumersTupleType = std::tuple<std::set<Consumers>...>;
-    using ProducerType = Producer;
-};
 
 
 template<class ...EventDirectors>
 class EventBroker
 {
-    std::tuple<Producer, EventDirectors...>
+public:
+    using ProducersListType = std::tuple<typename EventDirectors::ProducerType...>;
+    using EventDirectorsListType = std::tuple<EventDirectors...>;
+
+    template<class Event, class Producer>
+    void push_event(Event &&event, Producer &producer);
+
+    template<class Producer, class Consumer>
+    void registerConsumer(Consumer consumerCandidate);
+private:
+    EventDirectorsListType m_directors;
 };
 #endif //EVENT_BROKER_H
-
-#endif

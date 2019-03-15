@@ -13,6 +13,10 @@
 
 #include "CustomEvent.h"
 
+
+//Broker
+#include <Framework/EventFramework/EventDirector.hpp>
+#include <Framework/EventFramework/EventBroker.hpp>
 //g++ -std=c++17 test.cpp ../../FrameworkSpecializations/EventFrameworkSpecialization/EventsImpl/KeyboardEvent.cpp -I/home/user/microcontroller/git_hub/TTL/
 
 //Just Stub configurator...
@@ -206,6 +210,17 @@ int main(int argc, char ** argv)
         t.onProcessEventDispatcher(producer, *event.get());
         assert(globalTestFlag_eventReceived); //OK, configured
         assert(producer.eventDelivered);
+
+
+
+
+
+        EventBroker<EventDirector<EventProducerSimple, EventSubscriber>> broker;
+        broker.registerConsumer<EventProducerSimple>(&t);
+
+        globalTestFlag_eventReceived = false;
+        producer.eventDelivered = false;
+        broker.push_event(*event.get(), producer);
     }
     return 0;
 }
