@@ -12,6 +12,9 @@ public:
     template<class Event, class Producer>
     void push_event(Event &&event, Producer &producer);
 
+    template<class Event, class Producer>
+    void push_deferred_event(Event &&event, Producer &producer);
+
     template<class Producer, class Consumer>
     void registerConsumer(Consumer consumerCandidate);
 private:

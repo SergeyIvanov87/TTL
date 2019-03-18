@@ -221,6 +221,7 @@ int main(int argc, char ** argv)
         globalTestFlag_eventReceived = false;
         producer.eventDelivered = false;
         broker.push_event(*event.get(), producer);
+        broker.push_deferred_event(*event.get(), producer);
     }
     return 0;
 }

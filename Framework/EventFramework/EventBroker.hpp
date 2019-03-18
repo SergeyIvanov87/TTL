@@ -15,6 +15,19 @@ void EventBroker<T_ARGS_DEF>::push_event(Event &&event, Producer &producer)
 }
 
 template<T_ARGS_DECL>
+template<class Event, class Producer>
+void EventBroker<T_ARGS_DEF>::push_deferred_event(Event &&event, Producer &producer)
+{
+
+    constexpr size_t producerIndex = CTimeUtils::Index<Producer, ProducersListType>::value;
+    auto &directorContainedProducer = std::get<producerIndex>(m_directors);
+    auto ret = directorContainedProducer.produceEventDeferred(producer, std::forward<Event>(event));
+
+//TODO:TEST
+    ret[0]();
+}
+
+template<T_ARGS_DECL>
 template<class Producer, class Consumer>
 void EventBroker<T_ARGS_DEF>::registerConsumer(Consumer consumerCandidate)
 {
