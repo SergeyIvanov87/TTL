@@ -72,8 +72,10 @@ public:
     using ProducerType = AsyncProducerWrapper<Producer>;
     using Base = IEventDirector<Producer, Consumers...>;
     using QueueProcessingType = std::vector<std::packaged_task<void(void)>/*, Base::ConsumersCount + 1*/>; //+1 - is EventOwner queue element, see implementations
+    //using QueueProcessingType = std::array<std::packaged_task<void(void)>/*, Base::ConsumersCount + 1*/>; //+1 - is EventOwner queue element, see implementations
 
+    using AsyncTask = std::packaged_task<void(void)>;
     template<class Event>
-    QueueProcessingType produceEvent(Producer &producer, Event &&event);
+    AsyncTask produceEvent(Producer &producer, Event &&event);
 };
 #endif

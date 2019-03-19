@@ -213,9 +213,9 @@ struct TestEvent : public IBaseEvent<TestEvent, TestEventID, TestEventModifier, 
     std::string toStringImpl() const
     {
         return makeString(getEventTypeDescriptionImpl(),
-                          "id=", getEventTypeCtrlId().toCString(),
-                          "mod=", getEventTypeCtrlIdModifier().toCString(),
-                          "st=",  getEventTypeCtrlIdState().toCString());
+                          "{ id=", getEventTypeCtrlId().toCString(),
+                          ", mod=", getEventTypeCtrlIdModifier().toCString(),
+                          ", st=",  getEventTypeCtrlIdState().toCString(), "}");
     }
 
 };

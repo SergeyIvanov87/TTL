@@ -12,6 +12,7 @@
 template<T_ARGS_DECL>
 EventBroker<T_ARGS_DEF>::~EventBroker()
 {
+    stop();
     if(m_worker.joinable())
     {
         m_worker.join();
@@ -40,7 +41,7 @@ void EventBroker<T_ARGS_DEF>::push_async_event(Event &&event, Producer &producer
 
 template<T_ARGS_DECL>
 template<class Producer, class Consumer>
-void EventBroker<T_ARGS_DEF>::registerSyncConsumer(Consumer consumerCandidate)
+void EventBroker<T_ARGS_DEF>::register_sync_consumer(Consumer consumerCandidate)
 {
     using ProducerWrapperType = typename ProducerWrapperSelector<Producer>::ProducerWrapperType;
     constexpr size_t producerIndex = CTimeUtils::Index<ProducerWrapperType, ProducersListType>::value;
@@ -51,7 +52,7 @@ void EventBroker<T_ARGS_DEF>::registerSyncConsumer(Consumer consumerCandidate)
 
 template<T_ARGS_DECL>
 template<class Producer, class Consumer>
-void EventBroker<T_ARGS_DEF>::registerAsyncConsumer(Consumer consumerCandidate)
+void EventBroker<T_ARGS_DEF>::register_async_consumer(Consumer consumerCandidate)
 {
     using ProducerWrapperType = typename ProducerWrapperSelector<Producer, std::false_type>::ProducerWrapperType;
     constexpr size_t producerIndex = CTimeUtils::Index<ProducerWrapperType, ProducersListType>::value;
@@ -61,12 +62,18 @@ void EventBroker<T_ARGS_DEF>::registerAsyncConsumer(Consumer consumerCandidate)
 }
 
 template<T_ARGS_DECL>
-template<class EventsProcessingList>
-void EventBroker<T_ARGS_DEF>::postponeEvent(EventsProcessingList &&events)
+void EventBroker<T_ARGS_DEF>::stop()
+{
+    m_stop.store(true);
+    m_asyncQueueCond.notify_all();
+}
+template<T_ARGS_DECL>
+template<class Task>
+void EventBroker<T_ARGS_DEF>::postponeEvent(Task &&task)
 {
     {
         std::unique_lock<std::mutex> l(m_asyncQueueMutex);
-        std::move(events.begin(), events.end(), std::back_inserter(m_asyncEventProcessingQueue));
+        m_asyncEventProcessingQueue.push_back(std::forward<Task>(task));
         m_asyncQueueCond.notify_one();
     }
 
@@ -81,12 +88,12 @@ void EventBroker<T_ARGS_DEF>::postponeEvent(EventsProcessingList &&events)
 template<T_ARGS_DECL>
 void EventBroker<T_ARGS_DEF>::eventProcessorImpl()
 {
-  while(true) //todo
+    while(!m_stop.load()) //todo
             {
                 decltype(m_asyncEventProcessingQueue) processingQueue;
                 {
                     std::unique_lock<std::mutex> l(m_asyncQueueMutex);
-                    m_asyncQueueCond.wait(l, [this](){ return !m_asyncEventProcessingQueue.empty(); });
+                    m_asyncQueueCond.wait(l, [this](){ return !m_asyncEventProcessingQueue.empty() or m_stop.load(); });
                     processingQueue.swap(m_asyncEventProcessingQueue);
                 }
 

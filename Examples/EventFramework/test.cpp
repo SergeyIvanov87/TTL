@@ -68,6 +68,12 @@ struct EventProducerSimple : public IController<EventProducerSimple>
     bool eventDelivered = false;
 };
 
+struct EventAnotherProducerSimple : public IController<EventAnotherProducerSimple>
+{
+    bool eventDelivered = false;
+};
+
+
 //Subscriber class
 struct EventSubscriber :
         public IControllable
@@ -80,7 +86,7 @@ struct EventSubscriber :
     template<class ...Producer>
     urc::ResultDescription processSpecificEvent(const MouseEvent &event, MouseEventCMD type, Producer &&...producer)
     {
-        std::cout << __PRETTY_FUNCTION__ << event.toString() << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << ", thread_id: " << std::this_thread::get_id() << ", " << event.toString() << std::endl;
 
         //set flag for received event
         globalTestFlag_eventReceived = true;
@@ -89,7 +95,7 @@ struct EventSubscriber :
     template<class ...Producer>
     urc::ResultDescription processSpecificEvent(const KeyboardEvent &event, KeyboardEventCMD type, Producer &&...producer)
     {
-        std::cout << __PRETTY_FUNCTION__ << event.toString() << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << ", thread_id: " << std::this_thread::get_id() << ", " << event.toString() << std::endl;
 
         //set flag for received event
         globalTestFlag_eventReceived = true;
@@ -98,7 +104,7 @@ struct EventSubscriber :
     //template<class Producer>
     urc::ResultDescription processSpecificEvent(const TestEvent &event, CustomEventCMD type)
     {
-        std::cout << __PRETTY_FUNCTION__ << event.toString() << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << ", thread_id: " << std::this_thread::get_id() << ", " << event.toString() << std::endl;
 
         //set flag for received event
         globalTestFlag_eventReceived = true;
@@ -107,7 +113,19 @@ struct EventSubscriber :
 
     urc::ResultDescription processSpecificEvent(const TestEvent &event, CustomEventCMD type, EventProducerSimple &producer)
     {
-        std::cout << __PRETTY_FUNCTION__ << event.toString() << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << ", thread_id: " << std::this_thread::get_id() << ", " << event.toString() << std::endl;
+
+        //set flag for received event
+        globalTestFlag_eventReceived = true;
+
+        //notify producer
+        producer.eventDelivered = true;
+        return urc::ResultDescription();
+    }
+
+    urc::ResultDescription processSpecificEvent(const TestEvent &event, CustomEventCMD type, EventAnotherProducerSimple &producer)
+    {
+        std::cout << __PRETTY_FUNCTION__ << ", thread_id: " << std::this_thread::get_id() << ", " << event.toString() << std::endl;
 
         //set flag for received event
         globalTestFlag_eventReceived = true;
@@ -217,11 +235,13 @@ int main(int argc, char ** argv)
 
 
     {
+        //Test EventBroker -- simple
         EventBroker<SyncEventDirector<EventProducerSimple, EventSubscriber>,
-                    AsyncEventDirector<EventProducerSimple, EventSubscriber>> broker;
+                    AsyncEventDirector<EventProducerSimple, EventSubscriber>,
+                    AsyncEventDirector<EventAnotherProducerSimple, EventSubscriber>> broker;
 
-        broker.registerSyncConsumer<EventProducerSimple>(&t);
-        broker.registerAsyncConsumer<EventProducerSimple>(&t);
+        broker.register_sync_consumer<EventProducerSimple>(&t);
+        broker.register_async_consumer<EventProducerSimple>(&t);
 
 
         EventProducerSimple producer;
@@ -245,10 +265,28 @@ int main(int argc, char ** argv)
 
 
         using namespace std::chrono_literals;
-        std::this_thread::sleep_for(200s);
+        std::this_thread::sleep_for(2s);
 
         assert(globalTestFlag_eventReceived); //OK, configured
         assert(producer.eventDelivered);
+
+
+        EventAnotherProducerSimple producerAnother;
+        broker.register_async_consumer<EventAnotherProducerSimple>(&t);
+        assert(!producerAnother.eventDelivered);
+        event = EventFramework::createControllerEvent<TestEvent>(
+                                TestEventID::TEID_1,
+                                TestEventModifier::TEIM_NONE,
+                                TestEvenState::TEIS_1);
+
+        globalTestFlag_eventReceived = false;
+        broker.push_async_event(std::move(*event.get()), producerAnother);
+
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(2s);
+
+        assert(globalTestFlag_eventReceived); //OK, configured
+        assert(producerAnother.eventDelivered);
 
     }
     return 0;

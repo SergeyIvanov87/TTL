@@ -57,11 +57,10 @@ void eventOwner(Event &&event)
 
 template<T_ARGS_DECL>
 template<class Event>
-typename AsyncEventDirector<T_ARGS_DEF>::QueueProcessingType
+typename AsyncEventDirector<T_ARGS_DEF>::AsyncTask
     AsyncEventDirector<T_ARGS_DEF>::produceEvent(Producer &producer, Event &&event)
 {
-    QueueProcessingType ret;
-    ret.reserve(Base::ConsumersCount + 1);
+
     /* own event a object - to avoid danging reference.
      * This callback should be called at chain finish,
      * to allow actual event processing callback finish its execution
@@ -79,12 +78,14 @@ ret.push_back([holdedEvent = std::move(event)]() mutable
         eventOwner(std::move(holdedEvent));
     });
 */
+    using Processors = std::array<std::function<void(Event &)>, Base::ConsumersCount + 1>;
+    Processors processors;
     CTimeUtils::for_each_in_tuple(this->m_consumers,
-            [this, &producer, &event, &ret](size_t index, auto &dst)
+            [this, &producer, &event, &processors](size_t index, auto &dst)
         {
             //compare requested id and existed id
             typedef typename std::remove_reference<decltype(dst)>::type NonRefType;
-            ret.emplace_back(std::bind(&NonRefType::template produceEventForAllConsumers<Producer, Event>, &dst, std::ref(producer), std::ref(event)));
+            processors[index] = (std::bind(&NonRefType::template produceEventForAllConsumers<Producer, Event>, &dst, std::ref(producer), std::placeholders::_1));
 
         });
         /*
@@ -103,8 +104,13 @@ ret.push_back([holdedEvent = std::move(event)]() mutable
 
     }, m_consumers);*/
 
-    ret.emplace_back(std::bind([](Event &ev){ (void) ev; }, std::move(event)));
-    return ret;
+    return AsyncTask(std::bind([](Event &ev, Processors &pr)
+    {
+        for(auto &p : pr)
+        {
+            p(ev);
+        }
+    }, std::move(event), std::move(processors)));
 }
 
 
