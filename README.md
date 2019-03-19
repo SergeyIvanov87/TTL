@@ -30,12 +30,12 @@ Collection of usefull C++ templates utils, based on Mix-in classes concepts(http
     Configurator conf;
     conf.configurationMap.insert({"ControllableEvents", "KEYBOARD_EVENT,MOUSE_EVENT,TestEvent"});  /*event types to subscription*/
     conf.configurationMap.insert({"KEYBOARD_EVENT", "MOVE_FORWARD,MOVE_BACKWARD"});                /*specific events in event type*/
-      conf.configurationMap.insert({"MOVE_FORWARD", "w"});                                         /*event and its command*/
-      conf.configurationMap.insert({"MOVE_BACKWARD", "s"});
+    conf.configurationMap.insert({"MOVE_FORWARD", "w"});                                         /*event and its command*/
+    conf.configurationMap.insert({"MOVE_BACKWARD", "s"});
     conf.configurationMap.insert({"MOUSE_EVENT", "LOOK"});                                         /*another event type*/
-      conf.configurationMap.insert({"LOOK", "MOUSE_MOVE"});
+    conf.configurationMap.insert({"LOOK", "MOUSE_MOVE"});
     conf.configurationMap.insert({"TestEvent", "TEID_1_CMD"});                                     /*another event type*/
-      conf.configurationMap.insert({"TEID_1_CMD", "TEID_1"});
+    conf.configurationMap.insert({"TEID_1_CMD", "TEID_1"});
    
    Configure consumer for event subsription
    
