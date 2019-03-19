@@ -1,6 +1,11 @@
 #include <string>
 #include <iostream>
 #include <map>
+#include <chrono>
+
+//Broker
+#include <Framework/EventFramework/EventDirector.hpp>
+#include <Framework/EventFramework/EventBroker.hpp>
 
 #include "Framework/EventFramework/EventFramework.h"
 
@@ -14,10 +19,8 @@
 #include "CustomEvent.h"
 
 
-//Broker
-#include <Framework/EventFramework/EventDirector.hpp>
-#include <Framework/EventFramework/EventBroker.hpp>
-//g++ -std=c++17 test.cpp ../../FrameworkSpecializations/EventFrameworkSpecialization/EventsImpl/KeyboardEvent.cpp -I/home/user/microcontroller/git_hub/TTL/
+
+//g++ -std=c++17 test.cpp ../../FrameworkSpecializations/EventFrameworkSpecialization/EventsImpl/KeyboardEvent.cpp -I/home/user/microcontroller/git_hub/TTL/ -lpthread
 
 //Just Stub configurator...
 struct Configurator :
@@ -210,18 +213,43 @@ int main(int argc, char ** argv)
         t.onProcessEventDispatcher(producer, *event.get());
         assert(globalTestFlag_eventReceived); //OK, configured
         assert(producer.eventDelivered);
+    }
 
 
+    {
+        EventBroker<SyncEventDirector<EventProducerSimple, EventSubscriber>,
+                    AsyncEventDirector<EventProducerSimple, EventSubscriber>> broker;
+
+        broker.registerSyncConsumer<EventProducerSimple>(&t);
+        broker.registerAsyncConsumer<EventProducerSimple>(&t);
 
 
+        EventProducerSimple producer;
+        assert(!producer.eventDelivered);
+        auto event = EventFramework::createControllerEvent<TestEvent>(
+                                TestEventID::TEID_1,
+                                TestEventModifier::TEIM_NONE,
+                                TestEvenState::TEIS_1);
 
-        EventBroker<EventDirector<EventProducerSimple, EventSubscriber>> broker;
-        broker.registerConsumer<EventProducerSimple>(&t);
-
+        //Sync case
         globalTestFlag_eventReceived = false;
         producer.eventDelivered = false;
-        broker.push_event(*event.get(), producer);
-        broker.push_deferred_event(*event.get(), producer);
+        broker.push_sync_event(*event.get(), producer);
+        assert(globalTestFlag_eventReceived); //OK, configured
+        assert(producer.eventDelivered);
+
+        //Async case
+        globalTestFlag_eventReceived = false;
+        producer.eventDelivered = false;
+        broker.push_async_event(std::move(*event.get()), producer);
+
+
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(200s);
+
+        assert(globalTestFlag_eventReceived); //OK, configured
+        assert(producer.eventDelivered);
+
     }
     return 0;
 }

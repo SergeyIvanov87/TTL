@@ -1,10 +1,18 @@
 #ifndef EVENT_DIRECTOR_HPP
 #define EVENT_DIRECTOR_HPP
+#include <tuple>
+#include <set>
+#include <array>
+#include <vector>
+#include <functional>
+#include <future>
+#include <type_traits>
 #include "EventDirector.h"
+#include "Framework/Utils/CTimeUtils.h"
 
 template<class Consumer>
 template<class Producer, class Event>
-void Wrapper<Consumer>::produceEventForAllConsumers(Producer &producer, Event &event)
+void ConsumersSetWrapper<Consumer>::produceEventForAllConsumers(Producer &producer, Event &event)
 {
     for( auto c : m_sameTypeConsumers)
     {
@@ -18,8 +26,16 @@ void Wrapper<Consumer>::produceEventForAllConsumers(Producer &producer, Event &e
 
 
 template<T_ARGS_DECL>
+template<class Consumer>
+void IEventDirector<T_ARGS_DEF>::registerConsumer(Consumer consumerCandidate)
+{
+    std::get<ConsumersSetWrapper<std::remove_pointer_t<Consumer>>>(m_consumers).m_sameTypeConsumers.insert(consumerCandidate);
+}
+
+
+template<T_ARGS_DECL>
 template<class Event>
-void EventDirector<T_ARGS_DEF>::produceEvent(Producer &producer, Event &&event)
+void SyncEventDirector<T_ARGS_DEF>::produceEvent(Producer &producer, Event &&event)
 {
     std::apply(
     [this, &producer, &event]
@@ -30,24 +46,45 @@ void EventDirector<T_ARGS_DEF>::produceEvent(Producer &producer, Event &&event)
                  (x.produceEventForAllConsumers(producer, event), true)...
         };
 
-    }, m_consumers);
+    }, this->m_consumers);
 };
+
+template<class Event>
+void eventOwner(Event &&event)
+{
+    (void)event;
+}
 
 template<T_ARGS_DECL>
 template<class Event>
-std::array<std::function<void(void)>,
-              EventDirector<T_ARGS_DEF>::ConsumersCount>
-    EventDirector<T_ARGS_DEF>::produceEventDeferred(Producer &producer, Event &&event)
+typename AsyncEventDirector<T_ARGS_DEF>::QueueProcessingType
+    AsyncEventDirector<T_ARGS_DEF>::produceEvent(Producer &producer, Event &&event)
 {
-    std::array<std::function<void(void)>,
-               ConsumersCount> ret;
+    QueueProcessingType ret;
+    ret.reserve(Base::ConsumersCount + 1);
+    /* own event a object - to avoid danging reference.
+     * This callback should be called at chain finish,
+     * to allow actual event processing callback finish its execution
+     */
+   /* ret[0] = [holdedEvent = std::forward<Event>(event)]() -> void
+    {
+        (void)holdedEvent;
+    };
+*/
 
-CTimeUtils::for_each_in_tuple(m_consumers,
+
+/*
+ret.push_back([holdedEvent = std::move(event)]() mutable
+    {
+        eventOwner(std::move(holdedEvent));
+    });
+*/
+    CTimeUtils::for_each_in_tuple(this->m_consumers,
             [this, &producer, &event, &ret](size_t index, auto &dst)
         {
             //compare requested id and existed id
             typedef typename std::remove_reference<decltype(dst)>::type NonRefType;
-            ret[index] = std::bind(&NonRefType::template produceEventForAllConsumers<Producer, Event>, &dst, std::ref(producer), std::ref(event));
+            ret.emplace_back(std::bind(&NonRefType::template produceEventForAllConsumers<Producer, Event>, &dst, std::ref(producer), std::ref(event)));
 
         });
         /*
@@ -65,14 +102,11 @@ CTimeUtils::for_each_in_tuple(m_consumers,
         };
 
     }, m_consumers);*/
+
+    ret.emplace_back(std::bind([](Event &ev){ (void) ev; }, std::move(event)));
     return ret;
 }
-template<T_ARGS_DECL>
-template<class Consumer>
-void EventDirector<T_ARGS_DEF>::registerConsumer(Consumer consumerCandidate)
-{
-    std::get<Wrapper<std::remove_pointer_t<Consumer>>>(m_consumers).m_sameTypeConsumers.insert(consumerCandidate);
-}
+
 
 #undef T_ARGS_DEF
 #undef T_ARGS_DECL
