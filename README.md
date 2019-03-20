@@ -9,11 +9,15 @@ Collection of usefull C++ templates utils, based on Mix-in classes concepts(http
       LocklessWriter - concurrent file writer (based on std::atomic)
       
 # EventFramework
-  Simple template-extendable event driven framework, the main advantage of which are absent of **virtual** call and **dynamic_cast**; with flexible event configuration. Look at the following example:
+  Simple template-extendable event driven framework, the main advantage of which are absent of **virtual** call and **dynamic_cast**; with flexible event configuration. 
+  Let's make an event consumer and subscribe it on specific types(and values) from event storage. 
+  Look at the following example:
+  
+  **The First Step**: declare your subscriber class
   
     //Event Subscriber class
     struct EventSubscriber :
-        public IControllable<EventSubscriber, MouseEvent, KeyboardEvent, TestEvent /*AnotherEvent*/>
+        public IEventConsumer<EventSubscriber, MouseEvent, KeyboardEvent, TestEvent /*AnotherEvent*/>
     {
         //Specific processing event methods, based on event type
         urc::ResultDescription processSpecificEvent(const MouseEvent &event, MouseEventCMD type) { /*TODO*/ }
@@ -21,10 +25,15 @@ Collection of usefull C++ templates utils, based on Mix-in classes concepts(http
         urc::ResultDescription processSpecificEvent(const TestEvent &event, CustomEventCMD type) { /*TODO*/ }
     };
   
-  Register all event types in framework:
+   `IEventConsumer` is a static interface (Mix-In) here, which force your derived class to implement specific methods. Because your register the following event types: `MouseEvent, KeyboardEvent, TestEvent` you need to define specific methods for these vent types `processSpecificEvent()`
+  You can register all event types in 'global' framework:
   
     using EventFramework = EventFrameworkFactory<MouseEvent, KeyboardEvent, TestEvent>;
     
+   It can helps you to collect all types in the one place and provides some usefull helper functions - `<createControllerEvent>` for example.
+   
+   **The Second Step**: configure event subscriptions
+   
    Initialize your Event subscriber instance for some events usage from configuration (use std::map for example, but flexible intrface provided too):
    
     Configurator conf;
@@ -42,7 +51,7 @@ Collection of usefull C++ templates utils, based on Mix-in classes concepts(http
     EventSubscriber consumer;
     consumer.loadControlEvents(conf);
     
-   Usage:
+   **The Final Step**: Usage
    
     /*Somewhere in code: generate event*/
     auto event = EventFramework::createControllerEvent<MouseEvent>(
