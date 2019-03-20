@@ -13,14 +13,14 @@
 #include "FrameworkSpecializations/EventFrameworkSpecialization/EventsImpl/MouseEvent.h"
 #include "FrameworkSpecializations/EventFrameworkSpecialization/EventsImpl/KeyboardEvent.h"
 
-#include <Framework/EventFramework/Interfaces/IControllable.hpp>
+#include <Framework/EventFramework/Interfaces/IEventConsumer.hpp>
 //#include <Framework/EventFramework/Interfaces/IController.hpp>
 
 #include "CustomEvent.h"
 
 
 
-//g++ -std=c++17 test.cpp ../../FrameworkSpecializations/EventFrameworkSpecialization/EventsImpl/KeyboardEvent.cpp -I/home/user/microcontroller/git_hub/TTL/ -lpthread
+//g++ -std=c++17 event_broker_test.cpp ../../FrameworkSpecializations/EventFrameworkSpecialization/EventsImpl/KeyboardEvent.cpp -I/home/user/microcontroller/git_hub/TTL/ -lpthread
 
 //Just Stub configurator...
 struct Configurator :
@@ -76,7 +76,7 @@ struct EventAnotherProducerSimple : public IController<EventAnotherProducerSimpl
 
 //Subscriber class
 struct EventSubscriber :
-        public IControllable
+        public IEventConsumer
                             <
 /*Events for monitoring ---> */EventSubscriber, MouseEvent, KeyboardEvent, TestEvent
                             >
@@ -100,7 +100,7 @@ struct EventSubscriber :
         globalTestFlag_eventReceived = true;
         return urc::ResultDescription();
     }
-    //template<class Producer>
+
     urc::ResultDescription processSpecificEvent(const TestEvent &event, CustomEventCMD type)
     {
         std::cout << __PRETTY_FUNCTION__ << ", thread_id: " << std::this_thread::get_id() << ", " << event.toString() << std::endl;
@@ -162,78 +162,6 @@ int main(int argc, char ** argv)
 
     //Make test
     {
-        auto event = EventFramework::createControllerEvent<MouseEvent>(
-                                0.0f, 0.0f, //{coordnates X,Y}
-                                (int)MouseButton::MOUSE_MOVE,
-                                0,  //key modifier
-                                (int)MouseButtonState::MB_STATE_NONE);
-
-        globalTestFlag_eventReceived = false;
-        t.onProcessEventDispatcher(*event.get());
-        assert(globalTestFlag_eventReceived); //OK, configured
-    }
-
-    {
-        auto event = EventFramework::createControllerEvent<KeyboardEvent>(
-                                0.0f, 0.0f, //{coordnates X,Y}
-                                119, //key code
-                                false, 0, //modifiers
-                                KeyState::KEY_STATE_DOWN);
-
-        globalTestFlag_eventReceived = false;
-        t.onProcessEventDispatcher(*event.get());
-        assert(globalTestFlag_eventReceived); //OK, configured
-    }
-
-    {
-        auto event = EventFramework::createControllerEvent<KeyboardEvent>(
-                                0.0f, 0.0f,
-                                115, false, 0,
-                                KeyState::KEY_STATE_UP);
-
-        globalTestFlag_eventReceived = false;
-        t.onProcessEventDispatcher(*event.get());
-        assert(globalTestFlag_eventReceived); //OK, configured
-    }
-
-    {
-        auto event = EventFramework::createControllerEvent<KeyboardEvent>(
-                                0.0f, 0.0f,
-                                666, false, 0,
-                                KeyState::KEY_STATE_UP);
-
-        globalTestFlag_eventReceived = false;
-        t.onProcessEventDispatcher(*event.get());
-        assert(!globalTestFlag_eventReceived); //Not delivered unknown event
-    }
-
-    {
-        auto event = EventFramework::createControllerEvent<TestEvent>(
-                                TestEventID::TEID_1,
-                                TestEventModifier::TEIM_NONE,
-                                TestEvenState::TEIS_1);
-
-        globalTestFlag_eventReceived = false;
-        t.onProcessEventDispatcher(*event.get());
-        assert(globalTestFlag_eventReceived); //OK, configured
-    }
-
-    {
-        EventProducerSimple producer;
-        assert(!producer.eventDelivered);
-        auto event = EventFramework::createControllerEvent<TestEvent>(
-                                TestEventID::TEID_1,
-                                TestEventModifier::TEIM_NONE,
-                                TestEvenState::TEIS_1);
-
-        globalTestFlag_eventReceived = false;
-        t.onProcessEventDispatcher(producer, *event.get());
-        assert(globalTestFlag_eventReceived); //OK, configured
-        assert(producer.eventDelivered);
-    }
-
-
-    {
         //Test EventBroker -- simple
         EventBroker<SyncEventDirector<EventProducerSimple, EventSubscriber>,
                     AsyncEventDirector<EventProducerSimple, EventSubscriber>,
@@ -245,22 +173,38 @@ int main(int argc, char ** argv)
 
         EventProducerSimple producer;
         assert(!producer.eventDelivered);
-        auto event = EventFramework::createControllerEvent<TestEvent>(
-                                TestEventID::TEID_1,
-                                TestEventModifier::TEIM_NONE,
-                                TestEvenState::TEIS_1);
+        TestEvent event(TestEventID::TEID_1, TestEventModifier::TEIM_NONE, TestEvenState::TEIS_1);
 
-        //Sync case
+        //event by reference case
         globalTestFlag_eventReceived = false;
         producer.eventDelivered = false;
-        broker.push_sync_event(*event.get(), producer);
+        broker.push_sync_event(event, producer);
         assert(globalTestFlag_eventReceived); //OK, configured
         assert(producer.eventDelivered);
 
-        //Async case
+        //move event
         globalTestFlag_eventReceived = false;
         producer.eventDelivered = false;
-        broker.push_async_event(std::move(*event.get()), producer);
+        broker.push_sync_event(std::move(event),producer);
+        assert(globalTestFlag_eventReceived); //OK, configured
+        assert(producer.eventDelivered);
+
+        //Async case - TestEvent
+        TestEvent asyncEvent(TestEventID::TEID_1, TestEventModifier::TEIM_NONE, TestEvenState::TEIS_1);
+        globalTestFlag_eventReceived = false;
+        producer.eventDelivered = false;
+        broker.push_async_event(std::move(event), producer);
+
+        //Async case - Mouse
+        MouseEvent asyncMouseEvent(
+                                0.0f, 0.0f, //{coordnates X,Y}
+                                (int)MouseButton::MOUSE_MOVE,
+                                0,  //key modifier
+                                (int)MouseButtonState::MB_STATE_NONE);
+
+        globalTestFlag_eventReceived = false;
+        producer.eventDelivered = false;
+        broker.push_async_event(std::move(asyncMouseEvent), producer);
 
 
         using namespace std::chrono_literals;
@@ -268,25 +212,6 @@ int main(int argc, char ** argv)
 
         assert(globalTestFlag_eventReceived); //OK, configured
         assert(producer.eventDelivered);
-
-
-        EventAnotherProducerSimple producerAnother;
-        broker.register_async_consumer<EventAnotherProducerSimple>(&t);
-        assert(!producerAnother.eventDelivered);
-        event = EventFramework::createControllerEvent<TestEvent>(
-                                TestEventID::TEID_1,
-                                TestEventModifier::TEIM_NONE,
-                                TestEvenState::TEIS_1);
-
-        globalTestFlag_eventReceived = false;
-        broker.push_async_event(std::move(*event.get()), producerAnother);
-
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(2s);
-
-        assert(globalTestFlag_eventReceived); //OK, configured
-        assert(producerAnother.eventDelivered);
-
     }
     return 0;
 }
