@@ -8,12 +8,27 @@ public:
     using ProducersListType = std::tuple<typename EventDirectors::ProducerType...>;
     using EventDirectorsListType = std::tuple<EventDirectors...>;
 
+    //Sync delivering
+    template<class Event>
+    void push_sync_event(Event &&event);
+
     template<class Event, class Producer>
     void push_sync_event(Event &&event, Producer &producer);
 
     template<class Event, class Producer>
+    void push_sync_event(Event &&event, const Producer &producer);
+
+    //Async delivering
+    template<class Event>
+    void push_async_event(Event &&event);
+
+    template<class Event, class Producer>
     void push_async_event(Event &&event, Producer &producer);
 
+    template<class Event, class Producer>
+    void push_async_event(Event &&event, const Producer &producer);
+
+    //Registration
     template<class Producer, class Consumer>
     void register_sync_consumer(Consumer consumerCandidate);
 

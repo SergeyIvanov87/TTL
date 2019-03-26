@@ -18,6 +18,15 @@ EventBroker<T_ARGS_DEF>::~EventBroker()
         m_worker.join();
     }
 }
+
+template<T_ARGS_DECL>
+template<class Event>
+void EventBroker<T_ARGS_DEF>::push_sync_event(Event &&event)
+{
+    static EmptyProducer stub;
+    push_sync_event(std::forward<Event>(event), stub);
+}
+
 template<T_ARGS_DECL>
 template<class Event, class Producer>
 void EventBroker<T_ARGS_DEF>::push_sync_event(Event &&event, Producer &producer)
@@ -30,7 +39,37 @@ void EventBroker<T_ARGS_DEF>::push_sync_event(Event &&event, Producer &producer)
 
 template<T_ARGS_DECL>
 template<class Event, class Producer>
+void EventBroker<T_ARGS_DEF>::push_sync_event(Event &&event, const Producer &producer)
+{
+    using ProducerWrapperType = typename ProducerWrapperSelector<Producer>::ProducerWrapperType;
+    constexpr size_t producerIndex = CTimeUtils::Index<ProducerWrapperType, ProducersListType>::value;
+    auto &directorContainedProducer = std::get<producerIndex>(m_directors);
+    directorContainedProducer.produceEvent(producer, std::forward<Event>(event));
+}
+
+
+template<T_ARGS_DECL>
+template<class Event>
+void EventBroker<T_ARGS_DEF>::push_async_event(Event &&event)
+{
+    static EmptyProducer stub;
+    push_sync_event(std::forward<Event>(event), stub);
+}
+
+template<T_ARGS_DECL>
+template<class Event, class Producer>
 void EventBroker<T_ARGS_DEF>::push_async_event(Event &&event, Producer &producer)
+{
+    using ProducerWrapperType = typename ProducerWrapperSelector<Producer, std::false_type>::ProducerWrapperType;
+    constexpr size_t producerIndex = CTimeUtils::Index<ProducerWrapperType, ProducersListType>::value;
+    auto &directorContainedProducer = std::get<producerIndex>(m_directors);
+    auto &&ret = directorContainedProducer.produceEvent(producer, std::forward<Event>(event));
+    postponeEvent(std::move(ret));
+}
+
+template<T_ARGS_DECL>
+template<class Event, class Producer>
+void EventBroker<T_ARGS_DEF>::push_async_event(Event &&event, const Producer &producer)
 {
     using ProducerWrapperType = typename ProducerWrapperSelector<Producer, std::false_type>::ProducerWrapperType;
     constexpr size_t producerIndex = CTimeUtils::Index<ProducerWrapperType, ProducersListType>::value;

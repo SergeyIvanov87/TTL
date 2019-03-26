@@ -16,10 +16,16 @@ void ConsumersSetWrapper<Consumer>::produceEventForAllConsumers(Producer &produc
 {
     for( auto c : m_sameTypeConsumers)
     {
-        c->onProcessEventDispatcher(producer, event);
+        if constexpr(std::is_same_v<Producer,EmptyProducer>)
+        {
+            c->onProcessEventDispatcher(event);
+        }
+        else
+        {
+            c->onProcessEventDispatcher(producer, event);
+        }
     }
 }
-
 
 #define T_ARGS_DECL         class Producer, class ...Consumers
 #define T_ARGS_DEF          Producer, Consumers...

@@ -1,6 +1,9 @@
 #ifndef EVENT_DIRECTOR_H
 #define EVENT_DIRECTOR_H
 
+struct EmptyProducer {};
+
+
 template<class Consumer>
 struct ConsumersSetWrapper
 {
@@ -12,18 +15,16 @@ struct ConsumersSetWrapper
 template<class Producer>
 struct SyncProducerWrapper
 {
-    static constexpr bool isDirectProcessing() {return true;}
     using ProducerType = Producer;
 };
 
 template<class Producer>
 struct AsyncProducerWrapper
 {
-    static constexpr bool isDirectProcessing() {return false;}
     using ProducerType = Producer;
 };
 
-template<class Producer, class SyncType = std::true_type>
+template<class Producer, class SyncType = std::true_type, class Orphaned = std::false_type>
 struct ProducerWrapperSelector
 {
     using ProducerWrapperType = typename std::conditional<std::is_same_v<SyncType, std::true_type>,
@@ -55,8 +56,8 @@ template<class Producer, class ...Consumers>
 class SyncEventDirector: public IEventDirector<Producer, Consumers...>
 {
 public:
-    static constexpr bool isDirectProcessing() {return true;}
     using ProducerType = SyncProducerWrapper<Producer>;
+    using ThisType = SyncEventDirector<Producer, Consumers...>;
     using Base = IEventDirector<Producer, Consumers...>;
 
     template<class Event>
@@ -68,8 +69,8 @@ template<class Producer, class ...Consumers>
 class AsyncEventDirector : public IEventDirector<Producer, Consumers...>
 {
 public:
-    static constexpr bool isDirectProcessing() {return false;}
     using ProducerType = AsyncProducerWrapper<Producer>;
+    using ThisType = AsyncEventDirector<Producer, Consumers...>;
     using Base = IEventDirector<Producer, Consumers...>;
     using QueueProcessingType = std::vector<std::packaged_task<void(void)>/*, Base::ConsumersCount + 1*/>; //+1 - is EventOwner queue element, see implementations
     //using QueueProcessingType = std::array<std::packaged_task<void(void)>/*, Base::ConsumersCount + 1*/>; //+1 - is EventOwner queue element, see implementations
@@ -78,4 +79,5 @@ public:
     template<class Event>
     AsyncTask produceEvent(Producer &producer, Event &&event);
 };
+
 #endif

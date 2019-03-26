@@ -165,15 +165,24 @@ int main(int argc, char ** argv)
         //Test EventBroker -- simple
         EventBroker<SyncEventDirector<EventProducerSimple, EventSubscriber>,
                     AsyncEventDirector<EventProducerSimple, EventSubscriber>,
-                    AsyncEventDirector<EventAnotherProducerSimple, EventSubscriber>> broker;
+                    AsyncEventDirector<EventAnotherProducerSimple, EventSubscriber>,
+                    SyncEventDirector<EmptyProducer, EventSubscriber>> broker;
 
         broker.register_sync_consumer<EventProducerSimple>(&t);
         broker.register_async_consumer<EventProducerSimple>(&t);
+        broker.register_sync_consumer<EmptyProducer>(&t);
+
+        TestEvent event(TestEventID::TEID_1, TestEventModifier::TEIM_NONE, TestEvenState::TEIS_1);
+
+        //event by reference case, orphaned
+        globalTestFlag_eventReceived = false;
+        broker.push_sync_event(event);
+        assert(globalTestFlag_eventReceived); //OK, configured
+
 
 
         EventProducerSimple producer;
         assert(!producer.eventDelivered);
-        TestEvent event(TestEventID::TEID_1, TestEventModifier::TEIM_NONE, TestEvenState::TEIS_1);
 
         //event by reference case
         globalTestFlag_eventReceived = false;
