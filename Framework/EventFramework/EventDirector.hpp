@@ -8,6 +8,7 @@
 #include <future>
 #include <type_traits>
 #include "EventDirector.h"
+#include "Interfaces/IEventConsumer.hpp"
 #include "Framework/Utils/CTimeUtils.h"
 
 template<class Consumer>
@@ -18,11 +19,11 @@ void ConsumersSetWrapper<Consumer>::produceEventForAllConsumers(Producer &produc
     {
         if constexpr(std::is_same_v<Producer,EmptyProducer>)
         {
-            c->onProcessEventDispatcher(event);
+            (*c).onProcessEventDispatcher(event);
         }
         else
         {
-            c->onProcessEventDispatcher(producer, event);
+            (*c).onProcessEventDispatcher(producer, event);
         }
     }
 }

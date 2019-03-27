@@ -5,6 +5,7 @@
 #include <mutex> //TODO
 #include <future>
 #include <condition_variable>
+#include "EventDirector.hpp"
 #include "EventBroker.h"
 #include "Framework/Utils/CTimeUtils.h"
 #define T_ARGS_DECL         class ...EventDirectors
@@ -53,7 +54,7 @@ template<class Event>
 void EventBroker<T_ARGS_DEF>::push_async_event(Event &&event)
 {
     static EmptyProducer stub;
-    push_sync_event(std::forward<Event>(event), stub);
+    push_async_event(std::forward<Event>(event), stub);
 }
 
 template<T_ARGS_DECL>
