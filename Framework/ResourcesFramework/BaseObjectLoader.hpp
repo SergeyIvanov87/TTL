@@ -10,9 +10,10 @@ static const char *tmpDirectory = "dumps";
 
 //Get/Set
 template <T_ARG_DEC>
-typename BaseObjectLoader<T_ARG_DEF>::ResourceClassTypeCPtr BaseObjectLoader<T_ARG_DEF>::getResourceByName(const std::string &name) const
+typename BaseObjectLoader<T_ARG_DEF>::ResourceClassTypeCPtr BaseObjectLoader<T_ARG_DEF>::getResourceByName(std::string_view name) const
 {
-    auto it = loadedObjectResources.find(name);
+    //F..CK: no operator < for std::string and std::string_view
+    auto it = loadedObjectResources.find(name.data());
     if(it != loadedObjectResources.end())
     {
         return it->second.get();    //dereferenced shared ptr
@@ -22,10 +23,10 @@ typename BaseObjectLoader<T_ARG_DEF>::ResourceClassTypeCPtr BaseObjectLoader<T_A
 
 template <T_ARG_DEC>
 bool BaseObjectLoader<T_ARG_DEF>::setResourceByName(
-        const typename BaseObjectLoader<T_ARG_DEF>::ResourcesMap::key_type &name,
+        std::string_view name,
         const typename BaseObjectLoader<T_ARG_DEF>::ResourceClassTypeSharedPtr &resource)
 {
-    auto it = loadedObjectResources.find(name);
+    auto it = loadedObjectResources.find(name.data());
     if(it == loadedObjectResources.end())
     {
         loadedObjectResources.insert(std::make_pair(name, resource));
@@ -43,11 +44,11 @@ void BaseObjectLoader<T_ARG_DEF>::freeResources()
 
 //Deserialize/Serialize
 template <T_ARG_DEC>
-bool BaseObjectLoader<T_ARG_DEF>::deserialize(const std::string &resourceName)
+bool BaseObjectLoader<T_ARG_DEF>::deserialize(std::string_view resourceName)
 {
     if constexpr (ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
     {
-        auto it = loadedObjectResources.find(resourceName);
+        auto it = loadedObjectResources.find(resourceName.data());
         if(it == loadedObjectResources.end())
         {
             return false;
@@ -58,11 +59,11 @@ bool BaseObjectLoader<T_ARG_DEF>::deserialize(const std::string &resourceName)
 }
 
 template <T_ARG_DEC>
-bool BaseObjectLoader<T_ARG_DEF>::serialize(const std::string &resourceName)
+bool BaseObjectLoader<T_ARG_DEF>::serialize(std::string_view resourceName)
 {
     if constexpr (ResourcesTraits<T_ARG_DEF>::hasAssetsPath())
     {
-        auto it = loadedObjectResources.find(resourceName);
+        auto it = loadedObjectResources.find(resourceName.data());
         if(it == loadedObjectResources.end())
         {
             return false;
@@ -196,7 +197,7 @@ size_t BaseObjectLoader<T_ARG_DEF>::doLoadResourcesFromMemory(UsedTracer &tracer
 template <T_ARG_DEC>
 template <class UsedTracer>
 bool BaseObjectLoader<T_ARG_DEF>::doDeserialize(
-                                                const std::string &resourceName,
+                                                std::string_view resourceName,
                                                 ResourceClassTypeSharedPtr &resource,
                                                 UsedTracer tracer)
 {
@@ -229,7 +230,8 @@ bool BaseObjectLoader<T_ARG_DEF>::doDeserialize(
     }
 
     //open file for reading
-    std::string fileName = resourceName + ".dump";
+    std::string fileName(resourceName);
+    fileName += ".dump";
     std::ifstream fileIn(fileName, std::ios::in | std::ios::binary);
     if(!fileIn.is_open())
     {
@@ -249,7 +251,7 @@ bool BaseObjectLoader<T_ARG_DEF>::doDeserialize(
 template <T_ARG_DEC>
 template <class UsedTracer>
 bool BaseObjectLoader<T_ARG_DEF>::doSerialize(
-                                                const std::string &resourceName,
+                                                std::string_view resourceName,
                                                 ResourceClassTypeSharedPtr &resource,
                                                 UsedTracer tracer)
 {
@@ -287,7 +289,8 @@ bool BaseObjectLoader<T_ARG_DEF>::doSerialize(
     }
 
     //open file for dump
-    std::string fileName = resourceName + ".dump";
+    std::string fileName(resourceName);
+     fileName += ".dump";
     std::ofstream fileOut(fileName, std::ios::out | std::ios::binary);
     if(!fileOut.is_open())
     {

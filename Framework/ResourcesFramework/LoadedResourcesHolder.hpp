@@ -27,7 +27,7 @@ LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::~LoadedResourcesHolder()
 //function to get specific resource from specific resource loader
 template <TEMPLATE_ARGS_LIST_DECL>
 template <class Resource>
-const Resource *LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourcePtr(const std::string &name, bool needDeserialize/* = false*/)
+const Resource *LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourcePtr(std::string_view name, bool needDeserialize/* = false*/)
 {
     auto ret = std::get<BaseObjectLoader<Resource>>(loadersTuple).getResourceByName(name);
     if(ret)
@@ -48,7 +48,7 @@ const Resource *LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourcePtr(co
 //function to set specific resource to specific resource loader
 template <TEMPLATE_ARGS_LIST_DECL>
 template <class Resource>
-bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::insertResource(const std::string &name, std::shared_ptr<Resource> &&resourcePtr)
+bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::insertResource(std::string_view name, std::shared_ptr<Resource> &&resourcePtr)
 {
     return std::get<BaseObjectLoader<Resource>>(loadersTuple).setResourceByName(name,
                                             std::forward<typename BaseObjectLoader<Resource>::ResourceClassTypeSharedPtr>(resourcePtr));
@@ -57,7 +57,7 @@ bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::insertResource(const std::st
 //function to de/serialize object into specific file
 template <TEMPLATE_ARGS_LIST_DECL>
 template <class Resource>
-bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::serializeResource(const std::string &name)
+bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::serializeResource(std::string_view name)
 {
     //Enter to main resources tree directory
     std::unique_ptr<char, std::function<void(char *)>> curDirPtr(get_current_dir_name(), [](char *ptr) -> void
@@ -79,7 +79,7 @@ bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::serializeResource(const std:
 
 template <TEMPLATE_ARGS_LIST_DECL>
 template <class Resource>
-bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::deserializeResource(const std::string &name)
+bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::deserializeResource(std::string_view name)
 {
     //Enter to main resources tree directory
     std::unique_ptr<char, std::function<void(char *)>> curDirPtr(get_current_dir_name(), [](char *ptr) -> void

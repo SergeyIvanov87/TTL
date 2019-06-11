@@ -78,4 +78,13 @@ protected:
     EventTypeCtrlData m_eventCtrlData;
 };
 
+/*
+template<typename Event> concept TTLW =
+requires
+{
+    typename Event::EventType;
+    typename Event::EventId;
+    typename Event::EventIDMod;
+    typename Event::EventIdState;
+};*/
 #endif

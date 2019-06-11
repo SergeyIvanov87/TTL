@@ -8,6 +8,7 @@
 #include <iostream>
 #include <error.h>
 #include <string.h>
+#include <string_view>
 #include <memory>
 #include "BaseObjectLoader.h"
 
@@ -25,17 +26,17 @@ public:
 
     //function to get specific resource from specific resource loader
     template <class Resource>
-    const Resource* getResourcePtr(const std::string &name, bool needDeserialize = false);
+    const Resource* getResourcePtr(std::string_view name, bool needDeserialize = false);
 
     //function to set specific resource to specific resource loader
     template <class Resource>
-    bool insertResource(const std::string &name, std::shared_ptr<Resource> &&resourcePtr);
+    bool insertResource(std::string_view name, std::shared_ptr<Resource> &&resourcePtr);
 
     //function to de/serialize object into specific file
     template<class Resource>
-    bool serializeResource(const std::string &name);
+    bool serializeResource(std::string_view name);
     template<class Resource>
-    bool deserializeResource(const std::string &name);
+    bool deserializeResource(std::string_view name);
 
     const std::string &getAssetsPath() const;
     const std::string &getSerializationPath() const {  return m_assetsTmpPath; }

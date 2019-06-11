@@ -6,6 +6,7 @@
 #include <dirent.h>
 #include <iostream>
 #include <string.h>
+#include <string_view>
 #include <fstream>
 
 #include <Framework/Utils/LogTracer.h>
@@ -31,8 +32,8 @@ public:
         return ResourceHolder::getResourceTypeDescription();
     };
 
-    ResourceClassTypeCPtr getResourceByName(const std::string &name) const;
-    bool setResourceByName(const typename ResourcesMap::key_type &name,
+    ResourceClassTypeCPtr getResourceByName(std::string_view name) const;
+    bool setResourceByName(std::string_view name,
             const ResourceClassTypeSharedPtr &resource);
 
     void freeResources();
@@ -40,8 +41,8 @@ public:
     template <class UsedTracer>
     size_t loadResources(UsedTracer tracer);
 
-    bool serialize(const std::string &resourceName);
-    bool deserialize(const std::string &resourceName);
+    bool serialize(std::string_view resourceName);
+    bool deserialize(std::string_view resourceName);
 private:
 
     template <class UsedTracer>
@@ -51,10 +52,10 @@ private:
     ResourcesMap loadedObjectResources;
 
     template <class UsedTracer = Tracer<EmptyTracerImpl>>
-    bool doSerialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource, UsedTracer tracer = UsedTracer());
+    bool doSerialize(std::string_view resourceName, ResourceClassTypeSharedPtr &resource, UsedTracer tracer = UsedTracer());
 
     template <class UsedTracer = Tracer<EmptyTracerImpl>>
-    bool doDeserialize(const std::string &resourceName, ResourceClassTypeSharedPtr &resource, UsedTracer tracer = UsedTracer());
+    bool doDeserialize(std::string_view resourceName, ResourceClassTypeSharedPtr &resource, UsedTracer tracer = UsedTracer());
 };
 }
 #endif /* BASEOBJECTLOADER_H_ */
