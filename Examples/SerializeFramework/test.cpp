@@ -17,6 +17,11 @@ struct A : public ISerializable<A>
     bool serializeImpl(std::ostream &out)
     {
         serializeParams(out, txt, num, doubleVector);
+
+        txt.clear();
+        txt.shrink_to_fit();
+        doubleVector.clear();
+        doubleVector.shrink_to_fit();
         return true;
     }
     bool deserializeImpl(std::istream &out)
@@ -36,23 +41,38 @@ struct B : public ISerializable<B>
     //No Impl
 };
 
+void foo()
+{
+    std::cout << "foo" << std::endl;
+}
+#include <future>
 int main(int argc, char *argv[])
 {
-    A a;
+    A a, aCopy;
     a.txt = "Aclassobjectstring";
     a.num = 123;
     a.doubleVector = {0.1, 0.2, 0.3};
 
+    aCopy = a;
     std::cout << "a: " << a.isSerializable() << std::endl;
     std::stringstream ss;
     a.serialize(ss);
     std::cout << "A serialized: " << ss.str() << std::endl;
 
+
+    {
+        auto r = std::async(&foo);
+        std::stringstream ss_stub;
+        a.serialize(ss_stub);
+        std::cout << "A serialized again" << ss_stub.str() << std::endl;
+        r.wait();
+    }
+
     A aa;
     aa.deserialize(ss);
-    assert(a.txt == aa.txt && "a.txt == aa.txt");
-    assert(a.num == aa.num && "a.num == aa.num");
-    assert(a.doubleVector == aa.doubleVector && "a.doubleVector == aa.doubleVector");
+    assert(aCopy.txt == aa.txt && "aCopy.txt == aa.txt");
+    assert(aCopy.num == aa.num && "aCopy.num == aa.num");
+    assert(aCopy.doubleVector == aa.doubleVector && "aCopy.doubleVector == aa.doubleVector");
 
     B b;
     std::cout << "b: " << b.isSerializable() << std::endl;

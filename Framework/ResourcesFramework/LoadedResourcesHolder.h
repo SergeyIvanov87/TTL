@@ -39,7 +39,7 @@ public:
     bool deserializeResource(std::string_view name);
 
     const std::string &getAssetsPath() const;
-    const std::string &getSerializationPath() const {  return m_assetsTmpPath; }
+    const std::string &getSerializationPath() const;// {  return m_assetsTmpPath; }
 private:
     ResourceLoadersTuple loadersTuple;
     std::string m_assetsPath;

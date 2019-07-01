@@ -96,13 +96,18 @@ size_t BaseObjectLoader<T_ARG_DEF>::doLoadResourcesFromFS(UsedTracer &tracer)
     size_t initialSize = loadedObjectResources.size();
 
     //get directory
+    tracer.trace("Current Directory: ", get_current_dir_name());
     std::unique_ptr<char, std::function<void(char *)>> curDirPtr(get_current_dir_name(), [](char *ptr) -> void
     {
         chdir(ptr);
         free(ptr);
     });
 
-    chdir(ResourcesTraits<T_ARG_DEF>::getResourcePath());
+    tracer.trace("Go into  Directory: ", ResourcesTraits<T_ARG_DEF>::getResourcePath());
+    if(-1 == chdir(ResourcesTraits<T_ARG_DEF>::getResourcePath()))
+    {
+        throw urc::FileOpenError(ResourcesTraits<T_ARG_DEF>::getResourcePath(), errno);
+    }
 
     DIR *objDir = opendir("./");
     if(!objDir)
@@ -278,9 +283,16 @@ bool BaseObjectLoader<T_ARG_DEF>::doSerialize(
     chdir(ResourcesTraits<T_ARG_DEF>::getResourcePath());
 
     //change to tmpDirectory
-    if(-1 == chdir(tmpDirectory))
+    while(-1 == chdir(tmpDirectory))
     {
-        if((errno != ENOENT) || (-1 == mkdir(tmpDirectory, S_IRWXO | S_IRWXG | S_IRWXU | S_IFDIR)))
+        if(errno != ENOENT)
+        {
+            urc::FileOpenError ex(std::string("Cannot change dir to: ") + curDirPtr.get() + "/" + ResourcesTraits<T_ARG_DEF>::getResourcePath() + "/" + tmpDirectory, errno);
+            tracer << ex.what();
+            throw ex;
+        }
+
+        if(-1 == mkdir(tmpDirectory, S_IRWXO | S_IRWXG | S_IRWXU | S_IFDIR))
         {
             urc::FileOpenError ex(std::string(curDirPtr.get()) + "/" + ResourcesTraits<T_ARG_DEF>::getResourcePath() + "/" + tmpDirectory, errno);
             tracer << ex.what();

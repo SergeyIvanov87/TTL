@@ -17,7 +17,10 @@ struct ISerializable
     template <class ...Params>
     bool serialize(std::ostream &out, Params &&...args)
     {
-        m_wasSerialized = serializeSelector<Impl>(out, std::forward<Params>(args)...);
+        if(!m_wasSerialized)
+        {
+            m_wasSerialized = serializeSelector<Impl>(out, std::forward<Params>(args)...);
+        }
         return m_wasSerialized;
     }
 

@@ -32,7 +32,7 @@ const Resource *LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourcePtr(st
     auto ret = std::get<BaseObjectLoader<Resource>>(loadersTuple).getResourceByName(name);
     if(ret)
     {
-        if(needDeserialize)
+        if(ret->wasSerialized() && needDeserialize)
         {
             if(deserializeResource<Resource>(name))
             {
@@ -144,13 +144,13 @@ const std::string &LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getAssetsPath(
 {
     return m_assetsPath;
 }
-/*
+
 template <TEMPLATE_ARGS_LIST_DECL>
 const std::string &LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getSerializationPath() const
 {
     return m_assetsTmpPath;
 }
-*/
+
 #undef TEMPLATE_ARGS_LIST_DECL
 #undef TEMPLATE_ARGS_LIST_DEF
 } /* namespace Resources */
