@@ -1,4 +1,3 @@
-
 #ifndef COMMONOBJECTPOOL_H
 #define COMMONOBJECTPOOL_H
 #include "ObjectQueue.h"
@@ -49,11 +48,13 @@ public:
     using value_type = typename Base::value_type;
     using PoolContainer = typename Base::QueueContainer;
 
-    ObjectPool(size_t size) : PoolSize(size)
+    template<class CreatorLambda, class ...CreatorArguments>
+    ObjectPool(CreatorLambda&& creator, CreatorArguments &&...args, size_t size) : PoolSize(size)
     {
-        std::generate_n(std::back_inserter(Base::m_container),  PoolSize, [this]()
+        std::generate_n(std::back_inserter(Base::m_container),  PoolSize, [this, &creator, &args...]()
         {
-            return NativeObjectPoolItemWrapper(new Object(), NativeObjectPoolItemReleaser((this)));
+            return NativeObjectPoolItemWrapper(creator(std::forward<CreatorArguments>(args)...),
+                                               NativeObjectPoolItemReleaser((this)));
         });
     }
     ObjectPool() = delete;

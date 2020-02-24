@@ -45,6 +45,26 @@ const Resource *LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourcePtr(st
     return nullptr;
 }
 
+template <TEMPLATE_ARGS_LIST_DECL>
+template <class Resource>
+Resource *LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourceInstancePtr(std::string_view name, bool needDeserialize/* = false*/)
+{
+    auto ret = std::get<BaseObjectLoader<Resource>>(loadersTuple).getResourceByName(name);
+    if(ret)
+    {
+        if(ret->wasSerialized() && needDeserialize)
+        {
+            if(deserializeResource<Resource>(name))
+            {
+                return ret;
+            }
+            return nullptr;
+        }
+        return ret;
+    }
+    return nullptr;
+}
+
 //function to set specific resource to specific resource loader
 template <TEMPLATE_ARGS_LIST_DECL>
 template <class Resource>

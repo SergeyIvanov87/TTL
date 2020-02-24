@@ -24,6 +24,7 @@ public:
     typedef typename ResourceHolder::ResourceClassType ResourceClassType;
     typedef typename ResourceHolder::ResourceClassTypeSharedPtr ResourceClassTypeSharedPtr;
     typedef typename ResourceHolder::ResourceClassTypeCPtr ResourceClassTypeCPtr;
+    typedef typename ResourceHolder::ResourceClassTypePtr ResourceClassTypePtr;
     typedef typename ResourceHolder::ResourcesMap ResourcesMap;
     typedef typename ResourceHolder::ResourcesMapValueType ResourcesMapValueType;
 
@@ -33,8 +34,9 @@ public:
     };
 
     ResourceClassTypeCPtr getResourceByName(std::string_view name) const;
+    ResourceClassTypePtr getResourceByName(std::string_view name);
     bool setResourceByName(std::string_view name,
-            const ResourceClassTypeSharedPtr &resource);
+                           const ResourceClassTypeSharedPtr &resource);
 
     void freeResources();
 

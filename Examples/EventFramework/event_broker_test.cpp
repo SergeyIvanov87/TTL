@@ -134,6 +134,22 @@ struct EventSubscriber :
         return urc::ResultDescription();
     }
 };
+struct EventSubscriberNext
+{
+    //Specific processing event methods, based on event type
+    template<class Producer>
+    urc::ResultDescription onProcessEventDispatcher(Producer &&producer, const TestEvent &event)
+    {
+        std::cout << __PRETTY_FUNCTION__ << ", thread_id: " << std::this_thread::get_id() << ", " << event.toString() << std::endl;
+        return urc::ResultDescription();
+    }
+
+    urc::ResultDescription onProcessEventDispatcher(const TestEvent &event)
+    {
+        std::cout << __PRETTY_FUNCTION__ << ", thread_id: " << std::this_thread::get_id() << ", " << event.toString() << std::endl;
+        return urc::ResultDescription();
+    }
+};
 
 int main(int argc, char ** argv)
 {
@@ -163,22 +179,30 @@ int main(int argc, char ** argv)
     //Make test
     {
         //Test EventBroker -- simple
-        EventBroker<SyncEventDirector<EventProducerSimple, EventSubscriber>,
+        EventBroker</*SyncEventDirector<EventProducerSimple, EventSubscriber>,
                     AsyncEventDirector<EventProducerSimple, EventSubscriber>,
-                    AsyncEventDirector<EventAnotherProducerSimple, EventSubscriber>,
-                    SyncEventDirector<EmptyProducer, EventSubscriber>> broker;
+                    AsyncEventDirector<EventAnotherProducerSimple, EventSubscriber>,*/
+                    SyncEventDirector<EmptyProducer, EventSubscriber,EventSubscriberNext>,
+                    SyncEventDirector<EventProducerSimple, EventSubscriberNext>> broker;
 
-        broker.register_sync_consumer<EventProducerSimple>(&t);
-        broker.register_async_consumer<EventProducerSimple>(&t);
+        //broker.register_sync_consumer<EventProducerSimple>(&t);
+        //broker.register_async_consumer<EventProducerSimple>(&t);
         broker.register_sync_consumer<EmptyProducer>(&t);
+        EventSubscriberNext next;
+        broker.register_sync_consumer<EmptyProducer>(&next);
+        broker.register_sync_consumer<EventProducerSimple>(&next);
 
         TestEvent event(TestEventID::TEID_1, TestEventModifier::TEIM_NONE, TestEvenState::TEIS_1);
 
         //event by reference case, orphaned
         globalTestFlag_eventReceived = false;
         broker.push_sync_event(event);
-        assert(globalTestFlag_eventReceived); //OK, configured
 
+        EventProducerSimple producer;
+        broker.push_sync_event(event, producer);
+        assert(globalTestFlag_eventReceived); //OK, configured
+    return 0;
+    /*
 
 
         EventProducerSimple producer;
@@ -221,6 +245,7 @@ int main(int argc, char ** argv)
 
         assert(globalTestFlag_eventReceived); //OK, configured
         assert(producer.eventDelivered);
+        * */
     }
     return 0;
 }

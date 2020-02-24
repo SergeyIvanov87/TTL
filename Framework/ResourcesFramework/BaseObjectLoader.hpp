@@ -10,7 +10,8 @@ static const char *tmpDirectory = "dumps";
 
 //Get/Set
 template <T_ARG_DEC>
-typename BaseObjectLoader<T_ARG_DEF>::ResourceClassTypeCPtr BaseObjectLoader<T_ARG_DEF>::getResourceByName(std::string_view name) const
+typename BaseObjectLoader<T_ARG_DEF>::ResourceClassTypeCPtr
+BaseObjectLoader<T_ARG_DEF>::getResourceByName(std::string_view name) const
 {
     //F..CK: no operator < for std::string and std::string_view
     auto it = loadedObjectResources.find(name.data());
@@ -19,6 +20,19 @@ typename BaseObjectLoader<T_ARG_DEF>::ResourceClassTypeCPtr BaseObjectLoader<T_A
         return it->second.get();    //dereferenced shared ptr
     }
     return nullptr;
+}
+
+template <T_ARG_DEC>
+typename BaseObjectLoader<T_ARG_DEF>::ResourceClassTypePtr
+BaseObjectLoader<T_ARG_DEF>::getResourceByName(std::string_view name)
+{
+    auto it = loadedObjectResources.find(name.data());
+    if(it != loadedObjectResources.end())
+    {
+        return it->second.get();    //dereferenced shared ptr
+    }
+    static ResourceClassTypePtr null_ret{};
+    return null_ret;
 }
 
 template <T_ARG_DEC>
@@ -150,7 +164,7 @@ size_t BaseObjectLoader<T_ARG_DEF>::doLoadResourcesFromFS(UsedTracer &tracer)
             }
             tracer4File.trace("\tLoaded count: ", res.size());
 
-            if(ResourceClassType::isSerializable())
+            if constexpr (ResourceClassType::isSerializable())
             {
                 std::for_each(res.begin(), res.end(), [this, &tracer4File] (auto &value)
                 {

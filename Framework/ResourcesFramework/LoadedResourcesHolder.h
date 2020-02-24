@@ -28,6 +28,9 @@ public:
     template <class Resource>
     const Resource* getResourcePtr(std::string_view name, bool needDeserialize = false);
 
+    template <class Resource>
+    Resource* getResourceInstancePtr(std::string_view name, bool needDeserialize = false);
+
     //function to set specific resource to specific resource loader
     template <class Resource>
     bool insertResource(std::string_view name, std::shared_ptr<Resource> &&resourcePtr);

@@ -22,6 +22,7 @@ public:
 
     typedef SharedPtr ResourceClassTypeSharedPtr;
     typedef const Resource * ResourceClassTypeCPtr;
+    typedef Resource * ResourceClassTypePtr;
 
     //Interfaces Decl
     template<class Tracer, class ...Additionals>
