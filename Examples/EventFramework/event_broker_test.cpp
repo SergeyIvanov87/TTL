@@ -169,8 +169,8 @@ int main(int argc, char ** argv)
     EventSubscriber t;
 
     //logger
-    SSTracerImpl ss;
-    Tracer<SSTracerImpl> tracer(ss);
+    Streamed ss;
+    Tracer<Streamed> tracer(ss);
 
     //subscribe to events from config
     t.loadControlEvents(conf, tracer);

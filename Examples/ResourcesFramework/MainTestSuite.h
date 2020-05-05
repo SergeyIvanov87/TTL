@@ -13,8 +13,8 @@ class MainSuite : public TestSuiteFixtureBase
 
     void loadAssets()
     {
-        SSTracerImpl ss('\t');
-        Tracer<SSTracerImpl> tracer(ss);
+        Streamed ss('\t');
+        Tracer<Streamed> tracer(ss);
         ResourcesFramework::initializeResourceHolder("ASSETS", "dumps", tracer);
         std::cout << tracer.getManagedTracer().str();
 

@@ -4,10 +4,11 @@
 #include <utility>
 #include "StringUtils.h"
 
-class SSTracerImpl
+template<class Stream>
+class Streamed
 {
 public:
-    SSTracerImpl(char indent = char(' ')) :
+    Streamed(char indent = char(' ')) :
      m_ss(),
      m_ident(indent)
     {
@@ -37,10 +38,10 @@ public:
     }
 
     template <class T>
-    SSTracerImpl &operator<< (const T &val)
+    Stream &operator<< (const T &val)
     {
         m_ss << val;
-        return *this;
+        return m_ss;
     }
 
     template <class ...Args>
@@ -49,7 +50,7 @@ public:
         m_ss << makeString(std::forward<Args>(args)...) << "\n";
     }
 private:
-    std::stringstream m_ss;
+    Stream m_ss;
     std::string m_prefix;
     char m_ident;
 };
@@ -86,6 +87,54 @@ public:
     void trace(Args &&...args) {}
 };
 
+
+class Stdout
+{
+public:
+    Stdout(char indent = char(' ')) :
+     m_ss(std::cout),
+     m_ident(indent)
+    {
+    }
+
+    void increaseDeep()
+    {
+        m_prefix.push_back(m_ident);
+    }
+
+    void decreaseDeep()
+    {
+        if(!m_prefix.empty())
+        {
+            m_prefix.pop_back();
+        }
+    }
+
+    const std::string &getPrefix() const
+    {
+        return m_prefix;
+    }
+
+    template <class T>
+    std::ostream  &operator<< (const T &val)
+    {
+        m_ss << val;
+        return m_ss;
+    }
+
+    template <class ...Args>
+    void trace(Args &&...args)
+    {
+        m_ss << makeString(std::forward<Args>(args)...) << "\n";
+    }
+private:
+    std::ostream &m_ss;
+    std::string m_prefix;
+    char m_ident;
+};
+
+using SSTracerImpl = Streamed<std::stringstream>;
+
 template<class TracerImpl>
 class Tracer
 {
@@ -113,10 +162,13 @@ public:
         //print indentations before
         m_tracer << m_tracer.getPrefix();
         //print data
-        m_tracer << val << "\n";
+        m_tracer << val << std::endl;
         return *this;
     }
 
+    /*template< class CharT, class Traits >
+    std::basic_ostream<CharT, Traits>&
+*/
     TracerImpl &getManagedTracer()
     {
         return m_tracer;
@@ -151,4 +203,12 @@ public:
     template <class ...Args>
     void trace(Args &&...args) noexcept {}
 };
+
+/*
+template<class TracerImpl, class T>
+Tracer<TracerImpl>& operator<<(Tracer<TracerImpl> &tracer, const T& val)
+{
+    tracer << val;
+    return tracer;
+}*/
 #endif
