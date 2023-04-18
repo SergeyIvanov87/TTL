@@ -16,8 +16,8 @@ struct A : public ISerializable<A>
     //Impl
     bool serializeImpl(std::ostream &out)
     {
-        size_t bytes_count = serializeParams(out, txt, num, doubleVector);
-        if (bytes_count != (sizeof(num) + doubleVector.size() * sizeof(double) + txt.size()))
+        size_t bytes_count = serializeParams(out, txt, num, doubleVector, bbb);
+        if (bytes_count != (sizeof(num) + (doubleVector.size() * sizeof(double) + sizeof(size_t)) + txt.size()))
         {
             abort();
         }

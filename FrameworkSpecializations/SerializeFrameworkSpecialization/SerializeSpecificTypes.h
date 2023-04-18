@@ -11,8 +11,8 @@ inline size_t serializeUnit(std::ostream &out, const std::string &unit)
 //specialization for vector
 template<typename T> using Vector = std::vector<T>;
 
-template <class T>
-inline size_t serializeUnit(std::ostream &out, const Vector<T> &cont)
+template <class T, class U = std::enable_if_t<std::is_trivial_v<T>, size_t>>
+inline U serializeUnit(std::ostream &out, const Vector<T> &cont)
 {
     auto result = vector2Bytes(cont);
     out << result.second << std::endl; //in bytes
@@ -22,8 +22,8 @@ inline size_t serializeUnit(std::ostream &out, const Vector<T> &cont)
 }
 
 //specialization for std::array
-template <class T, size_t N>
-inline size_t serializeUnit(std::ostream &out, const std::array<T, N> &cont)
+template <class T, size_t N, class U = std::enable_if_t<std::is_trivial_v<T>, size_t>>
+inline U serializeUnit(std::ostream &out, const std::array<T, N> &cont)
 {
     auto result = vector2Bytes(cont);
     const auto BYTES = N * sizeof(T);
