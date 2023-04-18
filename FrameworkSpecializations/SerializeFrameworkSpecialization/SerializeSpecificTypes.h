@@ -2,34 +2,35 @@
 #define SERIALIZE_FRAMEWORK_SPECIALIZATION_H
 
 template <>
-inline bool serializeUnit(std::ostream &out, const std::string &unit)
+inline size_t serializeUnit(std::ostream &out, const std::string &unit)
 {
     out << (unit.empty() ? emptySerializedValue : unit) << std::endl;
-    return true;
+    return (unit.empty() ? emptySerializedValueSize : unit.size());
 }
 
 //specialization for vector
 template<typename T> using Vector = std::vector<T>;
 
 template <class T>
-inline bool serializeUnit(std::ostream &out, const Vector<T> &cont)
+inline size_t serializeUnit(std::ostream &out, const Vector<T> &cont)
 {
     auto result = vector2Bytes(cont);
     out << result.second << std::endl; //in bytes
     out.write(result.first, result.second);
     out << std::endl;
-    return true;
+    return result.second + sizeof(result.second);
 }
 
 //specialization for std::array
 template <class T, size_t N>
-inline bool serializeUnit(std::ostream &out, const std::array<T, N> &cont)
+inline size_t serializeUnit(std::ostream &out, const std::array<T, N> &cont)
 {
     auto result = vector2Bytes(cont);
-    out << N * sizeof(T) << std::endl; //in bytes
+    const auto BYTES = N * sizeof(T);
+    out << BYTES << std::endl; //in bytes
     out.write(result.first, result.second);
     out << std::endl;
-    return true;
+    return BYTES * sizeof(BYTES);
 }
 
 //specialization for std::set

@@ -87,8 +87,12 @@ public:
     //Impl
     bool serializeImpl(std::ostream &out)
     {
-        serializeParams(out, m_name);
+        size_t bytes_count = serializeParams(out, m_name);
 
+        if (bytes_count != m_name.size())
+        {
+            abort();
+        }
         m_name.clear();
         m_name.shrink_to_fit();
         return true;

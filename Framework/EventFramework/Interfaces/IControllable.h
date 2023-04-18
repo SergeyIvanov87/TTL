@@ -5,7 +5,7 @@
 #include "Framework/Utils/UnifiedResultCodes.h"
 #include "IEventSpecificControllable.h"
 #include "Framework/Utils/Visitor.h"
-#include <Framework/Utils/LogTracer.h>
+#include "Framework/Utils/LogTracerAdapter.h"
 
 template<class ...AllEventTypes>
 class CommonControllerEvent;

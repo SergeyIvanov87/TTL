@@ -3,7 +3,7 @@
 
 #include <functional>
 #include <type_traits>
-#include <Framework/Utils/LogTracer.h>
+#include "Framework/Utils/LogTracerAdapter.h"
 #include "IEventConsumer.h"
 #include "Framework/Utils/CTimeUtils.h"
 #include "IEventSpecificControllable.hpp"

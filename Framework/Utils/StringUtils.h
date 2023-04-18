@@ -5,6 +5,7 @@
 #include <numeric>
 #include <algorithm>
 #include <array>
+#include <sstream>
 //Wide to_string() implementation, use SFINAE:
 //because std::to_string() doesn't have overloaded version for std::string, char *, const char * and etc
 //we do not need try make this conversion
@@ -32,6 +33,15 @@ struct GenericToString
             toString(const T &value)
     {
         return std::to_string(value);
+    }
+
+    template <class T, class Modifier>
+    static std::string
+            toString(std::tuple<Modifier, T> value)
+    {
+        std::stringstream ss;
+        ss << std::get<0>(value) << std::get<1>(value);
+        return ss.str();
     }
 };
 

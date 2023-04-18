@@ -3,10 +3,10 @@
 
 //Serialization
 template <class T>
-inline bool serializeUnit(std::ostream &out, const T &unit);
+inline size_t serializeUnit(std::ostream &out, const T &unit);
 
 template<class ...Params>
-void serializeParams(std::ostream &out, Params ...params);
+size_t serializeParams(std::ostream &out, Params ...params);
 
 //Deserialization
 template <class T>

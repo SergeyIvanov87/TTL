@@ -1,5 +1,7 @@
 #ifndef SERIALIZE_UTILS_HPP
 #define SERIALIZE_UTILS_HPP
+
+#include <numeric>
 #include <ostream>
 #include <iostream>
 #include <fstream>
@@ -10,6 +12,7 @@
 
 //Serialization
 static constexpr const char* emptySerializedValue = "--empty--";
+static constexpr size_t emptySerializedValueSize = 10;
 
 using Vector2BytesResult = std::pair<const char *, size_t>;
 template <class Vector>
@@ -25,20 +28,23 @@ inline Vector2BytesResult vector2Bytes(const Vector &v)
 
 //Common serialize for base types
 template <class T>
-inline bool serializeUnit(std::ostream &out, const T &unit)
+inline size_t serializeUnit(std::ostream &out, const T &unit)
 {
     out << unit << std::endl;
-    return true;
+    return sizeof(std::decay_t<T>);
 }
 
 #include "FrameworkSpecializations/SerializeFrameworkSpecialization/SerializeSpecificTypes.h"
 
 //Serialize variadic params
 template<class ...Params>
-void serializeParams(std::ostream &out, Params ...params)
+size_t serializeParams(std::ostream &out, Params ...params)
 {
-    using expander = int[];
-    (void)expander {0, serializeUnit(out, params)...};
+    size_t expander[]
+    {
+        0, serializeUnit(out, params)...
+    };
+    return std::accumulate(std::begin(expander), std::end(expander), 0);
 }
 
 
