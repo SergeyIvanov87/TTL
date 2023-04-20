@@ -91,32 +91,14 @@ private:
 template<class Impl>
 struct ISerializableIntrusive
 {
-    //Test child properties
+    struct ___V {
+        using E = Impl;
+    };
+    friend class ___V::E;
+
     static constexpr bool isSerializable()
     {
         return is_serializable_request<Impl>();
-    }
-
-    //Public Methods
-    template <class ...Params>
-    bool serialize(std::ostream &out, Params &&...args)
-    {
-        if(!m_wasSerialized)
-        {
-            m_wasSerialized = serialize_request<Impl>(out, std::forward<Params>(args)...);
-        }
-        return m_wasSerialized;
-    }
-
-    template <class ...Params>
-    bool deserialize(std::istream &in, Params &&...args)
-    {
-        bool ret = deserialize_request<Impl>(in, std::forward<Params>(args)...);
-        if(ret)
-        {
-            m_wasSerialized = false;
-        }
-        return ret;
     }
 
     bool wasSerialized() const
@@ -129,59 +111,72 @@ struct ISerializableIntrusive
         return get_object_size_request<Impl>();
     }
 
-    //-----------------SFINAE---------------------------------------------------
-    //1) Is SerializableSelector
+    template <class ...Params>
+    size_t serialize(std::ostream &out, Params &&...args)
+    {
+        size_t bytes_count = 0;
+        if(!m_wasSerialized)
+        {
+            bytes_count = serialize_request<Impl>(out, std::forward<Params>(args)...);
+            m_wasSerialized = bytes_count;
+        }
+        return bytes_count;
+    }
+
+    template <class ...Params>
+    size_t deserialize(std::istream &in, Params &&...args)
+    {
+        size_t bytes = deserialize_request<Impl>(in, std::forward<Params>(args)...);
+        if(bytes)
+        {
+            m_wasSerialized = false;
+        }
+        return bytes;
+    }
+
+private:
+    bool m_wasSerialized = false;
+
     template<class Derived>
     static constexpr bool is_serializable_request()
     {
-        return Derived::isSerializableSupport;
+        std::stringstream test;
+        return not std::is_same_v<decltype(std::declval<Derived>().onSerialize(test)), int>;
     }
 
-    //2) serializeSelector
     template <class Derived, class ...Params>
-    typename std::enable_if<Derived::isSerializableSupport, bool>::type
-    serialize_request(std::ostream &out, Params &&...args)
+    size_t serialize_request(std::ostream &out, Params &&...args)
     {
         return static_cast<Impl *>(this)->onSerialize(out, std::forward<Params>(args)...);
     }
 
-    template <class Derived, class ...Params>
-    typename std::enable_if< !Derived::isSerializableSupport, bool>::type
-    serialize_request(std::ostream &out, Params &&...args)
+    template <class ...Params>
+    constexpr int onSerialize(std::ostream &, Params &&...) const noexcept
     {
-        return true;
+        return 0;
     }
 
-    //3) deserialize_request
     template <class Derived, class ...Params>
-    typename std::enable_if<Derived::isSerializableSupport, bool>::type
-    deserialize_request(std::istream &in, Params &&...args)
+    size_t deserialize_request(std::istream &in, Params &&...args)
     {
         return static_cast<Impl *>(this)->onDeserialize(in, std::forward<Params>(args)...);
     }
 
-    template <class Derived, class ...Params>
-    typename std::enable_if< !Derived::isSerializableSupport, bool>::type
-    deserialize_request(std::istream &in, Params &&...args)
-    {
-        return true;
-    }
-
-    //4) get_object_size_request
-    template <class Derived>
-    typename std::enable_if<Derived::isDumpObjectSupport, size_t>::type
-    get_object_size_request() const
-    {
-        return static_cast<const Impl *>(this)->getObjectSizeImpl();
-    }
-
-    template <class Derived>
-    typename std::enable_if< !Derived::isDumpObjectSupport, size_t>::type
-    get_object_size_request() const
+    template <class ...Params>
+    constexpr int onDeserialize(std::istream &, Params &&...) const noexcept
     {
         return 0;
     }
-private:
-    bool m_wasSerialized = false;
+
+    template <class Derived>
+    size_t get_object_size_request() const
+    {
+        return static_cast<const Impl *>(this)->onGetObjectSize();
+    }
+
+    constexpr size_t onGetObjectSize() const noexcept
+    {
+        return 0;
+    }
 };
 #endif //ISERIALIZABLE_H
