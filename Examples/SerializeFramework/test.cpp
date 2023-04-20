@@ -2,6 +2,16 @@
 #include <sstream>
 #include "Framework/SerializeFramework/Interfaces/ISerializable.h"
 
+struct B : public ISerializable<B>
+{
+    enum
+    {
+        isSerializableSupport = false
+    };
+
+    //No Impl
+};
+
 struct A : public ISerializable<A>
 {
     enum
@@ -12,9 +22,10 @@ struct A : public ISerializable<A>
     std::string txt;
     int num;
     std::vector<double> doubleVector;
+    std::vector<B> bbb;
 
     //Impl
-    bool serializeImpl(std::ostream &out)
+    bool onSerialize(std::ostream &out)
     {
         size_t bytes_count = serializeParams(out, txt, num, doubleVector, bbb);
         if (bytes_count != (sizeof(num) + (doubleVector.size() * sizeof(double) + sizeof(size_t)) + txt.size()))
@@ -27,21 +38,11 @@ struct A : public ISerializable<A>
         doubleVector.shrink_to_fit();
         return true;
     }
-    bool deserializeImpl(std::istream &out)
+    bool onDeserialize(std::istream &out)
     {
         deserializeParams(out, txt, num, doubleVector);
         return true;
     }
-};
-
-struct B : public ISerializable<B>
-{
-    enum
-    {
-        isSerializableSupport = false
-    };
-
-    //No Impl
 };
 
 void foo()
@@ -55,6 +56,7 @@ int main(int argc, char *argv[])
     a.txt = "Aclassobjectstring";
     a.num = 123;
     a.doubleVector = {0.1, 0.2, 0.3};
+    a.bbb.resize(5);
 
     aCopy = a;
     std::cout << "a: " << a.isSerializable() << std::endl;

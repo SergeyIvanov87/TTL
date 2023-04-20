@@ -85,7 +85,7 @@ public:
     }
 
     //Impl
-    bool serializeImpl(std::ostream &out)
+    bool onSerialize(std::ostream &out)
     {
         size_t bytes_count = serializeParams(out, m_name);
 
@@ -98,7 +98,7 @@ public:
         return true;
     }
 
-    bool deserializeImpl(std::istream &out)
+    bool onDeserialize(std::istream &out)
     {
         deserializeParams(out, m_name);
         return true;

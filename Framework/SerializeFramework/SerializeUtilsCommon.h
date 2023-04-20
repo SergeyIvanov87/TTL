@@ -6,12 +6,12 @@ template <class T>
 inline size_t serializeUnit(std::ostream &out, const T &unit);
 
 template<class ...Params>
-size_t serializeParams(std::ostream &out, Params ...params);
+size_t serializeParams(std::ostream &out, Params &&...params);
 
 //Deserialization
 template <class T>
-inline bool deserializeUnit(std::istream &in, T &unit);
+inline size_t deserializeUnit(std::istream &in, T &unit);
 
 template<class ...Params>
-void deserializeParams(std::istream &in, Params &...params);
+size_t deserializeParams(std::istream &in, Params &...params);
 #endif //SERIALIZE_UTILS_HPP

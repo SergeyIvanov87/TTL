@@ -10,6 +10,10 @@
 #include <set>
 #include <cassert>
 
+template <class T>
+class ISerializable;
+
+
 //Serialization
 static constexpr const char* emptySerializedValue = "--empty--";
 static constexpr size_t emptySerializedValueSize = 10;
@@ -28,17 +32,24 @@ inline Vector2BytesResult vector2Bytes(const Vector &v)
 
 //Common serialize for base types
 template <class T>
-inline size_t serializeUnit(std::ostream &out, const T &unit)
+inline std::enable_if_t<not std::is_base_of_v<ISerializable<T>, T>, size_t> serializeUnit(std::ostream &out, const T &unit)
 {
     out << unit << std::endl;
     return sizeof(std::decay_t<T>);
+}
+
+template <class T>
+inline std::enable_if_t<std::is_base_of_v<ISerializable<T>, T>, size_t> serializeUnit(std::ostream &out, const T &unit)
+{
+    // TODO introduce 2 method: intrusive serailize and non-intrusive
+    return const_cast<T&>(unit).serialize(out);
 }
 
 #include "FrameworkSpecializations/SerializeFrameworkSpecialization/SerializeSpecificTypes.h"
 
 //Serialize variadic params
 template<class ...Params>
-size_t serializeParams(std::ostream &out, Params ...params)
+size_t serializeParams(std::ostream &out, Params &&...params)
 {
     size_t expander[]
     {
@@ -51,7 +62,7 @@ size_t serializeParams(std::ostream &out, Params ...params)
 //Deserialization
 //Common for base types
 template <class T>
-inline bool deserializeUnit(std::istream &in, T &unit)
+inline size_t deserializeUnit(std::istream &in, T &unit)
 {
     in >> unit;
     return true;
@@ -61,9 +72,9 @@ inline bool deserializeUnit(std::istream &in, T &unit)
 
 //Deserialize variadic params
 template<class ...Params>
-void deserializeParams(std::istream &in, Params &...params)
+size_t deserializeParams(std::istream &in, Params &...params)
 {
-    using expander = int[];
-    (void)expander {0, deserializeUnit(in, params)...};
+    size_t expander[] {0, deserializeUnit(in, params)...};
+    return std::accumulate(std::begin(expander), std::end(expander), 0);
 }
 #endif //SERIALIZE_UTILS_HPP

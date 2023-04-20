@@ -19,7 +19,7 @@ struct ISerializable
     {
         if(!m_wasSerialized)
         {
-            m_wasSerialized = serializeSelector<Impl>(out, std::forward<Params>(args)...);
+            m_wasSerialized = serialize_request<Impl>(out, std::forward<Params>(args)...);
         }
         return m_wasSerialized;
     }
@@ -27,7 +27,7 @@ struct ISerializable
     template <class ...Params>
     bool deserialize(std::istream &in, Params &&...args)
     {
-        bool ret = deserializeSelector<Impl>(in, std::forward<Params>(args)...);
+        bool ret = deserialize_request<Impl>(in, std::forward<Params>(args)...);
         if(ret)
         {
             m_wasSerialized = false;
@@ -56,29 +56,29 @@ struct ISerializable
     //2) serializeSelector
     template <class Derived, class ...Params>
     typename std::enable_if<Derived::isSerializableSupport, bool>::type
-    serializeSelector(std::ostream &out, Params &&...args)
+    serialize_request(std::ostream &out, Params &&...args)
     {
-        return static_cast<Impl *>(this)->serializeImpl(out, std::forward<Params>(args)...);
+        return static_cast<Impl *>(this)->onSerialize(out, std::forward<Params>(args)...);
     }
 
     template <class Derived, class ...Params>
     typename std::enable_if< !Derived::isSerializableSupport, bool>::type
-    serializeSelector(std::ostream &out, Params &&...args)
+    serialize_request(std::ostream &out, Params &&...args)
     {
         return true;
     }
 
-    //3) deserializeSelector
+    //3) deserialize_request
     template <class Derived, class ...Params>
     typename std::enable_if<Derived::isSerializableSupport, bool>::type
-    deserializeSelector(std::istream &in, Params &&...args)
+    deserialize_request(std::istream &in, Params &&...args)
     {
-        return static_cast<Impl *>(this)->deserializeImpl(in, std::forward<Params>(args)...);
+        return static_cast<Impl *>(this)->onDeserialize(in, std::forward<Params>(args)...);
     }
 
     template <class Derived, class ...Params>
     typename std::enable_if< !Derived::isSerializableSupport, bool>::type
-    deserializeSelector(std::istream &in, Params &&...args)
+    deserialize_request(std::istream &in, Params &&...args)
     {
         return true;
     }
