@@ -23,8 +23,8 @@ inline std::enable_if_t<std::is_trivial_v<T>, size_t> deserializeUnit(std::istre
     in >> size;
     char cLineEndl = '0';
     in.get(cLineEndl);
-    size_t elem_count = (size * sizeof(char)) / sizeof(T) ;
-    assert(!elem_count && "unexpected bytes count in deserialization vector data");
+    size_t elem_count = (size * sizeof(char)) / sizeof(T);
+    assert(!((size * sizeof(char)) % sizeof(T)) && "unexpected bytes count in deserialization vector data");
     cont.resize(elem_count);
     in.read(reinterpret_cast<char *>(cont.data()), size);
     return size + sizeof(size);

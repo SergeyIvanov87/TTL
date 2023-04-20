@@ -6,7 +6,7 @@ extern const char system_info_dummy_path[];
 #include <Framework/Utils/StringUtils.h>
 #include <Framework/SerializeFramework/Interfaces/ISerializable.h>
 
-class ResourceA : public Resources::IBaseResource<ResourceA>, public ISerializable<ResourceA>
+class ResourceA : public Resources::IBaseResource<ResourceA>, public ISerializableIntrusive<ResourceA>
 {
 public:
     using Base = Resources::IBaseResource<ResourceA>;
@@ -48,7 +48,7 @@ public:
 
 
 
-class ResourceB : public Resources::IBaseResource<ResourceB>, public ISerializable<ResourceB>
+class ResourceB : public Resources::IBaseResource<ResourceB>, public ISerializableIntrusive<ResourceB>
 {
 public:
     using Base = Resources::IBaseResource<ResourceB>;

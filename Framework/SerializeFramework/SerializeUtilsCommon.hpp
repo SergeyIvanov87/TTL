@@ -13,6 +13,9 @@
 template <class T>
 class ISerializable;
 
+template <class T>
+class ISerializableIntrusive;
+
 
 //Serialization
 static constexpr const char* emptySerializedValue = "--empty--";
@@ -32,18 +35,26 @@ inline Vector2BytesResult vector2Bytes(const Vector &v)
 
 //Common serialize for base types
 template <class T>
-inline std::enable_if_t<not std::is_base_of_v<ISerializable<T>, T>, size_t> serializeUnit(std::ostream &out, const T &unit)
+inline std::enable_if_t<not std::is_base_of_v<ISerializableIntrusive<T>, T> &&
+                        not std::is_base_of_v<ISerializable<T>, T>, size_t> serializeUnit(std::ostream &out, const T &unit)
 {
     out << unit << std::endl;
     return sizeof(std::decay_t<T>);
 }
 
+
+template <class T>
+inline std::enable_if_t<std::is_base_of_v<ISerializableIntrusive<T>, T>, size_t> serializeUnit(std::ostream &out, const T &unit)
+{
+    return const_cast<T&>(unit).serialize(out);
+}
+
 template <class T>
 inline std::enable_if_t<std::is_base_of_v<ISerializable<T>, T>, size_t> serializeUnit(std::ostream &out, const T &unit)
 {
-    // TODO introduce 2 method: intrusive serailize and non-intrusive
-    return const_cast<T&>(unit).serialize(out);
+    return unit.serialize(out);
 }
+
 
 #include "FrameworkSpecializations/SerializeFrameworkSpecialization/SerializeSpecificTypes.h"
 
@@ -62,10 +73,23 @@ size_t serializeParams(std::ostream &out, Params &&...params)
 //Deserialization
 //Common for base types
 template <class T>
-inline size_t deserializeUnit(std::istream &in, T &unit)
+inline std::enable_if_t<not std::is_base_of_v<ISerializableIntrusive<T>, T> &&
+                        not std::is_base_of_v<ISerializable<T>, T>, size_t> deserializeUnit(std::istream &in, T &unit)
 {
     in >> unit;
-    return true;
+    return sizeof(T);
+}
+
+template <class T>
+inline std::enable_if_t<std::is_base_of_v<ISerializableIntrusive<T>, T>, size_t> deserializeUnit(std::istream &in, T &unit)
+{
+    return unit.deserialize(in);
+}
+
+template <class T>
+inline std::enable_if_t<std::is_base_of_v<ISerializable<T>, T>, size_t> deserializeUnit(std::istream &in, T &unit)
+{
+    return unit.deserialize(in);
 }
 
 #include "FrameworkSpecializations/SerializeFrameworkSpecialization/DeSerializeSpecificTypes.h"

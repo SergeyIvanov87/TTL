@@ -2,7 +2,7 @@
 #include <sstream>
 #include "Framework/SerializeFramework/Interfaces/ISerializable.h"
 
-struct B : public ISerializable<B>
+struct B : public ISerializableIntrusive<B>
 {
     enum
     {
@@ -12,7 +12,7 @@ struct B : public ISerializable<B>
     //No Impl
 };
 
-struct A : public ISerializable<A>
+struct A : public ISerializableIntrusive<A>
 {
     enum
     {
@@ -25,23 +25,19 @@ struct A : public ISerializable<A>
     std::vector<B> bbb;
 
     //Impl
-    bool onSerialize(std::ostream &out)
+    size_t onSerialize(std::ostream &out)
     {
         size_t bytes_count = serializeParams(out, txt, num, doubleVector, bbb);
-        if (bytes_count != (sizeof(num) + (doubleVector.size() * sizeof(double) + sizeof(size_t)) + txt.size()))
-        {
-            abort();
-        }
+
         txt.clear();
         txt.shrink_to_fit();
         doubleVector.clear();
         doubleVector.shrink_to_fit();
-        return true;
+        return bytes_count;
     }
-    bool onDeserialize(std::istream &out)
+    size_t onDeserialize(std::istream &out)
     {
-        deserializeParams(out, txt, num, doubleVector);
-        return true;
+        return deserializeParams(out, txt, num, doubleVector);
     }
 };
 
