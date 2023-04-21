@@ -33,7 +33,14 @@ void foo()
 int main(int argc, char *argv[])
 {
     A a;
-    std::cout << "A is serializable: " << a.isSerializable() << std::endl;
+    if constexpr (a.isSerializable())
+    {
+        std::cout << "A is serializable: " << std::endl;
+    }
+    else
+    {
+        std::cout << "A is nonserializable: " << std::endl;
+    }
     std::cout << "A size: " << a.getObjectSize() << std::endl;
     a.txt = "Aclassobjectstring";
     a.num = 123;
@@ -59,7 +66,14 @@ int main(int argc, char *argv[])
     assert(aCopy.bbb.size() == a.bbb.size() && "aCopy.bbb == a.bbb");
 
     B b;
-    std::cout << "B is serializable: " << b.isSerializable() << std::endl;
+    if constexpr (b.isSerializable())
+    {
+        std::cout << "B is serializable: " << std::endl;
+    }
+    else
+    {
+        std::cout << "B is nonserializable: " << std::endl;
+    }
     std::cout << "B size: " << b.getObjectSize() << std::endl;
     bytes_count = b.serialize(std::cout);
     assert(!bytes_count && "B serialization must not occupy memory");

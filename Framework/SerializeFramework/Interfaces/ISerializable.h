@@ -4,13 +4,24 @@
 #include <istream>
 #include "../SerializeUtilsCommon.hpp"
 
+namespace __inner
+{
+    // Replace with `size_t` in inheritances.
+    // It was done to make distinguish between default implementation
+    // and use-defined implementation of `onSerialize` & `onDeserialize`
+    // Additionaly, `isSerializable` is assumed to be constexpr and the current apporoach
+    // to make it constexpr is to detect whether `Derived` has or hasn't it's own overloading
+    // versions of `onSerialize` & `onDeserialize`
+    struct NonValidReturnType {
+        constexpr operator size_t() { return 0; }
+        constexpr operator bool() { return false; }
+    };
+}
+
 template<class Impl>
 struct ISerializable
 {
-    struct ___W {
-        using D = Impl;
-    };
-    friend class ___W::D;
+    friend Impl;
 
     //Public Methods
     static constexpr bool isSerializable()
@@ -36,11 +47,14 @@ struct ISerializable
     }
 
 private:
+
     template<class Derived>
     static constexpr bool is_serializable_request()
     {
-        std::stringstream test;
-        return not std::is_same_v<decltype(std::declval<Derived>().onSerialize(test)), int>;
+        // CRTP `onSerialize` method version declares to return `NonValidReturnType` type
+        // but `Derived` is assumed to return `size_t`
+        return !std::is_same_v<decltype(std::declval<Derived>().onSerialize(std::cout)),
+                               __inner::NonValidReturnType>;
     }
 
     template <class Derived, class ...Params>
@@ -50,9 +64,9 @@ private:
     }
 
     template <class ...Params>
-    constexpr int onSerialize(std::ostream &, Params &&...) const noexcept
+    constexpr __inner::NonValidReturnType onSerialize(std::ostream &, Params &&...) const noexcept
     {
-        return 0;
+        return {};
     }
 
     template <class Derived, class ...Params>
@@ -62,9 +76,9 @@ private:
     }
 
     template <class ...Params>
-    constexpr int onDeserialize(std::istream &, Params &&...) noexcept
+    constexpr __inner::NonValidReturnType onDeserialize(std::istream &, Params &&...) noexcept
     {
-        return 0;
+        return {};
     }
 
     template <class Derived>
@@ -91,10 +105,7 @@ private:
 template<class Impl>
 struct ISerializableIntrusive
 {
-    struct ___V {
-        using E = Impl;
-    };
-    friend class ___V::E;
+    friend Impl;
 
     static constexpr bool isSerializable()
     {
@@ -140,8 +151,8 @@ private:
     template<class Derived>
     static constexpr bool is_serializable_request()
     {
-        std::stringstream test;
-        return not std::is_same_v<decltype(std::declval<Derived>().onSerialize(test)), int>;
+        return !std::is_same_v<decltype(std::declval<Derived>().onSerialize(std::cout)),
+                               __inner::NonValidReturnType>;
     }
 
     template <class Derived, class ...Params>
@@ -151,9 +162,9 @@ private:
     }
 
     template <class ...Params>
-    constexpr int onSerialize(std::ostream &, Params &&...) const noexcept
+    constexpr __inner::NonValidReturnType onSerialize(std::ostream &, Params &&...) const noexcept
     {
-        return 0;
+        return {};
     }
 
     template <class Derived, class ...Params>
@@ -163,9 +174,9 @@ private:
     }
 
     template <class ...Params>
-    constexpr int onDeserialize(std::istream &, Params &&...) const noexcept
+    constexpr __inner::NonValidReturnType onDeserialize(std::istream &, Params &&...) const noexcept
     {
-        return 0;
+        return {};
     }
 
     template <class Derived>

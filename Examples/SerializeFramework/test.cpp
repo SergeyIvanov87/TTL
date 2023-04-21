@@ -4,21 +4,11 @@
 
 struct B : public ISerializableIntrusive<B>
 {
-    enum
-    {
-        isSerializableSupport = false
-    };
-
     //No Impl
 };
 
 struct A : public ISerializableIntrusive<A>
 {
-    enum
-    {
-        isSerializableSupport = true
-    };
-
     std::string txt;
     int num;
     std::vector<double> doubleVector;
@@ -49,6 +39,16 @@ void foo()
 int main(int argc, char *argv[])
 {
     A a, aCopy;
+    if constexpr(a.isSerializable())
+    {
+        std::cout << "A is serializable: " << std::endl;
+    }
+    else
+    {
+        std::cout << "A is nonserializable: " << std::endl;
+    }
+    std::cout << "A size: " << a.getObjectSize() << std::endl;
+
     a.txt = "Aclassobjectstring";
     a.num = 123;
     a.doubleVector = {0.1, 0.2, 0.3};
@@ -76,7 +76,15 @@ int main(int argc, char *argv[])
     assert(aCopy.doubleVector == aa.doubleVector && "aCopy.doubleVector == aa.doubleVector");
 
     B b;
-    std::cout << "b: " << b.isSerializable() << std::endl;
+    if constexpr (b.isSerializable())
+    {
+        std::cout << "B is serializable: " << std::endl;
+    }
+    else
+    {
+        std::cout << "B is nonserializable: " << std::endl;
+    }
+    std::cout << "B size: " << b.getObjectSize() << std::endl;
     b.serialize(std::cout);
     return 0;
 

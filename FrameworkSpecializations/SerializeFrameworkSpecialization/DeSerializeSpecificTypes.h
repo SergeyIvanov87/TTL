@@ -31,7 +31,7 @@ inline std::enable_if_t<std::is_trivial_v<T>, size_t> deserializeUnit(std::istre
 }
 
 template <class T>
-inline std::enable_if_t<not std::is_trivial_v<T>, size_t> deserializeUnit(std::istream &in, Vector<T> &cont)
+inline std::enable_if_t<! std::is_trivial_v<T>, size_t> deserializeUnit(std::istream &in, Vector<T> &cont)
 {
     size_t elem_count = 0;
     in >> elem_count;

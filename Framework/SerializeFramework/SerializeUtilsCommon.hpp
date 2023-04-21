@@ -11,10 +11,10 @@
 #include <cassert>
 
 template <class T>
-class ISerializable;
+struct ISerializable;
 
 template <class T>
-class ISerializableIntrusive;
+struct ISerializableIntrusive;
 
 
 //Serialization
@@ -35,8 +35,8 @@ inline Vector2BytesResult vector2Bytes(const Vector &v)
 
 //Common serialize for base types
 template <class T>
-inline std::enable_if_t<not std::is_base_of_v<ISerializableIntrusive<T>, T> &&
-                        not std::is_base_of_v<ISerializable<T>, T>, size_t> serializeUnit(std::ostream &out, const T &unit)
+inline std::enable_if_t<! std::is_base_of_v<ISerializableIntrusive<T>, T> &&
+                        ! std::is_base_of_v<ISerializable<T>, T>, size_t> serializeUnit(std::ostream &out, const T &unit)
 {
     out << unit << std::endl;
     return sizeof(std::decay_t<T>);
@@ -73,8 +73,8 @@ size_t serializeParams(std::ostream &out, Params &&...params)
 //Deserialization
 //Common for base types
 template <class T>
-inline std::enable_if_t<not std::is_base_of_v<ISerializableIntrusive<T>, T> &&
-                        not std::is_base_of_v<ISerializable<T>, T>, size_t> deserializeUnit(std::istream &in, T &unit)
+inline std::enable_if_t<! std::is_base_of_v<ISerializableIntrusive<T>, T> &&
+                        ! std::is_base_of_v<ISerializable<T>, T>, size_t> deserializeUnit(std::istream &in, T &unit)
 {
     in >> unit;
     return sizeof(T);
