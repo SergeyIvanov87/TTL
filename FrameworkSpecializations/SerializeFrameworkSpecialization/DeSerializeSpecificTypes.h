@@ -35,8 +35,6 @@ inline std::enable_if_t<! std::is_trivial_v<T>, size_t> deserializeUnit(std::ist
 {
     size_t elem_count = 0;
     in >> elem_count;
-    char cLineEndl = '0';
-    in.get(cLineEndl);
     cont.reserve(elem_count);
     size_t bytes = 0;
     for (size_t i = 0; i < elem_count; i++)
