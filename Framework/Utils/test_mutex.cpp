@@ -1,16 +1,20 @@
 #ifdef TEST
 
-#include <atomic>
+#define _GNU_SOURCE             /* See feature_test_macros(7) */
+#include <fcntl.h>
+#include <string.h>
+#include <unistd.h>
+
 #include <iostream>
 #include <thread>
 #include <numeric>
 #include <vector>
 #include <functional>
 
-#include "LocklessFileAppender.hpp"
+#include "MutexFileAppender.hpp"
 
 size_t messageSize = 150;
-void writer(LocklessFileAppender &app, std::atomic<bool> &isStart, std::atomic<bool> &isStop, size_t index)
+void writer(MutexFileAppender &app,bool &isStart, bool &isStop, size_t index)
 {
     std::string message(messageSize, 'a');
     message = std::to_string(index) + "-" + message + "\n";
@@ -21,8 +25,7 @@ void writer(LocklessFileAppender &app, std::atomic<bool> &isStart, std::atomic<b
     }
     while(!isStop)
     {
-      app.writeDataText(message.c_str(), message.size());
-      //app.printMutex(message.c_str(), message.size());
+      app.print(message.c_str(), message.size());
     }
 }
 
@@ -37,12 +40,10 @@ int main(int argc, char *argv[])
     threads_count = atoll(argv[1]);
     size_t maxFileSize = atoll(argv[2]);
     messageSize = atoll(argv[3]);
-    LocklessFileAppender app(maxFileSize);
-    //app.openFileMutex("./testFile");
+    MutexFileAppender app(maxFileSize);
     app.openFile("./testFile");
 
-    std::atomic<bool> isStop {false};
-    std::atomic<bool> isStart {false};
+     bool isStop = false, isStart = false;
     std::vector<std::thread> threadArray;
     for(size_t i = 0 ; i < threads_count; i++)
     {

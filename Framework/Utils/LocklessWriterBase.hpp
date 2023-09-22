@@ -1,16 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/* 
- * File:   LockessWriterBase.hpp
- * Author: user
- *
- * Created on June 27, 2018, 9:52 PM
- */
-
 #ifndef LOCKESSWRITERBASE_HPP
 #define LOCKESSWRITERBASE_HPP
 #include "StringUtils.h"
@@ -34,7 +21,7 @@ inline size_t LocklessWriterBase<TEMPLATE_ARGS_LIST_DEF>::writeDataText(const ch
 {
     return writeDataMultithreadedImpl(message, messageSize);
 }
-    
+
 template<TEMPLATE_ARGS_LIST_DECL>
 template<class ...Args>
 inline size_t LocklessWriterBase<TEMPLATE_ARGS_LIST_DEF>::writeDataArgs(Args &&...args)
@@ -60,7 +47,7 @@ inline size_t LocklessWriterBase<TEMPLATE_ARGS_LIST_DEF>::writeDataMultithreaded
 {
     //increase threads count
     m_writerThreadsCounter ++;
-    
+
     //try to reserve buffer size portion to write
     size_t reservedOffset = m_currentDataSize.fetch_add(messageSize);
 
@@ -70,14 +57,14 @@ inline size_t LocklessWriterBase<TEMPLATE_ARGS_LIST_DEF>::writeDataMultithreaded
     {//I reserve size AFTER limit reached - I need to wait while onDataSizeLimitReached() finished in (B) block
         m_writerThreadsCounter --;
         while((reservedOffset = m_currentDataSize.load()) >= m_maxDataSize/* - messageSize*/
-                || 
+                ||
               !m_currentDataSize.compare_exchange_strong(reservedOffset, reservedOffset + messageSize))
         {
             std::this_thread::yield();
         }
         //onDataSizeLimitReached() finished and i reserved size portion here
         m_writerThreadsCounter ++;
-        
+
         //check that portion is enough
         if (reservedOffset < m_maxDataSize && reservedOffset + messageSize >= m_maxDataSize)
         {
@@ -90,17 +77,17 @@ inline size_t LocklessWriterBase<TEMPLATE_ARGS_LIST_DEF>::writeDataMultithreaded
                 std::this_thread::yield();
                 zero = 0;
             }
-        
+
             size_t writtenBytes = writeDataSpecific(message, m_maxDataSize - reservedOffset, reservedOffset); //write untill end
-            
+
             //notify Impl about buffer ending
             onDataSizeLimitReached();
-            
+
             writeDataSpecific(message + writtenBytes, messageSize - writtenBytes, 0); //write from beginning
-            
+
             //set new size portion from beginning
             m_currentDataSize.store(messageSize - writtenBytes);
-            
+
             //decrease threads count
             m_writerThreadsCounter --;
             return true;
@@ -119,24 +106,24 @@ inline size_t LocklessWriterBase<TEMPLATE_ARGS_LIST_DEF>::writeDataMultithreaded
             zero = 0;
         }
         size_t writtenBytes = writeDataSpecific(message, m_maxDataSize - reservedOffset, reservedOffset); //write untill end
-            
+
         //notify Impl about buffer ending
         onDataSizeLimitReached();
-            
+
         writeDataSpecific(message + writtenBytes, messageSize - writtenBytes, 0); //write from beginning
-            
+
         //set new size portion from beginning
         m_currentDataSize.store(messageSize - writtenBytes);
-        
+
         //decrease threads count
         m_writerThreadsCounter --;
         return true;
     }
-  
+
     //(C) block - regular writing to buffer, from reservedOffset
     //Several thread-workers can be here
     size_t res = writeDataSpecific(message, messageSize, reservedOffset);
-    
+
     //decrease threads count
     m_writerThreadsCounter --;
     return res;
@@ -145,4 +132,3 @@ inline size_t LocklessWriterBase<TEMPLATE_ARGS_LIST_DEF>::writeDataMultithreaded
 #undef TEMPLATE_ARGS_LIST_DECL
 #undef TEMPLATE_ARGS_LIST_DEF
 #endif /* LOCKESSWRITERBASE_HPP */
-
