@@ -25,7 +25,7 @@ LocklessFileAppender::~LocklessFileAppender()
     close(m_fileFd);
 }
 
-void LocklessFileAppender::onDataSizeLimitReachedImpl()
+void LocklessFileAppender::onResourceReplenishingImpl()
 {
     time_t curTime = time(nullptr);
     std::string newName = m_path + std::to_string(curTime);
@@ -62,17 +62,16 @@ void LocklessFileAppender::openFile(const std::string &path)
         close(m_fileFd);
     }
 
-    m_path = path;
-
     m_fileFd = open(path.c_str(),  O_CREAT | O_WRONLY, S_IRWXO | S_IRWXG | S_IRWXU);
     if(m_fileFd == -1)
     {
         throw std::runtime_error("Cannot create file: " + path  + ", error: " + strerror(errno));
     }
 
-    if(!fallocate(m_fileFd, 0, 0, m_maxDataSize))
+    if(fallocate(m_fileFd, 0, 0, m_maxDataSize))
     {
         throw std::runtime_error(std::string("Cannot perform `fallocate` on file, error: ") + strerror(errno));
     }
+    m_path = path;
 }
 #endif /* LOCKLESSFILEAPPENDER_HPP */

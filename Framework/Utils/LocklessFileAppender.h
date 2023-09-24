@@ -13,7 +13,7 @@ public:
 
     void openFile(const std::string &path);
 private:
-    void onDataSizeLimitReachedImpl();
+    void onResourceReplenishingImpl();
     size_t writeDataImpl(const char *message, size_t messageSize, size_t offset);
     std::string m_path;
     int m_fileFd;

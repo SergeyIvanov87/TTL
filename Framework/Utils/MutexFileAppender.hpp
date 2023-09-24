@@ -56,7 +56,7 @@ void MutexFileAppender::openFile(const std::string &path)
     mm_currSize = 0;
 }
 
-void MutexFileAppender::onDataSizeLimitReachedImpl()
+void MutexFileAppender::onResourceReplenishingImpl()
 {
     time_t curTime = time(nullptr);
     std::string newName = m_path + std::to_string(curTime);
@@ -75,7 +75,7 @@ bool MutexFileAppender::print(const char *message, size_t messageSize)
         mm_currSize += messageSize;
         if(mm_currSize >= m_maxDataSize)
         {
-            onDataSizeLimitReachedImpl();
+            onResourceReplenishingImpl();
         }
         fputs(message, mm_file);
         fflush(mm_file);

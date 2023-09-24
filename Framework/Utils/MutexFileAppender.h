@@ -16,7 +16,7 @@ public:
     bool print(const char *message, size_t messageSize);
 private:
     int allocateFile(const std::string &path);
-    void onDataSizeLimitReachedImpl();
+    void onResourceReplenishingImpl();
     size_t writeDataImpl(const char *message, size_t messageSize, size_t offset);
 
     size_t m_maxDataSize;

@@ -37,96 +37,118 @@ inline size_t LocklessWriterBase<TEMPLATE_ARGS_LIST_DEF>::writeDataSpecific(cons
 }
 
 template<TEMPLATE_ARGS_LIST_DECL>
-inline void LocklessWriterBase<TEMPLATE_ARGS_LIST_DEF>::onDataSizeLimitReached()
+inline void LocklessWriterBase<TEMPLATE_ARGS_LIST_DEF>::onResourceReplenishing()
 {
-    static_cast<TEMPLATE_ARGS_LIST_DEF &>(*this).onDataSizeLimitReachedImpl();
+    static_cast<TEMPLATE_ARGS_LIST_DEF &>(*this).onResourceReplenishingImpl();
 }
 
 template<TEMPLATE_ARGS_LIST_DECL>
 inline size_t LocklessWriterBase<TEMPLATE_ARGS_LIST_DEF>::writeDataMultithreadedImpl(const char* message, size_t messageSize)
 {
-    //increase threads count
+    /* increase worker threads counter */
     m_writerThreadsCounter ++;
 
-    //try to reserve buffer size portion to write
+    /* reserve a writing position by each threads */
     size_t reservedOffset = m_currentDataSize.fetch_add(messageSize);
 
-    //Logic based on current reserved size count
+    /* based on `reservedOffset` value and other conditions there are several situations possible:
+     * 1) all threads write their data in parallel.
+     * 2) the new thread arrives and overflows the file
+     * 3) several new threads come after and find out there are is place to write data in the file
+     *
+     * Thread from 2) is called changing-epoch-thread (CE-thread)
+     * and must wait for all writing operations submitted from different thread finish
+     *
+     * Threads from 1) are called previous-epoch-threads (PE-threads)
+     * and must finish their submitted writing operations
+     *
+     * Threads from 3) are called new-epoch-threads (NE-threads)
+     * and must wait for CE-thread finish a resource replenishing
+     * */
+
+     /********** The NE-threads recognition condition **********/
     if(reservedOffset >= m_maxDataSize)
-    //(A) block
-    {//I reserve size AFTER limit reached - I need to wait while onDataSizeLimitReached() finished in (B) block
+    {
         m_writerThreadsCounter --;
-        while((reservedOffset = m_currentDataSize.load()) >= m_maxDataSize/* - messageSize*/
+        while((reservedOffset = m_currentDataSize.load()) >= m_maxDataSize
+              /* (1) wait untill resource become replenished */
                 ||
-              !m_currentDataSize.compare_exchange_strong(reservedOffset, reservedOffset + messageSize))
+              !m_currentDataSize.compare_exchange_strong(reservedOffset, reservedOffset + messageSize)
+              /* (2) multiple NE-threads write-competition */)
         {
             std::this_thread::yield();
         }
-        //onDataSizeLimitReached() finished and i reserved size portion here
+        /* NE-thread "competition" winner start writing new file upon epoch changed */
         m_writerThreadsCounter ++;
 
-        //check that portion is enough
+        /***** Here we have to check on double epoch new CE-thread appearance **********/
+        /***** (See the CE-thread recognition condition below) *******/
         if (reservedOffset < m_maxDataSize && reservedOffset + messageSize >= m_maxDataSize)
         {
-            //i am the first threads who detected buffer ending
-            //decrease threads count
-            m_writerThreadsCounter --;//to check when all writer threads are gone
-            size_t zero = 0;
-            while(!m_writerThreadsCounter.compare_exchange_strong(zero, 1))
-            {
-                std::this_thread::yield();
-                zero = 0;
-            }
+            waitForWorkersDone();
 
+            /* execution barrier for new CE-thread has been reach */
+            /* new CE-thread is the single thread here, no data-races are possible */
             size_t writtenBytes = writeDataSpecific(message, m_maxDataSize - reservedOffset, reservedOffset); //write untill end
 
             //notify Impl about buffer ending
-            onDataSizeLimitReached();
+            onResourceReplenishing();
 
-            writeDataSpecific(message + writtenBytes, messageSize - writtenBytes, 0); //write from beginning
+            writtenBytes += writeDataSpecific(message + writtenBytes, messageSize - writtenBytes, 0); //write from beginning
 
-            //set new size portion from beginning
+            /* restore invariant (unblock other NE-threads from waiting) */
             m_currentDataSize.store(messageSize - writtenBytes);
 
-            //decrease threads count
+            /* decrease worker threads counter */
             m_writerThreadsCounter --;
-            return true;
+            return writtenBytes;
         }
         //write data in regular way below
     }
-    else if (reservedOffset < m_maxDataSize && reservedOffset + messageSize >= m_maxDataSize)
-    //(B) block - i reserve data, but my message has being finalized buffer
+    /********** The CE-thread recognition condition **********/
+    else if (reservedOffset < m_maxDataSize                     /* (1) has free space before */
+             && reservedOffset + messageSize >= m_maxDataSize)  /* (2) no free space after */
     {
-        //decrease threads count
-        m_writerThreadsCounter --;//to check when all writer threads are gone in block (C)
-        size_t zero = 0;
-        while(!m_writerThreadsCounter.compare_exchange_strong(zero, 1))
-        {
-            std::this_thread::yield();
-            zero = 0;
-        }
-        size_t writtenBytes = writeDataSpecific(message, m_maxDataSize - reservedOffset, reservedOffset); //write untill end
+        waitForWorkersDone();
 
-        //notify Impl about buffer ending
-        onDataSizeLimitReached();
+        /* execution barrier for CE-thread has been reach */
+        /* CE-thread is the single thread here, no data-races are possible */
+        size_t writtenBytes = writeDataSpecific(message, m_maxDataSize - reservedOffset, reservedOffset); // write until end is reached
 
-        writeDataSpecific(message + writtenBytes, messageSize - writtenBytes, 0); //write from beginning
+        /* resource replenishing notification */
+        onResourceReplenishing();
 
-        //set new size portion from beginning
+        writtenBytes += writeDataSpecific(message + writtenBytes, messageSize - writtenBytes, 0); // write from new beginning
+
+        /* restore invariant (unblock NE-threads from waiting) */
         m_currentDataSize.store(messageSize - writtenBytes);
 
-        //decrease threads count
+        /* decrease worker threads counter */
         m_writerThreadsCounter --;
-        return true;
+        return writtenBytes;
     }
 
-    //(C) block - regular writing to buffer, from reservedOffset
-    //Several thread-workers can be here
+    /* multiple worker threads can be here */
+    /* may be considered as PE-threads, since CE-thread appeared */
+    /* PE-threads have to finish their writing & CE-thread must wait */
     size_t res = writeDataSpecific(message, messageSize, reservedOffset);
 
-    //decrease threads count
+    /* decrease worker threads counter (unblock CE-thread from waiting) */
     m_writerThreadsCounter --;
     return res;
+}
+
+template<TEMPLATE_ARGS_LIST_DECL>
+inline void LocklessWriterBase<TEMPLATE_ARGS_LIST_DEF>::waitForWorkersDone()
+{
+    /* decrease worker threads counter */
+    m_writerThreadsCounter --;
+    size_t expected_PE_threads_count = 0;
+    while(!m_writerThreadsCounter.compare_exchange_strong(expected_PE_threads_count, 1))
+    {
+        std::this_thread::yield();
+        expected_PE_threads_count = 0;   /* recharge `expected` again */
+    }
 }
 
 #undef TEMPLATE_ARGS_LIST_DECL
