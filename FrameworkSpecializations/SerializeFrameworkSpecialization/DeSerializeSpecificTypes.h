@@ -17,7 +17,7 @@ inline size_t deserializeUnit(std::istream &in, std::string &unit)
 
 //specialization for vector
 template <class T>
-inline std::enable_if_t<std::is_trivial_v<T>, size_t> deserializeUnit(std::istream &in, Vector<T> &cont)
+inline std::enable_if_t<std::is_standard_layout_v<T>, size_t> deserializeUnit(std::istream &in, Vector<T> &cont)
 {
     size_t size = 0;
     in >> size;
@@ -31,7 +31,7 @@ inline std::enable_if_t<std::is_trivial_v<T>, size_t> deserializeUnit(std::istre
 }
 
 template <class T>
-inline std::enable_if_t<! std::is_trivial_v<T>, size_t> deserializeUnit(std::istream &in, Vector<T> &cont)
+inline std::enable_if_t<! std::is_standard_layout_v<T>, size_t> deserializeUnit(std::istream &in, Vector<T> &cont)
 {
     size_t elem_count = 0;
     in >> elem_count;
@@ -47,7 +47,7 @@ inline std::enable_if_t<! std::is_trivial_v<T>, size_t> deserializeUnit(std::ist
 }
 
 //specialization for std::array
-template <class T, size_t N, class U = std::enable_if_t<std::is_trivial_v<T>, size_t>>
+template <class T, size_t N, class U = std::enable_if_t<std::is_standard_layout_v<T>, size_t>>
 inline U deserializeUnit(std::istream &in, std::array<T, N> &cont)
 {
     size_t size = 0;
