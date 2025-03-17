@@ -13,7 +13,7 @@ inline size_t serializeUnit(std::ostream &out, const std::string &unit)
 template<typename T> using Vector = std::vector<T>;
 //// partial specialization SFINAE for trivial types
 template <class T>
-inline std::enable_if_t<std::is_trivial_v<T>, size_t> serializeUnit(std::ostream &out, const Vector<T> &cont)
+inline std::enable_if_t<std::is_standard_layout_v<T>, size_t> serializeUnit(std::ostream &out, const Vector<T> &cont)
 {
     auto result = vector2Bytes(cont);
     out << result.second << std::endl; //in bytes
@@ -24,7 +24,7 @@ inline std::enable_if_t<std::is_trivial_v<T>, size_t> serializeUnit(std::ostream
 
 //// partial specialization SFINAE for complex types
 template <class T>
-inline std::enable_if_t<!std::is_trivial_v<T>, size_t> serializeUnit(std::ostream &out, const Vector<T> &cont)
+inline std::enable_if_t<!std::is_standard_layout_v<T>, size_t> serializeUnit(std::ostream &out, const Vector<T> &cont)
 {
     size_t bytes = 0;
     size_t count = cont.size();
@@ -39,7 +39,7 @@ inline std::enable_if_t<!std::is_trivial_v<T>, size_t> serializeUnit(std::ostrea
 }
 
 //specialization for std::array
-template <class T, size_t N, class U = std::enable_if_t<std::is_trivial_v<T>, size_t>>
+template <class T, size_t N, class U = std::enable_if_t<std::is_standard_layout_v<T>, size_t>>
 inline U serializeUnit(std::ostream &out, const std::array<T, N> &cont)
 {
     auto result = vector2Bytes(cont);
