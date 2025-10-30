@@ -47,6 +47,7 @@ include_directories(
 
 add_subdirectory(ttl)
 add_subdirectory(examples)
+add_subdirectory(tests)
 
 export(TARGETS Ttl ${EXAMPLE_TARGETS_EXPORT}
        FILE "${PROJECT_BINARY_DIR}/Ttl.cmake")
