@@ -1,11 +1,10 @@
 list (APPEND EXAMPLE_TARGETS eventfw_example
-                             resourcefw_example
                              serializefw_example
                              serializefw_example_serialize)
 
 
 add_subdirectory(EventFramework)
-add_subdirectory(ResourcesFramework)
+#add_subdirectory(ResourcesFramework)
 add_subdirectory(SerializeFramework)
 
 set (EXAMPLE_TARGETS_EXPORT ${EXAMPLE_TARGETS} PARENT_SCOPE)
