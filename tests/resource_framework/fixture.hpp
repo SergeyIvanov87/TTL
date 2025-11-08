@@ -32,7 +32,7 @@ struct RFAssetsPathCreationFixture : public testing::Test {
 template<std::ranges::input_range R>
 std::list<std::ofstream> createFilesFromPaths(R r) {
     std::list<std::ofstream> files;
-    for (auto [f, p] : r) {
+    for (const auto &p : r | std::views::values) {
         files.push_back(std::ofstream{p, std::ios::binary});
         files.back() << "something not empty" << std::endl;
     }
@@ -41,8 +41,7 @@ std::list<std::ofstream> createFilesFromPaths(R r) {
 
 template<std::ranges::input_range R>
 void deleteFilesForPaths(R r) {
-    std::list<std::ofstream> files;
-    for (auto [f, p] : r) {
+    for (const auto &p : r | std::views::values) {
         std::filesystem::remove(p);
     }
 }
