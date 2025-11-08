@@ -2,7 +2,7 @@
 #define RESOURCESHOLDER_HPP_
 
 #include "LoadedResourcesHolder.h"
-#include "Framework/Utils/CTimeUtils.h"
+#include <ttl/include//Utils/CTimeUtils.h>
 #include "BaseObjectLoader.hpp"
 
 namespace Resources

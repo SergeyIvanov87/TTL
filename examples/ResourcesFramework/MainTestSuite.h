@@ -1,7 +1,7 @@
 #ifndef MAIN_TEST_SUITE_H
 #define MAIN_TEST_SUITE_H
 #include "BaseTestSuite.h"
-#include <Framework/ResourcesFramework/ResourcesFramework.hpp>
+#include <ttl/include/ResourcesFramework/ResourcesFramework.hpp>
 #include "ResourceFrameworkSpecs.h"
 
 class MainSuite : public TestSuiteFixtureBase

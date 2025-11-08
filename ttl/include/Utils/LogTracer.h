@@ -2,17 +2,27 @@
 #define LOG_TRACER
 #include <sstream>
 #include <utility>
+#include <functional>
 #include <ttl/include/Utils/StringUtils.h>
 
 template<class Stream = std::stringstream>
 class Streamed
 {
 public:
-    Streamed(char indent = char(' ')) :
+    using OnDestroyCallback = std::function<void(const Stream &)>;
+
+    Streamed(char indent = char(' '), OnDestroyCallback callback = OnDestroyCallback{}) :
      m_ss(),
-     m_ident(indent)
+     m_ident(indent),
+     m_callback (callback)
     {
     }
+
+    ~Streamed() {
+        if (m_callback) {
+            m_callback(m_ss);
+        }
+    };
 
     std::string str() const
     {
@@ -53,6 +63,7 @@ private:
     Stream m_ss;
     std::string m_prefix;
     char m_ident;
+    OnDestroyCallback m_callback;
 };
 
 

@@ -19,10 +19,17 @@ namespace Resources
 template <class ... Loaders>
 class LoadedResourcesHolder {
 public:
-    typedef std::tuple<Loaders...> ResourcesTuple;
-    typedef std::tuple<BaseObjectLoader<Loaders>...> ResourceLoadersTuple;
+    using ResourcesTuple = std::tuple<Loaders...>;
+    using ResourceLoadersTuple = std::tuple<BaseObjectLoader<Loaders>...>;
     LoadedResourcesHolder(const std::string &assetsPath, const std::string &tmpOperationsPath);
     ~LoadedResourcesHolder();
+
+    //load resources for all ResourceLoaders
+    template <class UsedTracer = Tracer<EmptyTracerImpl>>
+    bool initResourceLoader(UsedTracer tracer = UsedTracer());
+
+    //free resources for all ResourceLoaders
+    bool deinitResourceLoader();
 
     //function to get specific resource from specific resource loader
     template <class Resource>
@@ -42,17 +49,11 @@ public:
     bool deserializeResource(std::string_view name);
 
     const std::string &getAssetsPath() const;
-    const std::string &getSerializationPath() const;// {  return m_assetsTmpPath; }
+    const std::string &getSerializationPath() const;
 private:
     ResourceLoadersTuple loadersTuple;
     std::string m_assetsPath;
     std::string m_assetsTmpPath;
-public:
-    //load resources for all ResourceLoaders
-    template <class UsedTracer = Tracer<EmptyTracerImpl>>
-    bool initResourceLoader(UsedTracer tracer = UsedTracer());
-    //free resources for all ResourceLoaders
-    bool deinitResourceLoader();
 };
 } /* namespace Resources */
 

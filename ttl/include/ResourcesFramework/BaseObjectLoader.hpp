@@ -117,7 +117,7 @@ size_t BaseObjectLoader<T_ARG_DEF>::doLoadResourcesFromFS(UsedTracer &tracer)
         free(ptr);
     });
 
-    tracer.trace("Go into  Directory: ", ResourcesTraits<T_ARG_DEF>::getResourcePath());
+    tracer.trace("Go into Directory: ", ResourcesTraits<T_ARG_DEF>::getResourcePath());
     if(-1 == chdir(ResourcesTraits<T_ARG_DEF>::getResourcePath()))
     {
         throw urc::FileOpenError(ResourcesTraits<T_ARG_DEF>::getResourcePath(), errno);
@@ -135,6 +135,7 @@ size_t BaseObjectLoader<T_ARG_DEF>::doLoadResourcesFromFS(UsedTracer &tracer)
 
     //iterate over directory and load resoures
     struct dirent *entry = NULL;
+    size_t totalFilesChecked = 0;
     while((entry = readdir(objDir)) != NULL)
     {
         auto tracer4File = tracer;
@@ -144,7 +145,8 @@ size_t BaseObjectLoader<T_ARG_DEF>::doLoadResourcesFromFS(UsedTracer &tracer)
             continue;
         }
 
-        //TODO make files filter
+        totalFilesChecked++;
+
         std::string filePath(entry->d_name);
         if(!std::regex_match(filePath, ext_regex))
         {
@@ -186,7 +188,7 @@ size_t BaseObjectLoader<T_ARG_DEF>::doLoadResourcesFromFS(UsedTracer &tracer)
     //close dir
     closedir(objDir);
     size_t diff = loadedObjectResources.size() - initialSize;
-    tracer.trace("Loading \"", ResourceHolder::getResourceTypeDescription(), "\" FINISHED. Total count: ", diff, "\n");
+    tracer.trace("Loading \"", ResourceHolder::getResourceTypeDescription(), "\" FINISHED. Loaded count: ", diff, ", total files in directory:", totalFilesChecked, "\n");
     return diff;
 }
 

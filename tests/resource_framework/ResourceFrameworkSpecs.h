@@ -3,6 +3,6 @@
 
 #include <ttl/include/ResourcesFramework/ResourcesFramework.h>
 #include "CustomResourceLoaders.h"
-using ResourcesFramework = Resources::ResourcesFrameworkFactory<ResourceA, ResourceB>;
+using ResourcesFramework = Resources::LoadedResourcesHolder<ResourceA, ResourceB>;
 
 #endif //RESOURCES_FRAMEWORK_SPECS_H

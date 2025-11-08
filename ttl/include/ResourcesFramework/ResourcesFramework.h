@@ -1,7 +1,7 @@
 #ifndef RESOURCES_FRAMEWORK_H
 #define RESOURCES_FRAMEWORK_H
 
-#include "Framework/ResourcesFramework/LoadedResourcesHolder.h"
+#include <ttl/include/ResourcesFramework/LoadedResourcesHolder.h>
 
 namespace Resources
 {
