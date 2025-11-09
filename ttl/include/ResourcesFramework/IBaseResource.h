@@ -9,7 +9,12 @@
 
 namespace Resources
 {
+struct BaseResourceTag{};
+template<typename T>
+concept BaseResourceConcept = requires (T p) {T::getResourceTypeDescriptionImpl(); p.loadResourcesImpl("string", "");} &&
+    std::derived_from<T, BaseResourceTag>;
 
+// TODO https://www.sandordargo.com/blog/2024/12/04/crtp-vs-concepts
 template<class Resource>
 class IBaseResource
 {

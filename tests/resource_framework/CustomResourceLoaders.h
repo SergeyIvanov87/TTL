@@ -6,7 +6,7 @@ extern const char system_info_dummy_path[];
 #include <ttl/include/Utils/StringUtils.h>
 #include <ttl/include/SerializeFramework/Interfaces/ISerializable.h>
 
-class ResourceA : public Resources::IBaseResource<ResourceA>, public ISerializableIntrusive<ResourceA>
+class ResourceA : public Resources::IBaseResource<ResourceA>, public ISerializableIntrusive<ResourceA>, public Resources::BaseResourceTag
 {
 public:
     using Base = Resources::IBaseResource<ResourceA>;
