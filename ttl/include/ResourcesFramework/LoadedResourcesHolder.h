@@ -21,6 +21,13 @@ class LoadedResourcesHolder {
 public:
     using ResourcesTuple = std::tuple<Loaders...>;
     using ResourceLoadersTuple = std::tuple<BaseObjectLoader<Loaders>...>;
+
+    template<class Resource>
+    using ResourceWeakPtr = std::weak_ptr<Resource>;
+
+    template<class Resource>
+    using ResourceConstWeakPtr = std::weak_ptr<const Resource>;
+
     LoadedResourcesHolder(const std::string &assetsPath, const std::string &tmpOperationsPath);
     ~LoadedResourcesHolder();
 
@@ -33,10 +40,10 @@ public:
 
     //function to get specific resource from specific resource loader
     template <class Resource>
-    const Resource* getResourcePtr(std::string_view name, bool needDeserialize = false);
+    ResourceConstWeakPtr<Resource> getResourcePtr(std::string_view name, bool needDeserialize = false);
 
     template <class Resource>
-    Resource* getResourceInstancePtr(std::string_view name, bool needDeserialize = false);
+    ResourceWeakPtr<Resource> getResourceInstancePtr(std::string_view name, bool needDeserialize = false);
 
     //function to set specific resource to specific resource loader
     template <class Resource>

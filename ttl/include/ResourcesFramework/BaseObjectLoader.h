@@ -20,21 +20,22 @@ namespace Resources
 template<class ResourceHolder>
 class BaseObjectLoader final
 {
+    using Self = BaseObjectLoader;
 public:
-    typedef typename ResourceHolder::ResourceClassType ResourceClassType;
-    typedef typename ResourceHolder::ResourceClassTypeSharedPtr ResourceClassTypeSharedPtr;
-    typedef typename ResourceHolder::ResourceClassTypeCPtr ResourceClassTypeCPtr;
-    typedef typename ResourceHolder::ResourceClassTypePtr ResourceClassTypePtr;
-    typedef typename ResourceHolder::ResourcesMap ResourcesMap;
-    typedef typename ResourceHolder::ResourcesMapValueType ResourcesMapValueType;
+    using ResourceClassType = typename ResourceHolder::ResourceClassType;
+    using ResourceClassTypeSharedPtr = typename ResourceHolder::ResourceClassTypeSharedPtr;
+    using ResourceClassTypeConstWeakPtr = typename ResourceHolder::ResourceClassTypeConstWeakPtr;
+    using ResourceClassTypeWeakPtr = typename ResourceHolder::ResourceClassTypeWeakPtr ResourceClassTypeWeakPtr;
+    using ResourcesMap = typename ResourceHolder::ResourcesMap;
 
     constexpr static const char *getResourceTypeDescription()
     {
         return ResourceHolder::getResourceTypeDescription();
     };
 
-    ResourceClassTypeCPtr getResourceByName(std::string_view name) const;
-    ResourceClassTypePtr getResourceByName(std::string_view name);
+    ResourceClassTypeConstWeakPtr getResourceByName(std::string_view name) const;
+    ResourceClassTypeWeakPtr getResourceByName(std::string_view name);
+
     bool setResourceByName(std::string_view name,
                            const ResourceClassTypeSharedPtr &resource);
 

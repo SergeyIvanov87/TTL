@@ -21,8 +21,11 @@ void foo(R *r) {
 
 TEST_F(RFFixture, ResourceLoading) {
     auto p = fw->getResourcePtr<ResourceA>("ResourceAResourceA_1");
-    foo(p);
-    EXPECT_TRUE(p) << "ResourceAResourceA_1 must be loadable";
+    EXPECT_TRUE(!p.expired()) << "ResourceAResourceA_1 must be loadable";
+    foo(p.lock().get());
+
+    p = fw->getResourcePtr<ResourceA>("ResourceAXXYZZResourceA_1");
+    EXPECT_TRUE(p.expired()) << "ResourceAXXYZZResourceA_1 must not be loadable";
 }
 
 int main(int argc, char **argv) {

@@ -10,29 +10,22 @@ static const char *tmpDirectory = "dumps";
 
 //Get/Set
 template <T_ARG_DEC>
-typename BaseObjectLoader<T_ARG_DEF>::ResourceClassTypeCPtr
+typename BaseObjectLoader<T_ARG_DEF>::ResourceClassTypeConstWeakPtr
 BaseObjectLoader<T_ARG_DEF>::getResourceByName(std::string_view name) const
 {
-    //F..CK: no operator < for std::string and std::string_view
     auto it = loadedObjectResources.find(name.data());
     if(it != loadedObjectResources.end())
     {
-        return it->second.get();    //dereferenced shared ptr
+        return it->second;
     }
-    return nullptr;
+    return {};
 }
 
 template <T_ARG_DEC>
-typename BaseObjectLoader<T_ARG_DEF>::ResourceClassTypePtr
+typename BaseObjectLoader<T_ARG_DEF>::ResourceClassTypeWeakPtr
 BaseObjectLoader<T_ARG_DEF>::getResourceByName(std::string_view name)
 {
-    auto it = loadedObjectResources.find(name.data());
-    if(it != loadedObjectResources.end())
-    {
-        return it->second.get();    //dereferenced shared ptr
-    }
-    static ResourceClassTypePtr null_ret{};
-    return null_ret;
+    return std::const_pointer_cast<ResourceClassType>(static_cast<const Self*>(this)->getResourceByName(name).lock());
 }
 
 template <T_ARG_DEC>
@@ -158,7 +151,7 @@ size_t BaseObjectLoader<T_ARG_DEF>::doLoadResourcesFromFS(UsedTracer &tracer)
         ResourcesMap res;
         try
         {
-            res = ResourceClassType::loadResourcesImpl(filePath, tracer);
+            res = ResourceClassType::loadResources(filePath, tracer);
             if(res.empty())
             {
                 tracer4File << "\tNo resources loaded";
@@ -202,7 +195,7 @@ size_t BaseObjectLoader<T_ARG_DEF>::doLoadResourcesFromMemory(UsedTracer &tracer
 
     try
     {
-        loadedObjectResources.merge(ResourceClassType::loadResourcesImpl("", tracer));
+        loadedObjectResources.merge(ResourceClassType::loadResources("", tracer));
     }
     catch( const urc::SystemError &exception)
     {

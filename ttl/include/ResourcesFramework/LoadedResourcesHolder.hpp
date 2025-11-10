@@ -27,9 +27,10 @@ LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::~LoadedResourcesHolder()
 //function to get specific resource from specific resource loader
 template <TEMPLATE_ARGS_LIST_DECL>
 template <class Resource>
-const Resource *LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourcePtr(std::string_view name, bool needDeserialize/* = false*/)
+LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::template ResourceConstWeakPtr<Resource> LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourcePtr(std::string_view name, bool needDeserialize/* = false*/)
 {
-    auto ret = std::get<BaseObjectLoader<Resource>>(loadersTuple).getResourceByName(name);
+    auto retWeakPtr = std::get<BaseObjectLoader<Resource>>(loadersTuple).getResourceByName(name);
+    auto ret = retWeakPtr.lock();
     if(ret)
     {
         if(ret->wasSerialized() && needDeserialize)
@@ -38,18 +39,19 @@ const Resource *LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourcePtr(st
             {
                 return ret;
             }
-            return nullptr;
+            return {};
         }
         return ret;
     }
-    return nullptr;
+    return {};
 }
 
 template <TEMPLATE_ARGS_LIST_DECL>
 template <class Resource>
-Resource *LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourceInstancePtr(std::string_view name, bool needDeserialize/* = false*/)
+LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::template ResourceWeakPtr<Resource> LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourceInstancePtr(std::string_view name, bool needDeserialize/* = false*/)
 {
-    auto ret = std::get<BaseObjectLoader<Resource>>(loadersTuple).getResourceByName(name);
+    auto retWeakPtr = std::get<BaseObjectLoader<Resource>>(loadersTuple).getResourceByName(name);
+    auto ret = retWeakPtr.lock();
     if(ret)
     {
         if(ret->wasSerialized() && needDeserialize)
@@ -58,11 +60,11 @@ Resource *LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourceInstancePtr(
             {
                 return ret;
             }
-            return nullptr;
+            return {};
         }
         return ret;
     }
-    return nullptr;
+    return {};
 }
 
 //function to set specific resource to specific resource loader

@@ -16,18 +16,15 @@ concept BaseResourceConcept = requires (T p) {T::getResourceTypeDescriptionImpl(
 
 // TODO https://www.sandordargo.com/blog/2024/12/04/crtp-vs-concepts
 template<class Resource>
-class IBaseResource
+class IBaseResource: public Resources::BaseResourceTag
 {
 public:
     //Export Defines
-    typedef Resource ResourceClassType;
-    typedef std::shared_ptr<ResourceClassType> SharedPtr;
-    typedef std::map<std::string, SharedPtr> ResourcesMap;
-    typedef typename ResourcesMap::value_type ResourcesMapValueType;
-
-    typedef SharedPtr ResourceClassTypeSharedPtr;
-    typedef const Resource * ResourceClassTypeCPtr;
-    typedef Resource * ResourceClassTypePtr;
+    using ResourceClassType = Resource;
+    using ResourceClassTypeSharedPtr = std::shared_ptr<ResourceClassType>;
+    using ResourceClassTypeWeakPtr = std::weak_ptr<ResourceClassType>;
+    using ResourceClassTypeConstWeakPtr = std::weak_ptr<const ResourceClassType>;
+    using ResourcesMap = std::map<std::string, ResourceClassTypeSharedPtr>;
 
     //Interfaces Decl
     template<class Tracer, class ...Additionals>
