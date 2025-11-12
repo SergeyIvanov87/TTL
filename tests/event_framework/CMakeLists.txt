@@ -1,4 +1,20 @@
+cmake_minimum_required (VERSION 3.23)
+
 enable_testing()
+
+if (TARGET Ttl)
+    target_sources(Ttl PUBLIC FILE_SET  testSources
+                                        TYPE HEADERS
+                                        BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/..
+                                        FILES
+                                            CMakeLists.txt
+                                            CustomCommands.h
+                                            CustomEvent.h
+                                            ef_unit_tests.cpp)
+else()
+    find_package(Ttl REQUIRED)
+endif()
+
 
 add_executable(
   ef_unit_tests

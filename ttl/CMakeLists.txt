@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.15)
+cmake_minimum_required (VERSION 3.23)
 
 # Header-only library
 add_library(Ttl INTERFACE)
@@ -26,11 +26,9 @@ install(TARGETS Ttl
   EXPORT TtlTargets
   RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
   LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
+  FILE_SET testSources DESTINATION "${INSTALL_EXAMPLE_DIR}" COMPONENT examples
   PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}"
     COMPONENT dev)
 
 install(DIRECTORY ./ ./include ./applications DESTINATION "${INSTALL_INCLUDE_DIR}"
         FILES_MATCHING PATTERN "*.h*")
-
-install(DIRECTORY ../cmake DESTINATION "${INSTALL_LIB_DIR}"
-        FILES_MATCHING PATTERN "*")

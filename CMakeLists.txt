@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.15)
+cmake_minimum_required (VERSION 3.23)
 
 project(Ttl CXX)
 
@@ -19,6 +19,7 @@ set(TTL_VERSION
 set(INSTALL_LIB_DIR lib/ttl CACHE PATH "Installation directory for libraries")
 set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
 set(INSTALL_INCLUDE_DIR include/ttl CACHE PATH "Installation directory for header files")
+set(INSTALL_EXAMPLE_DIR examples CACHE PATH "Installation directory for examples files")
 
 if(WIN32 AND NOT CYGWIN)
 message ("DEFAULT_INSTALL_CMAKE_DIR: ${DEFAULT_INSTALL_CMAKE_DIR}")

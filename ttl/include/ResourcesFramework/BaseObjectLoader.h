@@ -25,7 +25,7 @@ public:
     using ResourceClassType = typename ResourceHolder::ResourceClassType;
     using ResourceClassTypeSharedPtr = typename ResourceHolder::ResourceClassTypeSharedPtr;
     using ResourceClassTypeConstWeakPtr = typename ResourceHolder::ResourceClassTypeConstWeakPtr;
-    using ResourceClassTypeWeakPtr = typename ResourceHolder::ResourceClassTypeWeakPtr ResourceClassTypeWeakPtr;
+    using ResourceClassTypeWeakPtr = typename ResourceHolder::ResourceClassTypeWeakPtr;
     using ResourcesMap = typename ResourceHolder::ResourcesMap;
 
     constexpr static const char *getResourceTypeDescription()
