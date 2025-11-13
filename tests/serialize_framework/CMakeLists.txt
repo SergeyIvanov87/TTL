@@ -34,11 +34,10 @@ endif()
 include(GoogleTest)
 gtest_discover_tests(${TARGET_NAME})
 
-# add_test doesn't allow to enumerate commands in pipeline, create a specific script-wrapper to invoke lcov
-FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/coverage.sh
-"${CMAKE_CURRENT_BINARY_DIR}/$1 && lcov --ignore-errors inconsistent,inconsistent -q --capture --directory . --output-file=all_coverage.info && lcov -q --extract all_coverage.info \"${CMAKE_SOURCE_DIR}/*\" --output-file=coverage.info && rm all_coverage.info  && genhtml coverage.info --demangle-cpp --output-directory=coverage_html")
-
 add_test(
     NAME ${TARGET_NAME}
-    COMMAND sh ${CMAKE_CURRENT_BINARY_DIR}/coverage.sh ${TARGET_NAME}
+    COMMAND sh ${CMAKE_CURRENT_BINARY_DIR}/../suite_coverage.sh ${TARGET_NAME} ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+list (APPEND REGULAR_TESTS ${TARGET_NAME})
+set (REGULAR_TESTS ${REGULAR_TESTS} PARENT_SCOPE)

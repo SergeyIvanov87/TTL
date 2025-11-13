@@ -2,6 +2,8 @@ cmake_minimum_required (VERSION 3.23)
 
 enable_testing()
 
+set (TARGET_NAME ef_unit_tests)
+
 if (TARGET Ttl)
     target_sources(Ttl PUBLIC FILE_SET  testSources
                                         TYPE HEADERS
@@ -17,28 +19,27 @@ endif()
 
 
 add_executable(
-  ef_unit_tests
+  ${TARGET_NAME}
   ef_unit_tests.cpp
 )
 target_link_libraries(
-  ef_unit_tests
+  ${TARGET_NAME}
   INTERFACE --coverage
   PRIVATE
   GTest::gtest_main
   Ttl
 )
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")
-    target_compile_options(ef_unit_tests INTERFACE --coverage -O0 -g)
+    target_compile_options(${TARGET_NAME} INTERFACE --coverage -O0 -g)
 endif()
 
 include(GoogleTest)
-gtest_discover_tests(ef_unit_tests)
-
-# add_test doesn't allow to enumerate commands in pipeline, create a specific script-wrapper to invoke lcov
-FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/coverage.sh
-"${CMAKE_CURRENT_BINARY_DIR}/$1 && lcov --ignore-errors inconsistent,inconsistent -q --capture --directory . --output-file=all_coverage.info && lcov -q --extract all_coverage.info \"${CMAKE_SOURCE_DIR}/*\" --output-file=coverage.info && rm all_coverage.info  && genhtml coverage.info --demangle-cpp --output-directory=coverage_html")
+gtest_discover_tests(${TARGET_NAME})
 
 add_test(
-    NAME ef_unit_tests
-    COMMAND sh ${CMAKE_CURRENT_BINARY_DIR}/coverage.sh ef_unit_tests
+    NAME ${TARGET_NAME}
+    COMMAND sh ${CMAKE_CURRENT_BINARY_DIR}/../suite_coverage.sh ${TARGET_NAME} ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+list (APPEND REGULAR_TESTS ${TARGET_NAME})
+set (REGULAR_TESTS ${REGULAR_TESTS} PARENT_SCOPE)
