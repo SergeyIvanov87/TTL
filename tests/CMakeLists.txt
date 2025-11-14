@@ -37,7 +37,7 @@ FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/suite_coverage.sh
 # generate the script, which will aggregate coverage reports collected by every single regular unit test,
 # so that the aggregated report will reflect the complete test coverage of the project
 FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/coverage_aggregator.sh
-"lcov -a \"*/*_coverage.info\" -o all_coverage.info && lcov -q --extract all_coverage.info \"${CMAKE_SOURCE_DIR}/*\" --output-file=aggregated_coverage.info && rm all_coverage.info  && genhtml aggregated_coverage.info --demangle-cpp --output-directory=coverage_html")
+"lcov -a \"*/*_coverage.info\" -o all_coverage.info && lcov -q --extract all_coverage.info \"${CMAKE_SOURCE_DIR}/*\" --output-file=aggregated_coverage.info && rm all_coverage.info  && genhtml --ignore-errors range aggregated_coverage.info --demangle-cpp --output-directory=coverage_html")
 
 # enumerate all regular unit tests
 add_subdirectory(event_framework)
