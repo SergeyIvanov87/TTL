@@ -23,9 +23,9 @@ class BaseObjectLoader final
     using Self = BaseObjectLoader;
 public:
     using ResourceClassType = typename ResourceHolder::ResourceClassType;
-    using ResourceClassTypeSharedPtr = typename ResourceHolder::ResourceClassTypeSharedPtr;
-    using ResourceClassTypeConstWeakPtr = typename ResourceHolder::ResourceClassTypeConstWeakPtr;
-    using ResourceClassTypeWeakPtr = typename ResourceHolder::ResourceClassTypeWeakPtr;
+    using OwnPtr = typename ResourceHolder::OwnPtr;
+    using NonOwnPtrConst = typename ResourceHolder::NonOwnPtrConst;
+    using NonOwnPtr = typename ResourceHolder::NonOwnPtr;
     using ResourcesMap = typename ResourceHolder::ResourcesMap;
 
     constexpr static const char *getResourceTypeDescription()
@@ -33,11 +33,11 @@ public:
         return ResourceHolder::getResourceTypeDescription();
     };
 
-    ResourceClassTypeConstWeakPtr getResourceByName(std::string_view name) const;
-    ResourceClassTypeWeakPtr getResourceByName(std::string_view name);
+    NonOwnPtrConst getResourceByName(std::string_view name) const;
+    NonOwnPtr getResourceByName(std::string_view name);
 
     bool setResourceByName(std::string_view name,
-                           const ResourceClassTypeSharedPtr &resource);
+                           const OwnPtr &resource);
 
     void freeResources();
 
@@ -55,10 +55,10 @@ private:
     ResourcesMap loadedObjectResources;
 
     template <class UsedTracer = Tracer<EmptyTracerImpl>>
-    bool doSerialize(std::string_view resourceName, ResourceClassTypeSharedPtr &resource, UsedTracer tracer = UsedTracer());
+    bool doSerialize(std::string_view resourceName, OwnPtr &resource, UsedTracer tracer = UsedTracer());
 
     template <class UsedTracer = Tracer<EmptyTracerImpl>>
-    bool doDeserialize(std::string_view resourceName, ResourceClassTypeSharedPtr &resource, UsedTracer tracer = UsedTracer());
+    bool doDeserialize(std::string_view resourceName, OwnPtr &resource, UsedTracer tracer = UsedTracer());
 };
 }
 #endif /* BASEOBJECTLOADER_H_ */

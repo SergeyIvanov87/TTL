@@ -10,7 +10,7 @@ static const char *tmpDirectory = "dumps";
 
 //Get/Set
 template <T_ARG_DEC>
-typename BaseObjectLoader<T_ARG_DEF>::ResourceClassTypeConstWeakPtr
+typename BaseObjectLoader<T_ARG_DEF>::NonOwnPtrConst
 BaseObjectLoader<T_ARG_DEF>::getResourceByName(std::string_view name) const
 {
     auto it = loadedObjectResources.find(name.data());
@@ -22,7 +22,7 @@ BaseObjectLoader<T_ARG_DEF>::getResourceByName(std::string_view name) const
 }
 
 template <T_ARG_DEC>
-typename BaseObjectLoader<T_ARG_DEF>::ResourceClassTypeWeakPtr
+typename BaseObjectLoader<T_ARG_DEF>::NonOwnPtr
 BaseObjectLoader<T_ARG_DEF>::getResourceByName(std::string_view name)
 {
     return std::const_pointer_cast<ResourceClassType>(static_cast<const Self*>(this)->getResourceByName(name).lock());
@@ -31,7 +31,7 @@ BaseObjectLoader<T_ARG_DEF>::getResourceByName(std::string_view name)
 template <T_ARG_DEC>
 bool BaseObjectLoader<T_ARG_DEF>::setResourceByName(
         std::string_view name,
-        const typename BaseObjectLoader<T_ARG_DEF>::ResourceClassTypeSharedPtr &resource)
+        const typename BaseObjectLoader<T_ARG_DEF>::OwnPtr &resource)
 {
     auto it = loadedObjectResources.find(name.data());
     if(it == loadedObjectResources.end())
@@ -212,7 +212,7 @@ template <T_ARG_DEC>
 template <class UsedTracer>
 bool BaseObjectLoader<T_ARG_DEF>::doDeserialize(
                                                 std::string_view resourceName,
-                                                ResourceClassTypeSharedPtr &resource,
+                                                OwnPtr &resource,
                                                 UsedTracer tracer)
 {
     tracer.trace("Deserialize for \"", resourceName, "\":");
@@ -266,7 +266,7 @@ template <T_ARG_DEC>
 template <class UsedTracer>
 bool BaseObjectLoader<T_ARG_DEF>::doSerialize(
                                                 std::string_view resourceName,
-                                                ResourceClassTypeSharedPtr &resource,
+                                                OwnPtr &resource,
                                                 UsedTracer tracer)
 {
     tracer.trace("Serialize for \"", resourceName, "\":");

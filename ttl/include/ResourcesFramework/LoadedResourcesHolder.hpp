@@ -27,7 +27,27 @@ LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::~LoadedResourcesHolder()
 //function to get specific resource from specific resource loader
 template <TEMPLATE_ARGS_LIST_DECL>
 template <class Resource>
-LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::template ResourceConstWeakPtr<Resource> LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourcePtr(std::string_view name, bool needDeserialize/* = false*/)
+const Resource &LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResource(std::string_view name, bool needDeserialize/* = false*/) {
+    auto retWeakPtr = std::get<BaseObjectLoader<Resource>>(loadersTuple).getResourceByName(name);
+    auto ret = retWeakPtr.lock();
+    if(ret)
+    {
+        if(ret->wasSerialized() && needDeserialize)
+        {
+            if(deserializeResource<Resource>(name))
+            {
+                return *ret;
+            }
+            throw std::runtime_error(std::string("The resource by name: ") + name.data() + " cannot be found");
+        }
+        return ret;
+    }
+    throw std::runtime_error(std::string("The resource by name: ") + name.data() + " cannot be found");
+}
+
+template <TEMPLATE_ARGS_LIST_DECL>
+template <class Resource>
+LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::template NonOwnPtrConst<Resource> LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourcePtr(std::string_view name, bool needDeserialize/* = false*/)
 {
     auto retWeakPtr = std::get<BaseObjectLoader<Resource>>(loadersTuple).getResourceByName(name);
     auto ret = retWeakPtr.lock();
@@ -48,7 +68,7 @@ LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::template ResourceConstWeakPtr<Res
 
 template <TEMPLATE_ARGS_LIST_DECL>
 template <class Resource>
-LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::template ResourceWeakPtr<Resource> LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourceInstancePtr(std::string_view name, bool needDeserialize/* = false*/)
+LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::template NonOwnPtr<Resource> LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourceInstancePtr(std::string_view name, bool needDeserialize/* = false*/)
 {
     auto retWeakPtr = std::get<BaseObjectLoader<Resource>>(loadersTuple).getResourceByName(name);
     auto ret = retWeakPtr.lock();
@@ -73,7 +93,7 @@ template <class Resource>
 bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::insertResource(std::string_view name, std::shared_ptr<Resource> &&resourcePtr)
 {
     return std::get<BaseObjectLoader<Resource>>(loadersTuple).setResourceByName(name,
-                                            std::forward<typename BaseObjectLoader<Resource>::ResourceClassTypeSharedPtr>(resourcePtr));
+                                            std::forward<typename BaseObjectLoader<Resource>::OwnPtr>(resourcePtr));
 }
 
 //function to de/serialize object into specific file
