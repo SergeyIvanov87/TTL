@@ -61,15 +61,15 @@ struct SystemError : public ResultDescription
 
 struct FileOpenError : public SystemError
 {
-    FileOpenError(const std::string &path, int errorCode) :
+    FileOpenError(std::string_view path, int errorCode) :
         SystemError(ResultCodes::RESULT_SYSTEM_IO_ERROR, "Cannot open: \"", path , "\" Error: \"", strerror(errorCode)) {}
 };
 
 struct MissingResourceError : public SystemError
 {
-    MissingResourceError(const std::string &name, const std::string &reason = std::string()) :
+    MissingResourceError(std::string_view name, const std::string &reason = std::string()) :
         SystemError(ResultCodes::RESULT_SYSTEM_RESOURCE_LOCATION_ERROR, "Cannot get resource: \"", name, "\"", (reason.empty() ? "" : " Error: \"" + reason + "\"")) {}
-    MissingResourceError(const std::string &name, const unsigned char *reason) :
+    MissingResourceError(std::string_view name, const unsigned char *reason) :
         MissingResourceError(name, reinterpret_cast<const char *>(reason)) {}
 };
 }

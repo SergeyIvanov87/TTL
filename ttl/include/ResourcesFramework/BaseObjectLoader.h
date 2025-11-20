@@ -34,8 +34,11 @@ public:
         return ResourceHolder::getResourceTypeDescription();
     };
 
-    NonOwnPtrConst getResourceByName(std::string_view name) const;
-    NonOwnPtr getResourceByName(std::string_view name);
+    OwnPtrConst getResourceByName(std::string_view name) const;
+    OwnPtr getResourceByName(std::string_view name);
+
+    NonOwnPtrConst getNonOwnResourceByName(std::string_view name) const;
+    NonOwnPtr getNonOwnResourceByName(std::string_view name);
 
     bool setResourceByName(std::string_view name,
                            const OwnPtr &resource);
@@ -44,6 +47,8 @@ public:
 
     template <class UsedTracer>
     size_t loadResources(UsedTracer tracer);
+
+    size_t size() const;
 
     bool serialize(std::string_view resourceName);
     bool deserialize(std::string_view resourceName);

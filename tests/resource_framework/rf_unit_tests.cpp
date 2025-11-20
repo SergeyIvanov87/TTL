@@ -15,17 +15,20 @@ TEST_F(RFAssetsPathCreationFixture, FrameworkInitialization) {
 }
 
 template<Resources::BaseResourceConcept R>
-void foo(R *r) {
-    std::cout << "gotcha!" << std::endl;
+void tryConcept(R *r) {
+    EXPECT_TRUE(r != nullptr);
 }
 
 TEST_F(RFFixture, ResourceLoading) {
-    auto p = fw->getResourcePtr<ResourceA>("ResourceAResourceA_1");
-    EXPECT_TRUE(!p.expired()) << "ResourceAResourceA_1 must be loadable";
-    foo(p.lock().get());
+    auto w = fw->getNonOwnResourcePtr<ResourceA>("ResourceAResourceA_1");
+    EXPECT_TRUE(!w.expired()) << "ResourceAResourceA_1 must be loadable";
+    tryConcept(w.lock().get());
 
-    p = fw->getResourcePtr<ResourceA>("ResourceAXXYZZResourceA_1");
-    EXPECT_TRUE(p.expired()) << "ResourceAXXYZZResourceA_1 must not be loadable";
+    ResourceA::OwnPtrConst s;
+    ASSERT_NO_THROW(s = fw->getResourcePtr<ResourceA>("ResourceAResourceA_1"));
+    EXPECT_EQ(s.get(), w.lock().get());
+
+    ASSERT_THROW(w = fw->getNonOwnResourcePtr<ResourceA>("ResourceAXXYZZResourceA_1"), urc::MissingResourceError);
 }
 
 int main(int argc, char **argv) {

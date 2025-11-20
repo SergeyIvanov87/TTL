@@ -23,6 +23,12 @@ public:
     using ResourceLoadersTuple = std::tuple<BaseObjectLoader<Loaders>...>;
 
     template<class Resource>
+    using OwnPtr = typename BaseObjectLoader<Resource>::OwnPtr;
+
+    template<class Resource>
+    using OwnPtrConst = typename BaseObjectLoader<Resource>::OwnPtrConst;
+
+    template<class Resource>
     using NonOwnPtr = typename BaseObjectLoader<Resource>::NonOwnPtr;
 
     template<class Resource>
@@ -43,10 +49,16 @@ public:
     const Resource &getResource(std::string_view name, bool needDeserialize = false);
 
     template <class Resource>
-    NonOwnPtrConst<Resource> getResourcePtr(std::string_view name, bool needDeserialize = false);
+    OwnPtrConst<Resource> getResourcePtr(std::string_view name, bool needDeserialize = false);
 
     template <class Resource>
-    NonOwnPtr<Resource> getResourceInstancePtr(std::string_view name, bool needDeserialize = false);
+    OwnPtr<Resource> getResourceInstancePtr(std::string_view name, bool needDeserialize = false);
+
+    template <class Resource>
+    NonOwnPtrConst<Resource> getNonOwnResourcePtr(std::string_view name, bool needDeserialize = false);
+
+    template <class Resource>
+    NonOwnPtr<Resource> getNonOwnResourceInstancePtr(std::string_view name, bool needDeserialize = false);
 
     //function to set specific resource to specific resource loader
     template <class Resource>

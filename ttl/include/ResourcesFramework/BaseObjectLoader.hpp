@@ -2,6 +2,8 @@
 #define BASE_OBJECT_LOADER_HPP
 #include <regex>
 #include "BaseObjectLoader.h"
+#include <ttl/include/Utils/StringUtils.h>
+
 namespace Resources
 {
 #define T_ARG_DEC              class ResourceHolder
@@ -10,22 +12,36 @@ static const char *tmpDirectory = "dumps";
 
 //Get/Set
 template <T_ARG_DEC>
-typename BaseObjectLoader<T_ARG_DEF>::NonOwnPtrConst
+typename BaseObjectLoader<T_ARG_DEF>::OwnPtrConst
 BaseObjectLoader<T_ARG_DEF>::getResourceByName(std::string_view name) const
 {
-    auto it = loadedObjectResources.find(name.data());
-    if(it != loadedObjectResources.end())
+    if(auto it = loadedObjectResources.find(name.data()); it != loadedObjectResources.end())
     {
         return it->second;
     }
-    return {};
+    throw urc::MissingResourceError(name, makeString("Doesn't exist in a collections of \"", getResourceTypeDescription(), "\" objects, size: ", loadedObjectResources.size()));
+}
+
+template <T_ARG_DEC>
+typename BaseObjectLoader<T_ARG_DEF>::OwnPtr
+BaseObjectLoader<T_ARG_DEF>::getResourceByName(std::string_view name)
+{
+    return std::const_pointer_cast<ResourceClassType>(static_cast<const Self*>(this)->getResourceByName(name));
+}
+
+
+template <T_ARG_DEC>
+typename BaseObjectLoader<T_ARG_DEF>::NonOwnPtrConst
+BaseObjectLoader<T_ARG_DEF>::getNonOwnResourceByName(std::string_view name) const
+{
+    return getResourceByName(name);
 }
 
 template <T_ARG_DEC>
 typename BaseObjectLoader<T_ARG_DEF>::NonOwnPtr
-BaseObjectLoader<T_ARG_DEF>::getResourceByName(std::string_view name)
+BaseObjectLoader<T_ARG_DEF>::getNonOwnResourceByName(std::string_view name)
 {
-    return std::const_pointer_cast<ResourceClassType>(static_cast<const Self*>(this)->getResourceByName(name).lock());
+    return getResourceByName(name);
 }
 
 template <T_ARG_DEC>
@@ -40,6 +56,11 @@ bool BaseObjectLoader<T_ARG_DEF>::setResourceByName(
         return true;
     }
     return false;
+}
+
+template <T_ARG_DEC>
+size_t BaseObjectLoader<T_ARG_DEF>::size() const {
+    return loadedObjectResources.size();
 }
 
 //Free
