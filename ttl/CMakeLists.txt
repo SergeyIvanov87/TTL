@@ -32,3 +32,6 @@ install(TARGETS Ttl
 
 install(DIRECTORY ./ ./include ./applications DESTINATION "${INSTALL_INCLUDE_DIR}"
         FILES_MATCHING PATTERN "*.h*")
+
+install(EXPORT TtlTargets DESTINATION
+  "${INSTALL_EXAMPLE_DIR}" COMPONENT examples)
