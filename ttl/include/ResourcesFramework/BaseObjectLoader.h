@@ -23,10 +23,10 @@ class BaseObjectLoader final
     using Self = BaseObjectLoader;
 public:
     using ResourceClassType = typename ResourceHolder::ResourceClassType;
-    using OwnPtr = typename ResourceHolder::OwnPtr;
-    using OwnPtrConst = typename ResourceHolder::OwnPtrConst;
-    using NonOwnPtrConst = typename ResourceHolder::NonOwnPtrConst;
-    using NonOwnPtr = typename ResourceHolder::NonOwnPtr;
+    using OwningPtr = typename ResourceHolder::OwningPtr;
+    using OwningPtrConst = typename ResourceHolder::OwningPtrConst;
+    using NonOwningPtrConst = typename ResourceHolder::NonOwningPtrConst;
+    using NonOwningPtr = typename ResourceHolder::NonOwningPtr;
     using ResourcesMap = typename ResourceHolder::ResourcesMap;
 
     constexpr static const char *getResourceTypeDescription()
@@ -34,14 +34,14 @@ public:
         return ResourceHolder::getResourceTypeDescription();
     };
 
-    OwnPtrConst getResourceByName(std::string_view name) const;
-    OwnPtr getResourceByName(std::string_view name);
+    OwningPtrConst getResourceByName(std::string_view name) const;
+    OwningPtr getResourceByName(std::string_view name);
 
-    NonOwnPtrConst getNonOwnResourceByName(std::string_view name) const;
-    NonOwnPtr getNonOwnResourceByName(std::string_view name);
+    NonOwningPtrConst getNonOwnResourceByName(std::string_view name) const;
+    NonOwningPtr getNonOwnResourceByName(std::string_view name);
 
     bool setResourceByName(std::string_view name,
-                           const OwnPtr &resource);
+                           const OwningPtr &resource);
 
     void freeResources();
 
@@ -61,10 +61,10 @@ private:
     ResourcesMap loadedObjectResources;
 
     template <class UsedTracer = Tracer<EmptyTracerImpl>>
-    bool doSerialize(std::string_view resourceName, OwnPtr &resource, UsedTracer tracer = UsedTracer());
+    bool doSerialize(std::string_view resourceName, OwningPtr &resource, UsedTracer tracer = UsedTracer());
 
     template <class UsedTracer = Tracer<EmptyTracerImpl>>
-    bool doDeserialize(std::string_view resourceName, OwnPtr &resource, UsedTracer tracer = UsedTracer());
+    bool doDeserialize(std::string_view resourceName, OwningPtr &resource, UsedTracer tracer = UsedTracer());
 };
 }
 #endif /* BASEOBJECTLOADER_H_ */

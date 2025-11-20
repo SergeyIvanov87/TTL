@@ -12,7 +12,7 @@ static const char *tmpDirectory = "dumps";
 
 //Get/Set
 template <T_ARG_DEC>
-typename BaseObjectLoader<T_ARG_DEF>::OwnPtrConst
+typename BaseObjectLoader<T_ARG_DEF>::OwningPtrConst
 BaseObjectLoader<T_ARG_DEF>::getResourceByName(std::string_view name) const
 {
     if(auto it = loadedObjectResources.find(name.data()); it != loadedObjectResources.end())
@@ -23,7 +23,7 @@ BaseObjectLoader<T_ARG_DEF>::getResourceByName(std::string_view name) const
 }
 
 template <T_ARG_DEC>
-typename BaseObjectLoader<T_ARG_DEF>::OwnPtr
+typename BaseObjectLoader<T_ARG_DEF>::OwningPtr
 BaseObjectLoader<T_ARG_DEF>::getResourceByName(std::string_view name)
 {
     return std::const_pointer_cast<ResourceClassType>(static_cast<const Self*>(this)->getResourceByName(name));
@@ -31,14 +31,14 @@ BaseObjectLoader<T_ARG_DEF>::getResourceByName(std::string_view name)
 
 
 template <T_ARG_DEC>
-typename BaseObjectLoader<T_ARG_DEF>::NonOwnPtrConst
+typename BaseObjectLoader<T_ARG_DEF>::NonOwningPtrConst
 BaseObjectLoader<T_ARG_DEF>::getNonOwnResourceByName(std::string_view name) const
 {
     return getResourceByName(name);
 }
 
 template <T_ARG_DEC>
-typename BaseObjectLoader<T_ARG_DEF>::NonOwnPtr
+typename BaseObjectLoader<T_ARG_DEF>::NonOwningPtr
 BaseObjectLoader<T_ARG_DEF>::getNonOwnResourceByName(std::string_view name)
 {
     return getResourceByName(name);
@@ -47,7 +47,7 @@ BaseObjectLoader<T_ARG_DEF>::getNonOwnResourceByName(std::string_view name)
 template <T_ARG_DEC>
 bool BaseObjectLoader<T_ARG_DEF>::setResourceByName(
         std::string_view name,
-        const typename BaseObjectLoader<T_ARG_DEF>::OwnPtr &resource)
+        const typename BaseObjectLoader<T_ARG_DEF>::OwningPtr &resource)
 {
     auto it = loadedObjectResources.find(name.data());
     if(it == loadedObjectResources.end())
@@ -233,7 +233,7 @@ template <T_ARG_DEC>
 template <class UsedTracer>
 bool BaseObjectLoader<T_ARG_DEF>::doDeserialize(
                                                 std::string_view resourceName,
-                                                OwnPtr &resource,
+                                                OwningPtr &resource,
                                                 UsedTracer tracer)
 {
     tracer.trace("Deserialize for \"", resourceName, "\":");
@@ -287,7 +287,7 @@ template <T_ARG_DEC>
 template <class UsedTracer>
 bool BaseObjectLoader<T_ARG_DEF>::doSerialize(
                                                 std::string_view resourceName,
-                                                OwnPtr &resource,
+                                                OwningPtr &resource,
                                                 UsedTracer tracer)
 {
     tracer.trace("Serialize for \"", resourceName, "\":");

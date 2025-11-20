@@ -23,16 +23,16 @@ public:
     using ResourceLoadersTuple = std::tuple<BaseObjectLoader<Loaders>...>;
 
     template<class Resource>
-    using OwnPtr = typename BaseObjectLoader<Resource>::OwnPtr;
+    using OwningPtr = typename BaseObjectLoader<Resource>::OwningPtr;
 
     template<class Resource>
-    using OwnPtrConst = typename BaseObjectLoader<Resource>::OwnPtrConst;
+    using OwningPtrConst = typename BaseObjectLoader<Resource>::OwningPtrConst;
 
     template<class Resource>
-    using NonOwnPtr = typename BaseObjectLoader<Resource>::NonOwnPtr;
+    using NonOwningPtr = typename BaseObjectLoader<Resource>::NonOwningPtr;
 
     template<class Resource>
-    using NonOwnPtrConst = typename BaseObjectLoader<Resource>::NonOwnPtrConst;
+    using NonOwningPtrConst = typename BaseObjectLoader<Resource>::NonOwningPtrConst;
 
     LoadedResourcesHolder(const std::string &assetsPath, const std::string &tmpOperationsPath);
     ~LoadedResourcesHolder();
@@ -49,16 +49,16 @@ public:
     const Resource &getResource(std::string_view name, bool needDeserialize = false);
 
     template <class Resource>
-    OwnPtrConst<Resource> getResourcePtr(std::string_view name, bool needDeserialize = false);
+    OwningPtrConst<Resource> getResourcePtr(std::string_view name, bool needDeserialize = false);
 
     template <class Resource>
-    OwnPtr<Resource> getResourceInstancePtr(std::string_view name, bool needDeserialize = false);
+    OwningPtr<Resource> getResourceInstancePtr(std::string_view name, bool needDeserialize = false);
 
     template <class Resource>
-    NonOwnPtrConst<Resource> getNonOwnResourcePtr(std::string_view name, bool needDeserialize = false);
+    NonOwningPtrConst<Resource> getNonOwnResourcePtr(std::string_view name, bool needDeserialize = false);
 
     template <class Resource>
-    NonOwnPtr<Resource> getNonOwnResourceInstancePtr(std::string_view name, bool needDeserialize = false);
+    NonOwningPtr<Resource> getNonOwnResourceInstancePtr(std::string_view name, bool needDeserialize = false);
 
     //function to set specific resource to specific resource loader
     template <class Resource>

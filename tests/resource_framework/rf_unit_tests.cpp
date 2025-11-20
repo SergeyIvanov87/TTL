@@ -24,7 +24,7 @@ TEST_F(RFFixture, ResourceLoading) {
     EXPECT_TRUE(!w.expired()) << "ResourceAResourceA_1 must be loadable";
     tryConcept(w.lock().get());
 
-    ResourceA::OwnPtrConst s;
+    ResourceA::OwningPtrConst s;
     ASSERT_NO_THROW(s = fw->getResourcePtr<ResourceA>("ResourceAResourceA_1"));
     EXPECT_EQ(s.get(), w.lock().get());
 

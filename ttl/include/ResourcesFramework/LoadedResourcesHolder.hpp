@@ -46,7 +46,7 @@ const Resource &LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResource(std::
 
 template <TEMPLATE_ARGS_LIST_DECL>
 template <class Resource>
-LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::template OwnPtrConst<Resource> LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourcePtr(std::string_view name, bool needDeserialize/* = false*/)
+LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::template OwningPtrConst<Resource> LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourcePtr(std::string_view name, bool needDeserialize/* = false*/)
 {
     auto ret = std::get<BaseObjectLoader<Resource>>(loadersTuple).getResourceByName(name);
     if(ret)
@@ -66,7 +66,7 @@ LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::template OwnPtrConst<Resource> Lo
 
 template <TEMPLATE_ARGS_LIST_DECL>
 template <class Resource>
-LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::template OwnPtr<Resource> LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourceInstancePtr(std::string_view name, bool needDeserialize/* = false*/)
+LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::template OwningPtr<Resource> LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getResourceInstancePtr(std::string_view name, bool needDeserialize/* = false*/)
 {
     auto ret = std::get<BaseObjectLoader<Resource>>(loadersTuple).getResourceByName(name);
     if(ret)
@@ -86,7 +86,7 @@ LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::template OwnPtr<Resource> LoadedR
 
 template <TEMPLATE_ARGS_LIST_DECL>
 template <class Resource>
-LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::template NonOwnPtrConst<Resource>
+LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::template NonOwningPtrConst<Resource>
 LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getNonOwnResourcePtr(std::string_view name, bool needDeserialize/* = false*/)
 {
     return getResourcePtr<Resource>(name, needDeserialize);
@@ -94,7 +94,7 @@ LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getNonOwnResourcePtr(std::string_
 
 template <TEMPLATE_ARGS_LIST_DECL>
 template <class Resource>
-LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::template NonOwnPtr<Resource>
+LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::template NonOwningPtr<Resource>
 LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::getNonOwnResourceInstancePtr(std::string_view name, bool needDeserialize/* = false*/) {
     return getResourceInstancePtr<Resource>(name, needDeserialize);
 }
@@ -106,7 +106,7 @@ template <class Resource>
 bool LoadedResourcesHolder<TEMPLATE_ARGS_LIST_DEF>::insertResource(std::string_view name, std::shared_ptr<Resource> &&resourcePtr)
 {
     return std::get<BaseObjectLoader<Resource>>(loadersTuple).setResourceByName(name,
-                                            std::forward<typename BaseObjectLoader<Resource>::OwnPtr>(resourcePtr));
+                                            std::forward<typename BaseObjectLoader<Resource>::OwningPtr>(resourcePtr));
 }
 
 //function to de/serialize object into specific file

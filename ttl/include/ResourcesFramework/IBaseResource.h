@@ -21,11 +21,11 @@ class IBaseResource: public Resources::BaseResourceTag
 public:
     //Export Defines
     using ResourceClassType = Resource;
-    using OwnPtr = std::shared_ptr<ResourceClassType>;
-    using OwnPtrConst = std::shared_ptr<const ResourceClassType>;
-    using NonOwnPtr = std::weak_ptr<ResourceClassType>;
-    using NonOwnPtrConst = std::weak_ptr<const ResourceClassType>;
-    using ResourcesMap = std::map<std::string, OwnPtr>;
+    using OwningPtr = std::shared_ptr<ResourceClassType>;
+    using OwningPtrConst = std::shared_ptr<const ResourceClassType>;
+    using NonOwningPtr = std::weak_ptr<ResourceClassType>;
+    using NonOwningPtrConst = std::weak_ptr<const ResourceClassType>;
+    using ResourcesMap = std::map<std::string, OwningPtr>;
 
     //Interfaces Decl
     template<class Tracer, class ...Additionals>
