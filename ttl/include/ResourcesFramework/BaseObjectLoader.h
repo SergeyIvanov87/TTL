@@ -24,6 +24,7 @@ class BaseObjectLoader final
 public:
     using ResourceClassType = typename ResourceHolder::ResourceClassType;
     using OwnPtr = typename ResourceHolder::OwnPtr;
+    using OwnPtrConst = typename ResourceHolder::OwnPtrConst;
     using NonOwnPtrConst = typename ResourceHolder::NonOwnPtrConst;
     using NonOwnPtr = typename ResourceHolder::NonOwnPtr;
     using ResourcesMap = typename ResourceHolder::ResourcesMap;
