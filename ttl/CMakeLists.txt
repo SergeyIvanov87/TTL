@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.23)
+cmake_minimum_required (VERSION 3.28)
 
 # Header-only library
 add_library(Ttl INTERFACE)
@@ -32,6 +32,3 @@ install(TARGETS Ttl
 
 install(DIRECTORY ./ ./include ./applications DESTINATION "${INSTALL_INCLUDE_DIR}"
         FILES_MATCHING PATTERN "*.h*")
-
-install(EXPORT TtlTargets DESTINATION
-  "${INSTALL_EXAMPLE_DIR}" COMPONENT examples)

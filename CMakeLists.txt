@@ -71,7 +71,7 @@ configure_file(TtlConfigVersion.cmake.in
 install(FILES
   "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/TtlConfig.cmake"
   "${PROJECT_BINARY_DIR}/TtlConfigVersion.cmake"
-  DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+  DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev COMPONENT examples)
 
 install(EXPORT TtlTargets DESTINATION
-  "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+  "${INSTALL_CMAKE_DIR}" COMPONENT dev COMPONENT examples)
