@@ -3,11 +3,13 @@ cmake_minimum_required (VERSION 3.28)
 # Header-only library
 add_library(Ttl INTERFACE)
 
+message("CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}, INSTALL_INCLUDE_DIR: ${INSTALL_INCLUDE_DIR}" )
+
 target_include_directories(
   Ttl
   INTERFACE
-        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..;${CMAKE_CURRENT_SOURCE_DIR}/;${CMAKE_CURRENT_SOURCE_DIR}/include;${CMAKE_CURRENT_SOURCE_DIR}/applications>"
-         "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR};include>"
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..;${CMAKE_CURRENT_SOURCE_DIR}/;${CMAKE_CURRENT_SOURCE_DIR}/include>"
+         "$<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR};include>"
          )
 
 target_compile_definitions(
@@ -19,16 +21,5 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES ".*Clan
     target_link_libraries(Ttl INTERFACE --coverage)
 endif()
 
-#set_target_properties(Ttl PROPERTIES
-#  PUBLIC_HEADER include/Ttl.hpp)
-
-install(TARGETS Ttl
-  EXPORT TtlTargets
-  RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
-  LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
-  FILE_SET testSources DESTINATION "${INSTALL_EXAMPLE_DIR}" COMPONENT examples
-  PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}"
-    COMPONENT dev)
-
-install(DIRECTORY ./ ./include ./applications DESTINATION "${INSTALL_INCLUDE_DIR}"
-        FILES_MATCHING PATTERN "*.h*")
+add_subdirectory(applications)
+set (TTL_APPS_TARGET ${TTL_APPS_TARGET} PARENT_SCOPE)

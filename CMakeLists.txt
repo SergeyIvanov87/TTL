@@ -47,10 +47,11 @@ include_directories(
 
 
 add_subdirectory(ttl)
-add_subdirectory(examples)
+#-S- don't need binary from examples to install
+#add_subdirectory(examples)
 add_subdirectory(tests)
 
-export(TARGETS Ttl ${EXAMPLE_TARGETS_EXPORT}
+export(TARGETS TtlApps Ttl ${EXAMPLE_TARGETS_EXPORT} ${TTL_APPS_TARGET}
        FILE "${PROJECT_BINARY_DIR}/Ttl.cmake")
 export(PACKAGE Ttl)
 
@@ -73,5 +74,18 @@ install(FILES
   "${PROJECT_BINARY_DIR}/TtlConfigVersion.cmake"
   DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev COMPONENT examples)
 
-install(EXPORT TtlTargets DESTINATION
-  "${INSTALL_CMAKE_DIR}" COMPONENT dev COMPONENT examples)
+install(TARGETS TtlApps Ttl ${TTL_APPS_TARGET}
+  EXPORT TtlTargets
+  RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
+  LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
+  FILE_SET testSources DESTINATION "${INSTALL_EXAMPLE_DIR}" COMPONENT examples
+  PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}"
+    COMPONENT dev)
+
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/ttl/include ${PROJECT_SOURCE_DIR}/ttl/applications DESTINATION "${INSTALL_INCLUDE_DIR}"
+        FILES_MATCHING PATTERN "*.h*")
+
+install(EXPORT TtlTargets
+    NAMESPACE TTL::
+    DESTINATION
+        "${INSTALL_CMAKE_DIR}" COMPONENT dev COMPONENT examples)

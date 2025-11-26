@@ -11,7 +11,10 @@ if (TARGET Ttl)
                                         FILES
                                             CMakeLists.txt
                                             CustomCommands.h
+                                            CustomConfigurator.h
                                             CustomEvent.h
+                                            CustomEventSubscriber.h
+                                            fixture.h
                                             ef_unit_tests.cpp)
 else()
     find_package(Ttl REQUIRED)
@@ -27,7 +30,7 @@ target_link_libraries(
   INTERFACE --coverage
   PRIVATE
   GTest::gtest_main
-  Ttl
+  TtlApps
 )
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")
     target_compile_options(${TARGET_NAME} INTERFACE --coverage -O0 -g)
