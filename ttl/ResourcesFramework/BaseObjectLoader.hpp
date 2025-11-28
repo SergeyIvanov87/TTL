@@ -2,7 +2,7 @@
 #define BASE_OBJECT_LOADER_HPP
 #include <regex>
 #include "BaseObjectLoader.h"
-#include <ttl/include/Utils/StringUtils.h>
+#include <ttl/Utils/StringUtils.h>
 
 namespace Resources
 {

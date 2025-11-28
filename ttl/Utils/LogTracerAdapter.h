@@ -1,7 +1,7 @@
 #ifndef LOG_TRACER_ADAPTER_H
 #define LOG_TRACER_ADAPTER_H
 #include <iostream>
-#include <ttl/include/Utils/LogTracer.h>
+#include <ttl/Utils/LogTracer.h>
 
 
 class Stdout

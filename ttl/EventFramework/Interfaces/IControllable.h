@@ -2,10 +2,10 @@
 #define ICONTROLLABLE
 
 #include <functional>
-#include <ttl/include/Utils/UnifiedResultCodes.h>
+#include <ttl/Utils/UnifiedResultCodes.h>
 #include "IEventSpecificControllable.h"
-#include <ttl/include/Utils/Visitor.h>
-#include <ttl/include/Utils/LogTracerAdapter.h>
+#include <ttl/Utils/Visitor.h>
+#include <ttl/Utils/LogTracerAdapter.h>
 
 template<class ...AllEventTypes>
 class CommonControllerEvent;

@@ -12,7 +12,7 @@
 #include "KeyboardCommands.h"
 #include "../EventIDsDeclaration.h"
 #include "EventIdModifierSpecific.h"
-#include <ttl/include/EventFramework/Interfaces/IBaseEvent.hpp>
+#include <ttl/EventFramework/Interfaces/IBaseEvent.hpp>
 
 struct KeyState : public IEventField<KeyState>
 {

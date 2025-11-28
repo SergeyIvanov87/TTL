@@ -1,7 +1,7 @@
 #ifndef IEVENTCONFIGURATOR_HPP
 #define IEVENTCONFIGURATOR_HPP
 #include "IEventConfigurator.h"
-#include <ttl/include/Utils/Utils.h>
+#include <ttl/Utils/Utils.h>
 
 #define T_ARGS_DECL         class Impl
 #define T_ARGS_DEF          Impl

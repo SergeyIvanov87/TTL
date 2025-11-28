@@ -4,10 +4,10 @@
 #include <chrono>
 
 //Broker
-#include <ttl/include/EventFramework/EventDirector.hpp>
-#include <ttl/include/EventFramework/EventBroker.hpp>
+#include <ttl/EventFramework/EventDirector.hpp>
+#include <ttl/EventFramework/EventBroker.hpp>
 
-#include <ttl/include/EventFramework/EventFramework.h>
+#include <ttl/EventFramework/EventFramework.h>
 
 #include "fixture.h"
 

@@ -4,7 +4,7 @@
 #include <map>
 #include <string>
 
-#include <ttl/include/EventFramework/Interfaces/IEventConfigurator.h>
+#include <ttl/EventFramework/Interfaces/IEventConfigurator.h>
 
 //Just Stub configurator...
 struct Configurator :

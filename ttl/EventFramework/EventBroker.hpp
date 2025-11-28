@@ -5,7 +5,7 @@
 #include <mutex> //TODO
 #include <future>
 #include <condition_variable>
-#include <ttl/include/Utils/CTimeUtils.h>
+#include <ttl/Utils/CTimeUtils.h>
 #include "EventDirector.hpp"
 #include "EventBroker.h"
 

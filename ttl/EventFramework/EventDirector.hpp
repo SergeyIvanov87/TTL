@@ -9,7 +9,7 @@
 #include <type_traits>
 #include "EventDirector.h"
 #include "Interfaces/IEventConsumer.hpp"
-#include <ttl/include/Utils/CTimeUtils.h>
+#include <ttl/Utils/CTimeUtils.h>
 
 template<class Consumer>
 template<class Producer, class Event>

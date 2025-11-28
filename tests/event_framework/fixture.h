@@ -3,7 +3,7 @@
 
 #include <gtest/gtest.h>
 
-#include <ttl/include/EventFramework/Interfaces/IEventConfigurator.hpp>
+#include <ttl/EventFramework/Interfaces/IEventConfigurator.hpp>
 #include "CustomConfigurator.h"
 #include "CustomEventSubscriber.h"
 

@@ -1,7 +1,7 @@
 #ifndef I_EVENT_CONSUMER_H
 #define I_EVENT_CONSUMER_H
 
-#include <ttl/include/Utils/UnifiedResultCodes.h>
+#include <ttl/Utils/UnifiedResultCodes.h>
 #include "IEventSpecificControllable.h"
 
 

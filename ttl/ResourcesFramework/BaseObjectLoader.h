@@ -9,7 +9,7 @@
 #include <string_view>
 #include <fstream>
 
-#include <ttl/include/Utils/LogTracerAdapter.h>
+#include <ttl/Utils/LogTracerAdapter.h>
 
 #include "ResourceTraits.h"
 #include "IBaseResource.h"

@@ -5,7 +5,7 @@
 #include <string>
 #include <map>
 #include <memory>
-#include <ttl/include/Utils/UnifiedResultCodes.h>
+#include <ttl/Utils/UnifiedResultCodes.h>
 
 namespace Resources
 {

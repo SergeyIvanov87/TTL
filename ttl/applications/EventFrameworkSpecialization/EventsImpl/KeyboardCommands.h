@@ -1,7 +1,7 @@
 #ifndef KEYBOARD_COMMANDS_H
 #define KEYBOARD_COMMANDS_H
 
-#include <ttl/include/EventFramework/Interfaces/IEventFields.h>
+#include <ttl/EventFramework/Interfaces/IEventFields.h>
 
 struct KeyboardEventCMD : public IEventTriggerCommand<KeyboardEventCMD>
 {

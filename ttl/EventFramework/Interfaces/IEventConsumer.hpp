@@ -3,9 +3,9 @@
 
 #include <functional>
 #include <type_traits>
-#include <ttl/include/Utils/LogTracerAdapter.h>
+#include <ttl/Utils/LogTracerAdapter.h>
 #include "IEventConsumer.h"
-#include <ttl/include/Utils/CTimeUtils.h>
+#include <ttl/Utils/CTimeUtils.h>
 #include "IEventSpecificControllable.hpp"
 
 #define T_ARGS_DECL      class ControllableImp, class ...RegisteredEvents

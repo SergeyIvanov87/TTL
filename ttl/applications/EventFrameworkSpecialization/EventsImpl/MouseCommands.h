@@ -1,6 +1,6 @@
 #ifndef MOUSE_COMMANDS_H
 #define MOUSE_COMMANDS_H
-#include <ttl/include/EventFramework/Interfaces/IEventFields.h>
+#include <ttl/EventFramework/Interfaces/IEventFields.h>
 
 struct MouseEventCMD: public IEventTriggerCommand<MouseEventCMD>
 {

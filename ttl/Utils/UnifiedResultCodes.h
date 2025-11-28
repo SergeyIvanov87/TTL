@@ -3,7 +3,7 @@
 #include <string.h>
 #include <string>
 #include <exception>
-#include <ttl/include/Utils/StringUtils.h>
+#include <ttl/Utils/StringUtils.h>
 
 namespace urc
 {

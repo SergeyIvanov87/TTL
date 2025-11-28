@@ -2,7 +2,7 @@
 #define ICONTROLLABLE_HPP
 
 #include "IControllable.h"
-#include <ttl/include/Utils/CTimeUtils.h>
+#include <ttl/Utils/CTimeUtils.h>
 #include "IEventSpecificControllable.hpp"
 
 #define T_ARGS_DECL      class ControllableImp, class ...RegisteredEvents

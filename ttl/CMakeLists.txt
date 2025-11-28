@@ -3,14 +3,18 @@ cmake_minimum_required (VERSION 3.28)
 # Header-only library
 add_library(Ttl INTERFACE)
 
-message("CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}, INSTALL_INCLUDE_DIR: ${INSTALL_INCLUDE_DIR}" )
-
 target_include_directories(
   Ttl
   INTERFACE
-        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..;${CMAKE_CURRENT_SOURCE_DIR}/;${CMAKE_CURRENT_SOURCE_DIR}/include>"
-         "$<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR};include>"
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..;${CMAKE_CURRENT_SOURCE_DIR}/>"
+         "$<INSTALL_INTERFACE:include/ttl/EventFramework>"
          )
+
+add_subdirectory(EventFramework)
+#add_subdirectory(ResourcesFramework)
+#add_subdirectory(SerializeFramework)
+#add_subdirectory(Utils)
+
 
 target_compile_definitions(
   Ttl

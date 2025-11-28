@@ -1,7 +1,7 @@
 #ifdef TEST
 
 #include "LoadedResourcesHolderSpecific.h"
-#include <ttl/include//ResourcesFramework/LoadedResourcesHolder.hpp>
+#include <ttl//ResourcesFramework/LoadedResourcesHolder.hpp>
 
 using namespace std;
 

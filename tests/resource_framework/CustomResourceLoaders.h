@@ -2,9 +2,9 @@
 #define CUSTOM_RESOURCE_LOADERS_H
 extern const char system_info_dummy_path[];
 
-#include <ttl/include/ResourcesFramework/IBaseResource.h>
-#include <ttl/include/Utils/StringUtils.h>
-#include <ttl/include/SerializeFramework/Interfaces/ISerializable.h>
+#include <ttl/ResourcesFramework/IBaseResource.h>
+#include <ttl/Utils/StringUtils.h>
+#include <ttl/SerializeFramework/Interfaces/ISerializable.h>
 
 class ResourceA : public Resources::IBaseResource<ResourceA>, public ISerializableIntrusive<ResourceA>
 {
@@ -112,7 +112,7 @@ public:
 };
 
 //Resource Traits For Resources
-#include <ttl/include/ResourcesFramework/ResourceTraits.h>
+#include <ttl/ResourcesFramework/ResourceTraits.h>
 template<>
 struct ResourcesTraits<ResourceA>
 {

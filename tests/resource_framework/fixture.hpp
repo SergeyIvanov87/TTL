@@ -7,8 +7,8 @@
 #include <ranges>
 
 #include <gtest/gtest.h>
-#include <ttl/include/ResourcesFramework/ResourcesFramework.hpp>
-#include <ttl/include/Utils/LogTracer.h>
+#include <ttl/ResourcesFramework/ResourcesFramework.hpp>
+#include <ttl/Utils/LogTracer.h>
 #include "ResourceFrameworkSpecs.h"
 
 struct RFAssetsPathCreationFixture : public testing::Test {

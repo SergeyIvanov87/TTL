@@ -3,7 +3,7 @@
 #include <sstream>
 #include <utility>
 #include <functional>
-#include <ttl/include/Utils/StringUtils.h>
+#include <ttl/Utils/StringUtils.h>
 
 template<class Stream = std::stringstream>
 class Streamed

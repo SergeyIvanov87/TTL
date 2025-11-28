@@ -6,7 +6,7 @@
 #include <ttl/applications/EventFrameworkSpecialization/EventsImpl/MouseEvent.h>
 #include <ttl/applications/EventFrameworkSpecialization/EventsImpl/KeyboardEvent.h>
 
-#include <ttl/include/EventFramework/Interfaces/IControllable.hpp>
+#include <ttl/EventFramework/Interfaces/IControllable.hpp>
 
 #include "CustomEvent.h"
 

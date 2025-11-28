@@ -12,7 +12,7 @@
 #include "MouseCommands.h"
 #include "../EventIDsDeclaration.h"
 #include "EventIdModifierSpecific.h"
-#include <ttl/include/EventFramework/Interfaces/IBaseEvent.hpp>
+#include <ttl/EventFramework/Interfaces/IBaseEvent.hpp>
 
 
 struct MouseButton : public IEventField<MouseButton>

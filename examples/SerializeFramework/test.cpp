@@ -1,6 +1,6 @@
 //Compile it g++ -DTEST -I../../Framework/Base/ -I../.. test.cpp
 #include <sstream>
-#include <ttl/include/SerializeFramework/Interfaces/ISerializable.h>
+#include <ttl/SerializeFramework/Interfaces/ISerializable.h>
 
 struct B : public ISerializableIntrusive<B>
 {

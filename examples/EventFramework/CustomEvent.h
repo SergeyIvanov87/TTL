@@ -3,9 +3,9 @@
 
 #include "CustomCommands.h"
 
-#include <ttl/include/EventFramework/Interfaces/IBaseEvent.hpp>
-#include <ttl/include/Utils/Utils.h>
-#include <ttl/include/Utils/StringUtils.h>
+#include <ttl/EventFramework/Interfaces/IBaseEvent.hpp>
+#include <ttl/Utils/Utils.h>
+#include <ttl/Utils/StringUtils.h>
 
 //my Test Event
 struct TestEventID : IEventField<TestEventID>

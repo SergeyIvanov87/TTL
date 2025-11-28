@@ -4,17 +4,17 @@
 #include <chrono>
 
 //Broker
-#include <ttl/include/EventFramework/EventDirector.hpp>
-#include <ttl/include/EventFramework/EventBroker.hpp>
+#include <ttl/EventFramework/EventDirector.hpp>
+#include <ttl/EventFramework/EventBroker.hpp>
 
-#include <ttl/include/EventFramework/EventFramework.h>
+#include <ttl/EventFramework/EventFramework.h>
 
 //specific events
 #include <ttl/applications/EventFrameworkSpecialization/EventsImpl/MouseEvent.h>
 #include <ttl/applications/EventFrameworkSpecialization/EventsImpl/KeyboardEvent.h>
 
-#include <ttl/include/EventFramework/Interfaces/IControllable.hpp>
-//#include <ttl/include/EventFramework/Interfaces/IController.hpp>
+#include <ttl/EventFramework/Interfaces/IControllable.hpp>
+//#include <ttl/EventFramework/Interfaces/IController.hpp>
 
 #include "CustomEvent.h"
 

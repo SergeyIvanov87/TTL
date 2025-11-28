@@ -2,8 +2,8 @@
 #include <utility>
 #include <algorithm>
 #include "KeyboardEvent.h"
-#include <ttl/include/Utils/Utils.h>
-#include <ttl/include/EventFramework/Interfaces/IBaseEvent.hpp>
+#include <ttl/Utils/Utils.h>
+#include <ttl/EventFramework/Interfaces/IBaseEvent.hpp>
 
 
 
