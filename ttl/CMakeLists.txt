@@ -11,10 +11,9 @@ target_include_directories(
          )
 
 add_subdirectory(EventFramework)
-#add_subdirectory(ResourcesFramework)
-#add_subdirectory(SerializeFramework)
-#add_subdirectory(Utils)
-
+add_subdirectory(ResourcesFramework)
+add_subdirectory(SerializeFramework)
+add_subdirectory(Utils)
 
 target_compile_definitions(
   Ttl
@@ -26,4 +25,3 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES ".*Clan
 endif()
 
 add_subdirectory(applications)
-set (TTL_APPS_TARGET ${TTL_APPS_TARGET} PARENT_SCOPE)

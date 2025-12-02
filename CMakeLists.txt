@@ -8,13 +8,6 @@ get_filename_component(BRANCH_ROOT ${BRANCH_ROOT} ABSOLUTE)
 set (PROCESS_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 get_filename_component(PROCESS_DIR ${PROCESS_DIR} ABSOLUTE)
 
-# configure version
-set(TTL_MAJOR_VERSION 0)
-set(TTL_MINOR_VERSION 1)
-set(TTL_PATCH_VERSION 0)
-set(TTL_VERSION
-    ${TTL_MAJOR_VERSION}.${TTL_MINOR_VERSION}.${TTL_PATCH_VERSION})
-
 # set install_path's
 set(INSTALL_LIB_DIR lib/ttl CACHE PATH "Installation directory for libraries")
 set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
@@ -58,21 +51,21 @@ export(PACKAGE Ttl)
 file(RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}/Ttl"
    "${INSTALL_INCLUDE_DIR}")
 
-set(CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
-configure_file(TtlConfig.cmake.in
-  "${PROJECT_BINARY_DIR}/TtlConfig.cmake" @ONLY)
+#-S- set(CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
+#configure_file(TtlConfig.cmake.in
+#  "${PROJECT_BINARY_DIR}/TtlConfig.cmake" @ONLY)
 
-set(CONF_INCLUDE_DIRS "\${PROJECT_SOURCE_DIR}/${REL_INCLUDE_DIR}")
-configure_file(TtlConfig.cmake.in
-  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/TtlConfig.cmake" @ONLY)
+#-S- set(CONF_INCLUDE_DIRS "\${PROJECT_SOURCE_DIR}/${REL_INCLUDE_DIR}")
+#configure_file(TtlConfig.cmake.in
+#  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/TtlConfig.cmake" @ONLY)
 
-configure_file(TtlConfigVersion.cmake.in
-  "${PROJECT_BINARY_DIR}/TtlConfigVersion.cmake" @ONLY)
+#configure_file(TtlConfigVersion.cmake.in
+#  "${PROJECT_BINARY_DIR}/TtlConfigVersion.cmake" @ONLY)
 
-install(FILES
-  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/TtlConfig.cmake"
-  "${PROJECT_BINARY_DIR}/TtlConfigVersion.cmake"
-  DESTINATION "${INSTALL_CMAKE_DIR}/Ttl" COMPONENT dev COMPONENT examples)
+#-S- install(FILES
+#  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/TtlConfig.cmake"
+#  "${PROJECT_BINARY_DIR}/TtlConfigVersion.cmake"
+#  DESTINATION "${INSTALL_CMAKE_DIR}/Ttl" COMPONENT dev COMPONENT examples)
 
 install(TARGETS Ttl #TtlApps Ttl ${TTL_APPS_TARGET}
   EXPORT TtlTargets
@@ -80,6 +73,9 @@ install(TARGETS Ttl #TtlApps Ttl ${TTL_APPS_TARGET}
   LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
   FILE_SET testSources DESTINATION "${INSTALL_EXAMPLE_DIR}" COMPONENT examples
   FILE_SET ttlEventFrameworkHeaders DESTINATION "${INSTALL_INCLUDE_DIR}/EventFramework" COMPONENT sources
+  FILE_SET ttlResourceFrameworkHeaders DESTINATION "${INSTALL_INCLUDE_DIR}/ResourcesFramework" COMPONENT sources
+  FILE_SET ttlSerializeFrameworkHeaders DESTINATION "${INSTALL_INCLUDE_DIR}/SerializeFramework" COMPONENT sources
+  FILE_SET ttlUtilsHeaders DESTINATION "${INSTALL_INCLUDE_DIR}/Utils" COMPONENT sources
   PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}"
     COMPONENT dev)
 
@@ -87,6 +83,44 @@ install(TARGETS Ttl #TtlApps Ttl ${TTL_APPS_TARGET}
 #-S-        FILES_MATCHING PATTERN "*.h*")
 
 install(EXPORT TtlTargets
+    FILE TtlTargets.cmake
     NAMESPACE Ttl::
-    DESTINATION
-        "${INSTALL_CMAKE_DIR}/Ttl" COMPONENT dev COMPONENT examples)
+    DESTINATION "${INSTALL_CMAKE_DIR}/Ttl" COMPONENT dev COMPONENT examples
+)
+
+
+# Create a cmake file describing a package configuration data
+# which can be used to consume this library by an outside project by
+# using the `find_package(Ttl)` mechanism
+include(CMakePackageConfigHelpers)
+configure_package_config_file( ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/TtlConfig.cmake
+    INSTALL_DESTINATION ${INSTALL_CMAKE_DIR}/Ttl
+)
+
+# configure version
+set(TTL_MAJOR_VERSION 0)
+set(TTL_MINOR_VERSION 1)
+set(TTL_PATCH_VERSION 0)
+set(TTL_VERSION
+    ${TTL_MAJOR_VERSION}.${TTL_MINOR_VERSION}.${TTL_PATCH_VERSION})
+
+set_property(TARGET Ttl PROPERTY VERSION ${TTL_VERSION})
+set_property(TARGET Ttl PROPERTY SOVERSION ${TTL_MAJOR_VERSION})
+set_property(TARGET Ttl PROPERTY TtlTargets_MAJOR_VERSION ${TTL_MAJOR_VERSION})
+set_property(TARGET Ttl APPEND PROPERTY COMPATIBLE_INTERFACE_STRING TtlTargets_MAJOR_VERSION)
+
+# Create a package configuration file for checking of compatibility of versions
+# that package configuration file
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/TtlConfigVersion.cmake"
+  VERSION "${TTL_VERSION}"
+  COMPATIBILITY AnyNewerVersion
+)
+
+# Install  these package configurations files
+install(FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/TtlConfig.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/TtlConfigVersion.cmake"
+        DESTINATION ${INSTALL_CMAKE_DIR}/Ttl
+)
