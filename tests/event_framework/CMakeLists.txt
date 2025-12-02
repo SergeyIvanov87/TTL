@@ -1,8 +1,21 @@
 cmake_minimum_required (VERSION 3.28)
-
 enable_testing()
 
 set (TARGET_NAME ef_unit_tests)
+add_executable(
+  ${TARGET_NAME}
+  ef_unit_tests.cpp
+)
+
+include(GoogleTest)
+gtest_discover_tests(${TARGET_NAME})
+
+target_link_libraries(
+  ${TARGET_NAME}
+  INTERFACE --coverage
+  PRIVATE
+  GTest::gtest_main
+)
 
 if (TARGET Ttl)
     target_sources(Ttl PUBLIC FILE_SET  testSources
@@ -16,28 +29,26 @@ if (TARGET Ttl)
                                             CustomEventSubscriber.h
                                             fixture.h
                                             ef_unit_tests.cpp)
+    target_link_libraries(
+        ${TARGET_NAME}
+        PRIVATE
+            GTest::gtest_main
+            Ttl
+    )
+
 else()
     find_package(TtlAppsEventFramework REQUIRED)
+    target_link_libraries(
+        ${TARGET_NAME}
+        PRIVATE
+            GTest::gtest_main
+            Ttl::TtlAppsEventFramework
+    )
 endif()
 
-
-add_executable(
-  ${TARGET_NAME}
-  ef_unit_tests.cpp
-)
-target_link_libraries(
-  ${TARGET_NAME}
-  INTERFACE --coverage
-  PRIVATE
-  GTest::gtest_main
-  #Ttl::TtlAppsEventFramework
-)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")
     target_compile_options(${TARGET_NAME} INTERFACE --coverage -O0 -g)
 endif()
-
-include(GoogleTest)
-gtest_discover_tests(${TARGET_NAME})
 
 add_test(
     NAME ${TARGET_NAME}
