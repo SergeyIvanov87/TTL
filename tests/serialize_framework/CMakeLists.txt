@@ -2,29 +2,31 @@ cmake_minimum_required (VERSION 3.28)
 enable_testing()
 
 set (TARGET_NAME sf_unit_tests)
+add_executable(${TARGET_NAME})
 
+set (SOURCES sf_unit_tests.cpp)
+target_sources(${TARGET_NAME}
+    PRIVATE
+        ${SOURCES}
+)
+
+set (LIBS GTest::gtest_main)
 if (TARGET Ttl)
     target_sources(Ttl PUBLIC FILE_SET  testSources
                                         TYPE HEADERS
                                         BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/..
                                         FILES
                                             CMakeLists.txt
-                                            sf_unit_tests.cpp)
+                                            ${SOURCES})
+    #-S- list (APPEND LIBS Ttl)
 else()
-    find_package(Ttl REQUIRED)
+    find_package(TtlAppsSerializeFramework REQUIRED)
+    list (APPEND LIBS Ttl::TtlAppsSerializeFramework)
 endif()
 
-
-
-
-add_executable(
-  ${TARGET_NAME}
-  sf_unit_tests.cpp
-)
 target_link_libraries(
   ${TARGET_NAME}
-  GTest::gtest_main
-  Ttl
+  ${LIBS}
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")

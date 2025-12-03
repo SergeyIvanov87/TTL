@@ -2,7 +2,9 @@ cmake_minimum_required (VERSION 3.28)
 
 # Header-only library
 add_library(Ttl INTERFACE)
+add_library(Ttl::Ttl ALIAS Ttl)
 
+#-S- deprecated, use file sets
 target_include_directories(
   Ttl
   INTERFACE

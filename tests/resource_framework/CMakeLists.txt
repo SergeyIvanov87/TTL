@@ -32,12 +32,12 @@ if (TARGET Ttl)
             Ttl
     )
 else()
-    find_package(Ttl REQUIRED)
+    find_package(TtlAppsSerializeFramework REQUIRED)
     target_link_libraries(
         ${TARGET_NAME}
         PRIVATE
             GTest::gtest_main
-            Ttl::Ttl
+            Ttl::TtlAppsSerializeFramework
     )
 endif()
 

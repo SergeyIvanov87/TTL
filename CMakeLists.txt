@@ -34,9 +34,9 @@ foreach(var LIB BIN INCLUDE CMAKE)
 endforeach()
 
 
-include_directories(
-  "${PROJECT_SOURCE_DIR}"
-  "${PROJECT_BINARY_DIR}")
+#-S- include_directories(
+#  "${PROJECT_SOURCE_DIR}"
+#  "${PROJECT_BINARY_DIR}")
 
 
 add_subdirectory(ttl)
