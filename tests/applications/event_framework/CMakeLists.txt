@@ -60,7 +60,7 @@ endif()
 gtest_discover_tests(${TARGET_NAME})
 add_test(
     NAME ${TARGET_NAME}
-    COMMAND sh ${CMAKE_CURRENT_BINARY_DIR}/../suite_coverage.sh ${TARGET_NAME} ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND sh ${CMAKE_CURRENT_BINARY_DIR}/../../suite_coverage.sh ${TARGET_NAME} ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 list (APPEND REGULAR_TESTS ${TARGET_NAME})
