@@ -1,0 +1,3 @@
+add_subdirectory(EventFrameworkSpecialization)
+#add_subdirectory(ResourcesFrameworkSpecialization)
+add_subdirectory(SerializeFrameworkSpecialization)
