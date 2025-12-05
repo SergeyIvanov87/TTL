@@ -20,7 +20,6 @@ target_link_libraries(
 if (TARGET Ttl)
     target_sources(Ttl PUBLIC FILE_SET  testSources
                                         TYPE HEADERS
-                                        BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/..
                                         FILES
                                             CMakeLists.txt
                                             CustomCommands.h
@@ -28,12 +27,24 @@ if (TARGET Ttl)
                                             CustomEvent.h
                                             CustomEventSubscriber.h
                                             fixture.h
-                                            ef_unit_tests.cpp)
+                                            ef_unit_tests.cpp
+    )
+    find_package(FreeGLUT)
+    find_package(GLEW)
+    find_library(LIB_XXF86VM Xxf86vm)
+    find_library(LIB_XI Xi)
+    if (FreeGLUT_NOT_FOUND OR GLEW_NOT_FOUND OR LIB_XXF86VM_NOT_FOUND OR LIB_XI_NOT_FOUND)
+        message(WARNING "Neither GLEW nor FreeGlut haven't been found. Skip building of EventFramework unit tests")
+    endif()
     target_link_libraries(
         ${TARGET_NAME}
         PRIVATE
             GTest::gtest_main
             Ttl
+            GLEW::glew
+            FreeGLUT::freeglut
+            ${LIB_XXF86VM}
+            ${LIB_XI}
     )
 
 else()

@@ -39,10 +39,8 @@ FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/suite_coverage.sh
 FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/coverage_aggregator.sh
 "lcov -a \"*/*_coverage.info\" -o all_coverage.info && lcov -q --extract all_coverage.info \"${CMAKE_SOURCE_DIR}/*\" --output-file=aggregated_coverage.info && rm all_coverage.info  && genhtml --ignore-errors range aggregated_coverage.info --demangle-cpp --output-directory=coverage_html")
 
-# enumerate all regular unit tests
-add_subdirectory(event_framework)
-add_subdirectory(resource_framework)
-add_subdirectory(serialize_framework)
+# enumerate all unit tests
+add_subdirectory(applications)
 
 # Introduces an empty test which the only task is to aggregate coverage reports
 # of all regular unit tests in a single place by merging measured coverages provided by

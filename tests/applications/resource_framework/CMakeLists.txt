@@ -1,39 +1,49 @@
 cmake_minimum_required (VERSION 3.28)
 enable_testing()
 
-set (TARGET_NAME sf_unit_tests)
-add_executable(${TARGET_NAME})
+set (TARGET_NAME rf_unit_tests)
 
-set (SOURCES sf_unit_tests.cpp)
-target_sources(${TARGET_NAME}
-    PRIVATE
-        ${SOURCES}
+include(GoogleTest)
+
+add_executable(
+  ${TARGET_NAME}
+  rf_unit_tests.cpp
+)
+target_compile_options(
+  ${TARGET_NAME}
+  PRIVATE
+  -fconcepts-diagnostics-depth=10
 )
 
-set (LIBS GTest::gtest_main)
 if (TARGET Ttl)
     target_sources(Ttl PUBLIC FILE_SET  testSources
                                         TYPE HEADERS
-                                        BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/..
                                         FILES
                                             CMakeLists.txt
-                                            ${SOURCES})
-    #-S- list (APPEND LIBS Ttl)
+                                            CustomResourceLoaders.h
+                                            fixture.hpp
+                                            ResourceFrameworkSpecs.h
+                                            rf_unit_tests.cpp)
+    target_link_libraries(
+        ${TARGET_NAME}
+        PRIVATE
+            GTest::gtest_main
+            Ttl
+    )
 else()
     find_package(TtlAppsSerializeFramework REQUIRED)
-    list (APPEND LIBS Ttl::TtlAppsSerializeFramework)
+    target_link_libraries(
+        ${TARGET_NAME}
+        PRIVATE
+            GTest::gtest_main
+            Ttl::TtlAppsSerializeFramework
+    )
 endif()
-
-target_link_libraries(
-  ${TARGET_NAME}
-  ${LIBS}
-)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")
     target_compile_options(${TARGET_NAME} INTERFACE --coverage -O0 -g)
 endif()
 
-include(GoogleTest)
 gtest_discover_tests(${TARGET_NAME})
 
 add_test(

@@ -19,6 +19,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Install requirements
+      run: apt-get install libglew-dev libglut-dev libxxf86vm-dev libxi-dev
+
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/__install
 
@@ -38,5 +41,3 @@ jobs:
         cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
         cmake --build build --config ${{env.BUILD_TYPE}}
         ctest --test-dir build
-
-
