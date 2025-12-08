@@ -21,8 +21,16 @@ if (TARGET Ttl)
     find_package(GLEW)
     find_library(LIB_XXF86VM Xxf86vm)
     find_library(LIB_XI Xi)
-    if (NOT(FreeGLUT_FOUND AND GLEW_FOUND) OR NOT ${LIB_XXF86VM} OR NOT ${LIB_XI})
-        message(WARNING "Neither GLEW nor FreeGlut haven't been found. Skip building of EventFramework unit tests")
+    if (NOT LIB_XXF86VM )
+        message( "FreeGLUT_FOUND AND GLEW_FOUND ${LIB_XXF86VM}")
+    endif()
+    if (NOT(FreeGLUT_FOUND AND GLEW_FOUND) OR NOT LIB_XXF86VM OR NOT LIB_XI)
+        message(WARNING "One of the required packages has't been found, please install the packages:\n  \
+                         FreeGLUT:          ${FreeGLUT_FOUND}\n   \
+                         GLEW:              ${GLEW_FOUND}\n  \
+                         libxxf86vn-dev:    ${LIB_XXF86VM}\n  \
+                         libxi-dev:         ${LIB_XI}\n    \
+                         Skip building of ${TARGET_NAME}")
         return()
     endif()
     list(APPEND LIBS
@@ -55,6 +63,7 @@ target_link_libraries(
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")
     target_compile_options(${TARGET_NAME} INTERFACE --coverage -O0 -g)
+    target_link_libraries(${TARGET_NAME} INTERFACE --coverage)
 endif()
 
 gtest_discover_tests(${TARGET_NAME})

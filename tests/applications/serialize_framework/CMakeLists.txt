@@ -17,7 +17,7 @@ if (TARGET Ttl)
                                         FILES
                                             CMakeLists.txt
                                             ${SOURCES})
-    #-S- list (APPEND LIBS Ttl)
+    list (APPEND LIBS Ttl)
 else()
     find_package(TtlAppsSerializeFramework REQUIRED)
     list (APPEND LIBS Ttl::TtlAppsSerializeFramework)
