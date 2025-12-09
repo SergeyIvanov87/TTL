@@ -54,11 +54,12 @@ FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/coverage_aggregator.sh
 "BASE_DIR=$1\n \
 if which lcov;\n \
 then\n  \
-    #lcov -a '/*/*_coverage.info' -o all_coverage.info\n \
+    FILES_TO_MERGE=\n   \
     for f in `find  $BASE_DIR -name \"*_coverage.info\"`;\n    \
-        do lcov -a $f -o all_coverage.info\n    \
-        ls -la all_coverage.info\n  \
+    do\n    \
+        FILES_TO_MERGE=\"-a $f $\{FILE_TO_MERGE\}\"\n \
     done\n  \
+    lcov $\{FILES_TO_MERGE\} -o all_coverage.info\n    \
     lcov -q --extract all_coverage.info \"${CMAKE_SOURCE_DIR}/*\" --output-file=aggregated_coverage.info\n \
     rm all_coverage.info\n  \
     genhtml --ignore-errors mismatch aggregated_coverage.info --demangle-cpp --output-directory=coverage_html\n  \
