@@ -50,10 +50,10 @@ FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/coverage_aggregator.sh
 "\n \
 if which lcov;\n \
 then\n  \
-    lcov -a \"*/*_coverage.info\" -o all_coverage.info\n \
+    lcov -a \"${1}/*/*_coverage.info\" -o all_coverage.info\n \
     lcov -q --extract all_coverage.info \"${CMAKE_SOURCE_DIR}/*\" --output-file=aggregated_coverage.info\n \
     rm all_coverage.info\n  \
-    genhtml --ignore-errors range,mismatch aggregated_coverage.info --demangle-cpp --output-directory=coverage_html\n  \
+    genhtml --ignore-errors mismatch aggregated_coverage.info --demangle-cpp --output-directory=coverage_html\n  \
 fi\n  \
 ")
 
@@ -64,7 +64,7 @@ add_subdirectory(applications)
 # of all regular unit tests in a single place by merging measured coverages provided by
 # every test suite run
 add_test(NAME coverageAggregator
-         COMMAND sh ${CMAKE_CURRENT_BINARY_DIR}/coverage_aggregator.sh
+         COMMAND sh ${CMAKE_CURRENT_BINARY_DIR}/coverage_aggregator.sh ${CMAKE_CURRENT_BINARY_DIR}
 )
 # the empty test must be run only when all regular unit tests have passed
 set_tests_properties(coverageAggregator PROPERTIES DEPENDS "${REGULAR_TESTS}")

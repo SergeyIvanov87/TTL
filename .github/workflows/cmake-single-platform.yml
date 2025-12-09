@@ -40,4 +40,4 @@ jobs:
       run: |
         cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
         cmake --build build --config ${{env.BUILD_TYPE}}
-        ctest --test-dir build
+        ctest --test-dir build --output-on-failure
