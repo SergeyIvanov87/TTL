@@ -66,6 +66,7 @@ fi\n  \
 ")
 
 # enumerate all unit tests
+add_subdirectory(event_framework)
 add_subdirectory(applications)
 
 # Introduces an empty test which the only task is to aggregate coverage reports
