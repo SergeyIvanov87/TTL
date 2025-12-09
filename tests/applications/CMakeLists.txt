@@ -16,8 +16,16 @@ endif()
 
 
 # enumerate all regular unit tests
-add_subdirectory(event_framework)
-add_subdirectory(resource_framework)
-add_subdirectory(serialize_framework)
+if (NOT SKIP_EVENT_FRAMEWORK_APP_TESTS)
+    add_subdirectory(event_framework)
+endif()
+
+if (NOT SKIP_RESOURCE_FRAMEWORK_APP_TESTS)
+    add_subdirectory(resource_framework)
+endif()
+
+if (NOT SKIP_SERIALIZE_FRAMEWORK_APP_TESTS)
+    add_subdirectory(serialize_framework)
+endif()
 
 set (REGULAR_TESTS ${REGULAR_TESTS} PARENT_SCOPE)

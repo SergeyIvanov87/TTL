@@ -30,14 +30,14 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build/tests
-      run: ctest -C ${{env.BUILD_TYPE}}
+      run: ctest --output-on-failure
 
     - name: Install
       run: cmake --build ${{github.workspace}}/build --target install
 
-    - name: Install & Test
+    - name: Install & Test Apps (without additional requirements)
       working-directory: ${{github.workspace}}/__install/examples
       run: |
-        cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_PREFIX_PATH=/${{github.workspace}}/__install
+        cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_PREFIX_PATH=/${{github.workspace}}/__install -DSKIP_EVENT_FRAMEWORK_TESTS=ON
         cmake --build build --config ${{env.BUILD_TYPE}}
         ctest --test-dir build --output-on-failure

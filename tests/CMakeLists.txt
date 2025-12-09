@@ -31,6 +31,10 @@ option(INSTALL_GTEST "Enable installation of googletest." OFF)
 FetchContent_MakeAvailable(googletest)
 
 # specify a list of regular unit tests to execute
+option(SKIP_EVENT_FRAMEWORK_APP_TESTS "Exclude the EventFramework unit test target from a configuration step" OFF)
+option(SKIP_RESOURCE_FRAMEWORK_APP_TESTS "Exclude the ResourceFramework unit test target from a configuration step" OFF)
+option(SKIP_SERIALIZE_FRAMEWORK_APP_TESTS "Exclude the SerializeFramework unit test target from a configuration step" OFF)
+
 set (REGULAR_TESTS "")
 # generate the script, which will generate a coverage report gathered from running of a single regular test suite
 FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/suite_coverage.sh
@@ -47,10 +51,14 @@ fi \
 # generate the script, which will aggregate coverage reports collected by every single regular unit test,
 # so that the aggregated report will reflect the complete test coverage of the project
 FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/coverage_aggregator.sh
-"\n \
+"BASE_DIR=$1\n \
 if which lcov;\n \
 then\n  \
-    lcov -a \"${1}/*/*_coverage.info\" -o all_coverage.info\n \
+    #lcov -a '/*/*_coverage.info' -o all_coverage.info\n \
+    for f in `find  $BASE_DIR -name \"*_coverage.info\"`;\n    \
+        do lcov -a $f -o all_coverage.info\n    \
+        ls -la all_coverage.info\n  \
+    done\n  \
     lcov -q --extract all_coverage.info \"${CMAKE_SOURCE_DIR}/*\" --output-file=aggregated_coverage.info\n \
     rm all_coverage.info\n  \
     genhtml --ignore-errors mismatch aggregated_coverage.info --demangle-cpp --output-directory=coverage_html\n  \
