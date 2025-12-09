@@ -12,6 +12,7 @@ target_sources(Ttl
                             TYPE HEADERS
                             BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
                     FILES
+                            Interfaces/EventIDsDeclaration.h
                             Interfaces/IBaseEvent.h
                             Interfaces/IBaseEvent.hpp
                             Interfaces/IControllable.h
