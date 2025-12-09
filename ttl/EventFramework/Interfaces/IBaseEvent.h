@@ -5,6 +5,7 @@
 #include <list>
 #include <utility>
 
+#include <ttl/EventFramework/Interfaces/EventIDsDeclaration.h>
 
 template <class Implementation, class _EventId, class _EventIDMod, class _EventIdState, class _ControlEventCMD>
 class IBaseEvent

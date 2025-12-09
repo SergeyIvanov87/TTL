@@ -9,9 +9,9 @@
 
 #include <GL/gl.h>
 #include <memory>
-#include "MouseCommands.h"
-#include "../EventIDsDeclaration.h"
-#include "EventIdModifierSpecific.h"
+#include <ttl/applications/EventFrameworkSpecialization/EventsImpl/MouseCommands.h>
+#include <ttl/applications/EventFrameworkSpecialization/EventIDsDeclaration.h>
+#include <ttl/applications/EventFrameworkSpecialization/EventsImpl/EventIdModifierSpecific.h>
 #include <ttl/EventFramework/Interfaces/IBaseEvent.hpp>
 
 
@@ -167,7 +167,7 @@ public:
     //Interface Impl
     static constexpr ControlEventID getControlEventID()
     {
-        return ControlEventID::MOUSE_EVENT;
+        return EventFrameworkAppControlEventID::MOUSE_EVENT;
     }
 
     static constexpr const char * getEventTypeDescriptionImpl()

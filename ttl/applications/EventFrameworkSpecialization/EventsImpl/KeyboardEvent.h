@@ -9,9 +9,9 @@
 
 #include <GL/gl.h>
 #include <memory>
-#include "KeyboardCommands.h"
-#include "../EventIDsDeclaration.h"
-#include "EventIdModifierSpecific.h"
+#include <ttl/applications/EventFrameworkSpecialization/EventsImpl/KeyboardCommands.h>
+#include <ttl/applications/EventFrameworkSpecialization/EventIDsDeclaration.h>
+#include <ttl/applications/EventFrameworkSpecialization/EventsImpl/EventIdModifierSpecific.h>
 #include <ttl/EventFramework/Interfaces/IBaseEvent.hpp>
 
 struct KeyState : public IEventField<KeyState>
@@ -430,7 +430,7 @@ public:
 
     static constexpr ControlEventID getControlEventID()
     {
-        return ControlEventID::KEYBOARD_EVENT;
+        return EventFrameworkAppControlEventID::KEYBOARD_EVENT;
     }
 
     static constexpr const char *getEventTypeDescriptionImpl()

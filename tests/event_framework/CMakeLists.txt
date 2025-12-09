@@ -14,6 +14,7 @@ if (TARGET Ttl)
                                             CustomConfigurator.h
                                             CustomEvent.h
                                             CustomEventSubscriber.h
+                                            CustomSecondEvent.h
                                             fixture.h
                                             ef_unit_tests.cpp
     )

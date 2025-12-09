@@ -190,7 +190,7 @@ struct TestSecondEvent : public IBaseEvent<TestSecondEvent, TestSecondEventID, T
     /* -S- TODO It requires an interface different than IBaseEvent*/
     static constexpr ControlEventID getControlEventID()
     {
-        return ControlEventID::TEST_EVENT;
+        return 3002;
     }
 
 

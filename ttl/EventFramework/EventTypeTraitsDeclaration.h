@@ -2,8 +2,8 @@
 #define INPUT_EVENT_TRAITS_LIST_DECLARATION_H
 #include <memory>
 #include <map>
-// -S- TODO remove this! as it belongs to the applications package
-#include <ttl/applications/EventFrameworkSpecialization/EventIDsDeclaration.h>
+
+#include <ttl/EventFramework/Interfaces/EventIDsDeclaration.h>
 
 
 //Traits: convert ControlEventType ID to class

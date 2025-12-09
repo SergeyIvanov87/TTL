@@ -31,7 +31,7 @@ TEST_F(EFEventSubscriberFixture, receiveSimpleEvent) {
                                 TestSecondEvenState::TEIS_1);
 
     prevConsumedEventCounter = subscriber.getEventCounter<TestSecondEvent>();
-    subscriber.onProcessEventDispatcher(*event.get());
+    subscriber.onProcessEventDispatcher(*secondEvent.get());
     EXPECT_EQ(subscriber.getEventCounter<TestSecondEvent>(), prevConsumedEventCounter + 1);
 }
 /*

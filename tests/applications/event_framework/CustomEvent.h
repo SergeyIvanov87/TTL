@@ -190,7 +190,7 @@ struct TestEvent : public IBaseEvent<TestEvent, TestEventID, TestEventModifier, 
     //Interface methods
     static constexpr ControlEventID getControlEventID()
     {
-        return ControlEventID::TEST_EVENT;
+        return EventFrameworkAppControlEventID::USER_EVENT_BEGIN + 1;
     }
 
 
