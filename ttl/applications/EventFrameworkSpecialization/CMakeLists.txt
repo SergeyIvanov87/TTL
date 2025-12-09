@@ -23,7 +23,6 @@ target_sources(TtlAppsEventFramework
                             EventIDsDeclaration.h
                             EventsImpl/EventIdModifierSpecific.h
                             EventsImpl/KeyboardCommands.h
-                            EventsImpl/KeyboardEvent.cpp
                             EventsImpl/KeyboardEvent.h
                             EventsImpl/MouseCommands.h
                             EventsImpl/MouseEvent.h

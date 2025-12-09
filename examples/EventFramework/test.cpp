@@ -20,8 +20,6 @@
 
 
 
-//g++ -std=c++17 test.cpp ../../FrameworkSpecializations/EventFrameworkSpecialization/EventsImpl/KeyboardEvent.cpp -I/home/user/microcontroller/git_hub/TTL/ -lpthread
-
 //Just Stub configurator...
 struct Configurator :
     public IEventConfigurator<Configurator>

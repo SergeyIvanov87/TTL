@@ -34,13 +34,8 @@ foreach(var LIB BIN INCLUDE CMAKE)
 endforeach()
 
 
-#-S- include_directories(
-#  "${PROJECT_SOURCE_DIR}"
-#  "${PROJECT_BINARY_DIR}")
-
-
 add_subdirectory(ttl)
-#-S- don't need binary from examples to install
+# don't need binary from examples to install yet
 #add_subdirectory(examples)
 add_subdirectory(tests)
 
@@ -50,22 +45,6 @@ export(PACKAGE Ttl)
 
 file(RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}/Ttl"
    "${INSTALL_INCLUDE_DIR}")
-
-#-S- set(CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
-#configure_file(TtlConfig.cmake.in
-#  "${PROJECT_BINARY_DIR}/TtlConfig.cmake" @ONLY)
-
-#-S- set(CONF_INCLUDE_DIRS "\${PROJECT_SOURCE_DIR}/${REL_INCLUDE_DIR}")
-#configure_file(TtlConfig.cmake.in
-#  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/TtlConfig.cmake" @ONLY)
-
-#configure_file(TtlConfigVersion.cmake.in
-#  "${PROJECT_BINARY_DIR}/TtlConfigVersion.cmake" @ONLY)
-
-#-S- install(FILES
-#  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/TtlConfig.cmake"
-#  "${PROJECT_BINARY_DIR}/TtlConfigVersion.cmake"
-#  DESTINATION "${INSTALL_CMAKE_DIR}/Ttl" COMPONENT dev COMPONENT examples)
 
 install(TARGETS Ttl #TtlApps Ttl ${TTL_APPS_TARGET}
   EXPORT TtlTargets
@@ -78,9 +57,6 @@ install(TARGETS Ttl #TtlApps Ttl ${TTL_APPS_TARGET}
   FILE_SET ttlUtilsHeaders DESTINATION "${INSTALL_INCLUDE_DIR}/Utils" COMPONENT sources
   PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}"
     COMPONENT dev)
-
-#-S-install(DIRECTORY ${PROJECT_SOURCE_DIR}/ttl ${PROJECT_SOURCE_DIR}/ttl/applications DESTINATION "${INSTALL_INCLUDE_DIR}"
-#-S-        FILES_MATCHING PATTERN "*.h*")
 
 install(EXPORT TtlTargets
     FILE TtlTargets.cmake
